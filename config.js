@@ -5,5 +5,7 @@ window.CONFIG = {
   // ID de cliente de AdSense (ca-pub-XXXXXXXXXXXXXXXX). Vacío = sin anuncios reales.
   adsenseClient: "",
   // Mostrar los recuadros "Espacio para anuncio (demo)" mientras no haya AdSense.
-  showAdDemo: true
+  showAdDemo: false,
+  // Espacio propio de patrocinio (autoescuelas, curso de 5 horas). Vacío = no aparece. Se ignora si hay AdSense.
+  sponsorEmail: "cristian2122168@gmail.com"
 };

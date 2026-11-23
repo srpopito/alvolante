@@ -128,12 +128,23 @@ window.addEventListener("hashchange",ir);
 
 // ---------- Anuncios: solo fuera de las preguntas ----------
 var adsLoaded=false;
+// Espacio de patrocinio propio: un único anuncio responsable (autoescuelas, cursos de 5 horas), nunca dentro de una pregunta.
+var SPONSOR={
+ en:{k:"Sponsor spot",t:"Run a driving school or a 5-hour course?",b:"Reach new drivers in 6 languages. One respectful spot: no pop-ups, never inside a question.",c:"Become a sponsor"},
+ es:{k:"Patrocinio",t:"¿Tienes una autoescuela o das el curso de 5 horas?",b:"Llega a conductores nuevos en 6 idiomas. Un solo espacio respetuoso: sin ventanas emergentes y nunca dentro de una pregunta.",c:"Quiero patrocinar"},
+ zh:{k:"赞助位",t:"您经营驾校或5小时课程吗？",b:"用6种语言接触新司机。只有一个得体的位置：没有弹窗，绝不出现在题目里。",c:"成为赞助商"},
+ ru:{k:"Спонсор",t:"У вас автошкола или 5-часовой курс?",b:"Новые водители на 6 языках. Одно аккуратное место: без всплывающих окон и никогда внутри вопроса.",c:"Стать спонсором"},
+ ko:{k:"후원 자리",t:"운전학원이나 5시간 교육을 운영하세요?",b:"6개 언어로 새 운전자를 만나세요. 단 하나의 깔끔한 자리: 팝업 없음, 문제 안에는 절대 없음.",c:"후원하기"},
+ bn:{k:"স্পনসর",t:"ড্রাইভিং স্কুল বা ৫ ঘণ্টার কোর্স চালান?",b:"৬টি ভাষায় নতুন চালকদের কাছে পৌঁছান। একটিই ভদ্র জায়গা: কোনো পপ-আপ নেই, প্রশ্নের ভেতরে কখনো নয়।",c:"স্পনসর হোন"}};
 function pintarAds(){
   document.querySelectorAll("[data-ad]").forEach(function(el){
     if(CFG.adsenseClient){
       if(!el.dataset.filled){el.dataset.filled=1; el.innerHTML='<ins class="adsbygoogle" style="display:block" data-ad-client="'+CFG.adsenseClient+'" data-ad-format="auto" data-full-width-responsive="true"></ins>';
         if(!adsLoaded){adsLoaded=true; var s=document.createElement("script"); s.async=true; s.crossOrigin="anonymous"; s.src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client="+CFG.adsenseClient; document.head.appendChild(s);}
         try{(window.adsbygoogle=window.adsbygoogle||[]).push({});}catch(e){} }
+    } else if(CFG.sponsorEmail){
+      var s=SPONSOR[LANG]||SPONSOR.en;
+      el.className="ad sponsor"; el.innerHTML='<div class="sp-k">'+esc(s.k)+'</div><div class="sp-t">'+esc(s.t)+'</div><div class="sp-b">'+esc(s.b)+'</div><a class="sp-c" href="mailto:'+esc(CFG.sponsorEmail)+'?subject='+encodeURIComponent("DriveReady sponsor")+'">'+esc(s.c)+'</a>';
     } else el.textContent=CFG.showAdDemo?t("ad"):"";
   });
 }
