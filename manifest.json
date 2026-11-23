@@ -1,7 +1,7 @@
 {
-  "name": "Al Volante NY: examen de manejo",
-  "short_name": "Al Volante NY",
-  "description": "Examen escrito y road test de Nueva York en inglés, español, chino, ruso, coreano y bengalí.",
+  "name": "DriveReady NY: DMV Permit Test",
+  "short_name": "DriveReady NY",
+  "description": "NY permit & road test practice in 6 languages: English, Español, 中文, Русский, 한국어, বাংলা.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
@@ -9,10 +9,27 @@
   "background_color": "#f4f6f3",
   "theme_color": "#0b6e4f",
   "lang": "es",
-  "categories": ["education", "travel"],
+  "categories": [
+    "education",
+    "travel"
+  ],
   "icons": [
-    {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png"},
-    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png"},
-    {"src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
-  ]
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "id": "/alvolante/"
 }

@@ -60,7 +60,7 @@ function speak(txt){
 function toolsHtml(id){
   var h='<div class="tools">';
   if(hasVoice()) h+='<button type="button" class="linkbtn" data-say>🔊 '+esc(t("listen"))+'</button>';
-  if(CFG.reportEmail) h+='<a class="linkbtn" href="mailto:'+CFG.reportEmail+'?subject='+encodeURIComponent("Al Volante NY "+LANG+" "+id)+'">⚑ '+({es:"Reportar un error",en:"Report a mistake",zh:"报告错误",ru:"Сообщить об ошибке",ko:"오류 신고",bn:"ভুল জানান"}[LANG]||"⚑")+'</a>';
+  if(CFG.reportEmail) h+='<a class="linkbtn" href="mailto:'+CFG.reportEmail+'?subject='+encodeURIComponent("DriveReady NY "+LANG+" "+id)+'">⚑ '+({es:"Reportar un error",en:"Report a mistake",zh:"报告错误",ru:"Сообщить об ошибке",ko:"오류 신고",bn:"ভুল জানান"}[LANG]||"⚑")+'</a>';
   return h+'</div>';
 }
 function bindSay(root,p){var b=root.querySelector("[data-say]"); if(b) b.onclick=function(){speak(textoPregunta(p)+". "+opciones(p).map(function(o,i){return (i+1)+". "+o.txt;}).join(". "));};}
@@ -354,7 +354,7 @@ function pintarCultura(){
 
 // ---------- Todo ----------
 function renderAll(){
-  document.title="Al Volante NY · "+P.name;
+  document.title="DriveReady NY · "+P.name;
   document.querySelectorAll("[data-t]").forEach(function(el){var v=P.ui[el.dataset.t]; if(typeof v==="string") el.textContent=v;});
   $("langBtn").textContent="🌐 "+P.name; $("langBtn").setAttribute("aria-label",t("langLabel"));
   pintarTabs(); pintarInicio(); pintarChips(); pintarManual(); pintarDominadas(); pintarRoadtest(); pintarManChips(); pintarMan(); pintarCultura(); pintarAds();
