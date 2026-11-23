@@ -7,5 +7,8 @@ window.CONFIG = {
   // Mostrar los recuadros "Espacio para anuncio (demo)" mientras no haya AdSense.
   showAdDemo: false,
   // Espacio propio de patrocinio (autoescuelas, curso de 5 horas). Vacío = no aparece. Se ignora si hay AdSense.
+  // Autoescuelas patrocinadas: salen primero (si están a <25 millas) y siempre con la etiqueta "Patrocinado".
+  // Ejemplo: {id:"11622", note:{en:"Road test packages, Chinese-speaking instructors", es:"..."}, url:"https://..."}
+  sponsors: [],
   sponsorEmail: "cristian2122168@gmail.com"
 };

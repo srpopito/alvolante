@@ -50,6 +50,13 @@ main{padding:18px 0 40px}section.view{display:none}section.view.on{display:block
 .pill.warn{background:color-mix(in srgb,var(--warn) 25%,transparent);border-color:var(--warn)}
 /* Anuncios: solo fuera de las preguntas, nunca encima de respuestas */
 .ad{border:1px dashed var(--line);border-radius:10px;padding:14px;text-align:center;color:var(--muted);font-size:13px;margin:18px 0;min-height:60px}
+.sc-q{flex:1;min-width:200px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font:inherit}
+.school{position:relative;border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:10px;background:var(--surface)}
+.school.sponsored{border:2px solid var(--warn)}
+.sp-badge{position:absolute;top:10px;right:10px;font-size:11px;font-weight:700;background:var(--warn);color:#17201b;border-radius:6px;padding:2px 6px}
+.sc-name{font-weight:700;padding-right:80px}
+.sc-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.sc-tags span{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:1px 8px}
+.sc-act{display:flex;flex-wrap:wrap;gap:14px;margin-top:8px;font-size:14px}.sc-act a{color:var(--accent);font-weight:600;text-decoration:none}
 .ad:empty{display:none}
 .ad.sponsor{border-style:solid;text-align:left;color:var(--ink);background:var(--surface)}
 .sp-k{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
@@ -175,6 +182,18 @@ footer{border-top:1px solid var(--line);padding:16px 0 30px;color:var(--muted);f
       <div class="card"><h3 data-t="rtSimTitle"></h3><p class="small" data-t="rtSimLead"></p><div id="rtSummary" class="small"></div><div class="row" style="margin-top:10px"><button class="btn ghost" id="rtReset" type="button" data-t="reset"></button></div></div>
     </div>
     <div class="card" id="rtList" style="margin-top:14px"></div>
+  </section>
+  <section class="view" id="escuelas">
+    <div class="card">
+      <h2 id="scTitle"></h2><p class="small muted" id="scLead"></p>
+      <div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn" id="scNear" type="button"></button><input id="scQ" type="search" class="sc-q" autocomplete="off"></div>
+      <div class="small muted" id="scMsg" role="status"></div>
+      <div class="small muted" id="scCount" style="margin-top:8px"></div>
+      <div id="scList"></div>
+      <button class="btn ghost" id="scMore" type="button" hidden></button>
+      <p class="small"><a id="scOwn"></a></p>
+      <p class="small muted" id="scNote"></p>
+    </div>
   </section>
   <section class="view" id="maniobras">
     <div class="card">

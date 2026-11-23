@@ -112,8 +112,8 @@ function marcar(id,bien){if(bien) delete MISS[id]; else MISS[id]=1; store.set("m
 function frase(tipo){var a=P.guide[tipo];return a[Math.floor(Math.random()*a.length)];}
 
 // ---------- Navegación ----------
-var VISTAS=["inicio","examen","practica","manual","juego","roadtest","maniobras","cultura","acerca"];
-function pintarTabs(){$("tabs").innerHTML=VISTAS.map(function(v){return '<a href="#'+v+'" data-v="'+v+'">'+esc(t("tabs")[v])+'</a>';}).join("");}
+var VISTAS=["inicio","examen","practica","manual","juego","roadtest","escuelas","maniobras","cultura","acerca"];
+function pintarTabs(){var tb=t("tabs"); if(tb&&!tb.escuelas) tb.escuelas=(SCT[LANG]||SCT.en).tab;$("tabs").innerHTML=VISTAS.map(function(v){return '<a href="#'+v+'" data-v="'+v+'">'+esc(t("tabs")[v])+'</a>';}).join("");}
 function vista(){var v=(location.hash||"#inicio").slice(1); return VISTAS.indexOf(v)<0?"inicio":v;}
 function ir(){
   var v=vista();
@@ -312,6 +312,51 @@ function pintarRoadtest(){
 }
 $("rtReset").onclick=function(){RT={}; store.set("rt",RT); pintarRoadtest();};
 
+
+// ---------- Escuelas de manejo (lista oficial del DMV; patrocinadas marcadas como tales) ----------
+var SCT={
+ en:{tab:"Driving schools",title:"Find a licensed driving school near you",lead:"Every school on the official NYS DMV list of licensed driving schools, nearest first. Look for the 5-hour course, lessons for the road test, or motorcycle training.",near:"Use my location",search:"Search by name, city or ZIP",p:"5-hour course",a:"Car lessons",m:"Motorcycle",call:"Call",dir:"Directions",rev:"Reviews on Google Maps",sp:"Sponsored",locErr:"Couldn't get your location. Search by city or ZIP instead.",count:"{n} licensed schools",mi:"mi",note:"Source: NYS DMV list of licensed driving schools (data.ny.gov). Being listed is not an endorsement by DriveReady or the DMV. Sponsored schools pay to appear first and are always labeled.",own:"Own a driving school? Get featured in 6 languages",more:"Show more"},
+ es:{tab:"Autoescuelas",title:"Encuentra una autoescuela con licencia cerca de ti",lead:"Todas las escuelas de la lista oficial del DMV de Nueva York, de la más cercana a la más lejana. Busca el curso de 5 horas, clases para el road test o de moto.",near:"Usar mi ubicación",search:"Busca por nombre, ciudad o código postal",p:"Curso de 5 horas",a:"Clases de auto",m:"Moto",call:"Llamar",dir:"Cómo llegar",rev:"Reseñas en Google Maps",sp:"Patrocinado",locErr:"No pudimos obtener tu ubicación. Busca por ciudad o código postal.",count:"{n} escuelas con licencia",mi:"mi",note:"Fuente: lista oficial de autoescuelas con licencia del DMV de Nueva York (data.ny.gov). Aparecer aquí no es una recomendación de DriveReady ni del DMV. Las patrocinadas pagan por salir primero y siempre van marcadas.",own:"¿Tienes una autoescuela? Aparece destacada en 6 idiomas",more:"Ver más"},
+ zh:{tab:"驾校",title:"查找附近有执照的驾校",lead:"纽约州 DMV 官方执照驾校名单，按距离由近到远排列。可找5小时课程、路考练车或摩托车培训。",near:"使用我的位置",search:"按名称、城市或邮编搜索",p:"5小时课程",a:"汽车练车",m:"摩托车",call:"打电话",dir:"路线",rev:"Google 地图评价",sp:"赞助",locErr:"无法获取位置，请按城市或邮编搜索。",count:"{n} 所执照驾校",mi:"英里",note:"来源：纽约州 DMV 执照驾校名单 (data.ny.gov)。列入名单不代表 DriveReady 或 DMV 推荐。赞助驾校付费排在前面，并始终标明“赞助”。",own:"您开驾校吗？用6种语言展示",more:"显示更多"},
+ ru:{tab:"Автошколы",title:"Найдите лицензированную автошколу рядом",lead:"Все школы из официального списка DMV штата Нью-Йорк, сначала ближайшие. 5-часовой курс, занятия к экзамену по вождению или мотоцикл.",near:"Моё местоположение",search:"Поиск по названию, городу или индексу",p:"5-часовой курс",a:"Вождение авто",m:"Мотоцикл",call:"Позвонить",dir:"Маршрут",rev:"Отзывы в Google Maps",sp:"Спонсор",locErr:"Не удалось определить местоположение. Ищите по городу или индексу.",count:"{n} лицензированных школ",mi:"миль",note:"Источник: список лицензированных автошкол DMV штата Нью-Йорк (data.ny.gov). Наличие в списке — не рекомендация DriveReady или DMV. Спонсоры платят за место вверху и всегда отмечены.",own:"У вас автошкола? Покажитесь на 6 языках",more:"Показать ещё"},
+ ko:{tab:"운전학원",title:"가까운 인가 운전학원 찾기",lead:"뉴욕주 DMV 공식 인가 운전학원 목록을 가까운 순서로 보여 드려요. 5시간 교육, 도로주행 연수, 오토바이 교육을 찾아보세요.",near:"내 위치 사용",search:"이름, 도시, 우편번호로 검색",p:"5시간 교육",a:"자동차 연수",m:"오토바이",call:"전화",dir:"길찾기",rev:"Google 지도 리뷰",sp:"후원",locErr:"위치를 가져올 수 없어요. 도시나 우편번호로 검색하세요.",count:"인가 학원 {n}곳",mi:"마일",note:"출처: 뉴욕주 DMV 인가 운전학원 목록 (data.ny.gov). 목록에 있다고 DriveReady나 DMV가 추천하는 것은 아니에요. 후원 학원은 비용을 내고 위에 표시되며 항상 '후원'으로 표시돼요.",own:"운전학원을 운영하세요? 6개 언어로 소개하세요",more:"더 보기"},
+ bn:{tab:"ড্রাইভিং স্কুল",title:"কাছের লাইসেন্সপ্রাপ্ত ড্রাইভিং স্কুল খুঁজুন",lead:"নিউ ইয়র্ক স্টেট DMV-এর অফিশিয়াল তালিকার সব স্কুল, কাছেরগুলো আগে। ৫ ঘণ্টার কোর্স, রোড টেস্টের ক্লাস বা মোটরসাইকেল।",near:"আমার লোকেশন",search:"নাম, শহর বা ZIP দিয়ে খুঁজুন",p:"৫ ঘণ্টার কোর্স",a:"গাড়ির ক্লাস",m:"মোটরসাইকেল",call:"কল",dir:"রাস্তা",rev:"Google Maps রিভিউ",sp:"স্পনসর",locErr:"লোকেশন পাওয়া যায়নি। শহর বা ZIP দিয়ে খুঁজুন।",count:"{n}টি লাইসেন্সপ্রাপ্ত স্কুল",mi:"মাইল",note:"উৎস: নিউ ইয়র্ক স্টেট DMV-এর লাইসেন্সপ্রাপ্ত ড্রাইভিং স্কুলের তালিকা (data.ny.gov)। তালিকায় থাকা মানে DriveReady বা DMV-এর সুপারিশ নয়। স্পনসর স্কুল টাকা দিয়ে উপরে থাকে এবং সবসময় চিহ্নিত।",own:"ড্রাইভিং স্কুল আছে? ৬টি ভাষায় দেখান",more:"আরও দেখুন"}};
+var SC={pos:null,q:"",lim:20};
+function st(k){var o=SCT[LANG]||SCT.en; return o[k]||SCT.en[k];}
+function dist(a,b,c,d){var R=3958.8,r=Math.PI/180,x=(c-a)*r,y=(d-b)*r,h=Math.sin(x/2)*Math.sin(x/2)+Math.cos(a*r)*Math.cos(c*r)*Math.sin(y/2)*Math.sin(y/2);return 2*R*Math.asin(Math.sqrt(h));}
+function cargarEscuelas(cb){if(window.SCHOOLS_NY) return cb(); var s=document.createElement("script"); s.src="schools/ny.js"; s.onload=cb; document.head.appendChild(s);}
+function pintarEscuelas(){
+  $("scTitle").textContent=st("title"); $("scLead").textContent=st("lead"); $("scNear").textContent="📍 "+st("near"); $("scQ").placeholder=st("search"); $("scNote").textContent=st("note");
+  $("scOwn").textContent=st("own"); $("scOwn").href=CFG.sponsorEmail?"mailto:"+CFG.sponsorEmail+"?subject="+encodeURIComponent("DriveReady featured driving school"):"#";
+  $("scOwn").hidden=!CFG.sponsorEmail;
+  if(!window.SCHOOLS_NY){ $("scList").innerHTML='<p class="muted small">…</p>'; return cargarEscuelas(pintarEscuelas); }
+  var sp={}; (CFG.sponsors||[]).forEach(function(s){sp[s.id]=s;});
+  var q=SC.q.trim().toLowerCase(), L=SCHOOLS_NY.filter(function(s){return !q||(s[1]+" "+s[2]+" "+s[3]+" "+s[4]+" "+s[5]).toLowerCase().indexOf(q)>=0;});
+  L=L.map(function(s){return {s:s,d:(SC.pos&&s[7]!=null)?dist(SC.pos[0],SC.pos[1],s[7],s[8]):null,sp:sp[s[0]]};});
+  if(SC.pos) L.sort(function(a,b){return (a.d==null?1e9:a.d)-(b.d==null?1e9:b.d);});
+  var spon=L.filter(function(x){return x.sp&&(x.d==null||x.d<25);}), rest=L.filter(function(x){return !x.sp;});
+  $("scCount").textContent=fmt(st("count"),{n:num(L.length)});
+  var card=function(x){var s=x.s, f=s[9], tags=[];
+    if(f.indexOf("P")>=0) tags.push(st("p")); if(f.indexOf("A")>=0) tags.push(st("a")); if(f.indexOf("M")>=0) tags.push(st("m"));
+    var addr=s[3]+", "+s[4]+", NY "+s[5], mq=encodeURIComponent(s[1]+" "+addr), ph=s[6];
+    var note=x.sp&&x.sp.note?(x.sp.note[LANG]||x.sp.note.en||""):"";
+    return '<div class="school'+(x.sp?' sponsored':'')+'">'+(x.sp?'<span class="sp-badge">'+esc(st("sp"))+'</span>':'')+
+      '<div class="sc-name">'+esc(s[1])+'</div>'+(s[2]?'<div class="small muted">'+esc(s[2])+'</div>':'')+
+      '<div class="small">'+esc(addr)+(x.d!=null?' · <b>'+num(Math.round(x.d*10)/10)+' '+esc(st("mi"))+'</b>':'')+'</div>'+
+      (note?'<div class="small" style="margin-top:4px">'+esc(note)+'</div>':'')+
+      '<div class="sc-tags">'+tags.map(function(g){return '<span>'+esc(g)+'</span>';}).join("")+'</div>'+
+      '<div class="sc-act">'+(ph?'<a href="tel:+1'+ph+'">📞 '+esc(st("call"))+'</a>':'')+
+      '<a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination='+mq+'">🧭 '+esc(st("dir"))+'</a>'+
+      '<a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query='+mq+'">⭐ '+esc(st("rev"))+'</a>'+
+      (x.sp&&x.sp.url?'<a target="_blank" rel="noopener sponsored" href="'+esc(x.sp.url)+'">🌐 Web</a>':'')+'</div></div>';};
+  $("scList").innerHTML=spon.slice(0,3).map(card).join("")+rest.slice(0,SC.lim).map(card).join("");
+  $("scMore").hidden=rest.length<=SC.lim; $("scMore").textContent=st("more");
+}
+$("scNear").onclick=function(){ if(!navigator.geolocation){ $("scMsg").textContent=st("locErr"); return; }
+  navigator.geolocation.getCurrentPosition(function(p){SC.pos=[p.coords.latitude,p.coords.longitude]; SC.lim=20; $("scMsg").textContent=""; pintarEscuelas();},function(){ $("scMsg").textContent=st("locErr"); },{timeout:10000,maximumAge:600000}); };
+$("scQ").oninput=function(){SC.q=this.value; SC.lim=20; pintarEscuelas();};
+$("scMore").onclick=function(){SC.lim+=20; pintarEscuelas();};
+
 // ---------- Maniobras: video con trayectoria exacta, sincronizado con cada paso ----------
 var MAN={tres:{clip:"tres_puntos",poster:"man_tres",ch:"5",marks:[0,6.42,11.25,13.96],dur:21.17},
          paralelo:{clip:"paralelo",poster:"man_paralelo",ch:"7",marks:[0,7.75,10.12,13.0],dur:14.83},
@@ -368,7 +413,7 @@ function renderAll(){
   document.title="DriveReady: Permit & Road Test · "+P.name;
   document.querySelectorAll("[data-t]").forEach(function(el){var v=P.ui[el.dataset.t]; if(typeof v==="string") el.textContent=v;});
   $("langBtn").textContent="🌐 "+P.name; $("langBtn").setAttribute("aria-label",t("langLabel"));
-  pintarTabs(); pintarInicio(); pintarChips(); pintarManual(); pintarDominadas(); pintarRoadtest(); pintarManChips(); pintarMan(); pintarCultura(); pintarAds();
+  pintarTabs(); pintarInicio(); pintarChips(); pintarManual(); pintarDominadas(); pintarRoadtest(); pintarEscuelas(); pintarManChips(); pintarMan(); pintarCultura(); pintarAds();
   rehidratar(); if(EX){ if(EX.done) examenResultado(); else examenPintar(); } else examenIntro();
   if(PR.qs.length) practicaPintar(); else practicaNueva("all");
   if(!GM||!GM.timer) juegoIntro();
