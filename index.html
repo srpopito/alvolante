@@ -105,6 +105,13 @@ main{padding:18px 0 40px}section.view{display:none}section.view.on{display:block
 .lp button img{width:84px;height:84px;border-radius:50%;object-fit:cover;background:#efe7d3}
 .lp button b{font-size:20px}.lp button span{font-size:13px;color:var(--muted);text-align:center}
 .lp button[aria-current=true]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
+
+.study{display:grid;gap:14px;grid-template-columns:1fr;align-items:start}
+@media (min-width:900px){.study{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}.side{position:sticky;top:60px;max-height:calc(100vh - 80px);overflow:auto}}
+.side h3{font-size:18px}.facts-list{margin:8px 0 0;padding-inline-start:18px}.facts-list li{margin:6px 0;font-size:14px;color:var(--muted)}
+.facts-list li.hit{color:var(--ink);font-weight:600;background:color-mix(in srgb,var(--warn) 22%,transparent);border-radius:6px;padding:2px 6px;margin-inline-start:-6px}
+.signgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:8px}.signgrid div{text-align:center;font-size:13px}.signgrid svg{width:70px;height:70px;display:block;margin:0 auto 4px}
+.chcard h3{font-size:22px}.chcard .head{display:flex;gap:12px;align-items:center;margin:-16px -16px 12px;padding:0}.chcard .head img{width:100%;aspect-ratio:21/7;object-fit:cover}
 footer{border-top:1px solid var(--line);padding:16px 0 30px;color:var(--muted);font-size:13px}footer a{color:var(--accent)}
 @media (max-width:440px){.brand small{display:none}.qtext{font-size:17px}.facts{grid-template-columns:1fr 1fr 1fr}.fact b{font-size:22px}}
 </style>
@@ -147,8 +154,12 @@ footer{border-top:1px solid var(--line);padding:16px 0 30px;color:var(--muted);f
   </section>
   <section class="view" id="examen"><div class="card" id="examCard"></div><div class="ad" data-ad id="examAd" hidden></div></section>
   <section class="view" id="practica">
-    <div class="card"><h2 data-t="practiceTitle"></h2><p class="muted small" data-t="practiceLead"></p><div class="chips" id="chapterChips"></div></div>
-    <div class="card" id="practiceCard" style="margin-top:14px"></div>
+    <div class="card"><h2 data-t="practiceTitle"></h2><p class="muted small" data-t="practiceLead"></p><div class="chips" id="chapterChips"></div><p class="small" style="margin:10px 0 0"><span class="pill ok" id="masteredPill"></span></p></div>
+    <div class="study" style="margin-top:14px"><div class="card" id="practiceCard"></div><aside class="card side" id="practiceSide"></aside></div>
+  </section>
+  <section class="view" id="manual">
+    <div class="card" style="margin-bottom:14px"><h2 data-t="mTitle"></h2><p class="muted small" data-t="mLead"></p><div class="chips" id="manualChips"></div></div>
+    <div id="manualList" class="grid"></div>
   </section>
   <section class="view" id="juego"><div class="card" id="gameCard"></div></section>
   <section class="view" id="roadtest">

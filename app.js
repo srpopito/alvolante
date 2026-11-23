@@ -76,7 +76,7 @@ function svgSenal(k){
    case "donotenter": s+='<circle cx="100" cy="100" r="88" fill="#c8102e" stroke="#fff" stroke-width="6"/><rect x="35" y="88" width="130" height="24" fill="#fff"/>'+tx(100,70,20,"DO NOT","#fff")+tx(100,145,20,"ENTER","#fff");break;
    case "nouturn": s+='<rect x="20" y="20" width="160" height="160" rx="10" fill="#fff" stroke="#111" stroke-width="5"/><path d="M80 150 V85 a25 25 0 0 1 50 0 V115" fill="none" stroke="#111" stroke-width="14"/><polygon points="112,110 148,110 130,140" fill="#111"/><circle cx="100" cy="100" r="62" fill="none" stroke="#c8102e" stroke-width="12"/><line x1="56" y1="56" x2="144" y2="144" stroke="#c8102e" stroke-width="12"/>';break;
    case "oneway": s+='<rect x="10" y="62" width="180" height="76" rx="6" fill="#111"/><polygon points="25,100 150,100 150,82 185,100 150,118 150,100" fill="#fff" stroke="#fff" stroke-width="10" stroke-linejoin="round"/>'+tx(85,108,22,"ONE WAY","#111");break;
-   case "crossbuck": s+='<g transform="rotate(35 100 100)"><rect x="10" y="82" width="180" height="36" fill="#fff" stroke="#111" stroke-width="4"/>'+tx(100,108,20,"RAILROAD","#111")+'</g><g transform="rotate(-35 100 100)"><rect x="10" y="82" width="180" height="36" fill="#fff" stroke="#111" stroke-width="4"/>'+tx(100,108,20,"CROSSING","#111")+'</g>';break;
+   case "crossbuck": s+='<g transform="rotate(-35 100 100)"><rect x="8" y="82" width="184" height="36" fill="#fff" stroke="#111" stroke-width="4"/>'+tx(52,108,19,"CROSS","#111")+tx(152,108,19,"ING","#111")+'</g><g transform="rotate(35 100 100)"><rect x="8" y="82" width="184" height="36" fill="#fff" stroke="#111" stroke-width="4"/>'+tx(52,108,19,"RAIL","#111")+tx(150,108,19,"ROAD","#111")+'</g>';break;
    case "rradvance": s+='<circle cx="100" cy="100" r="88" fill="#f2c200" stroke="#111" stroke-width="5"/><line x1="45" y1="45" x2="155" y2="155" stroke="#111" stroke-width="12"/><line x1="155" y1="45" x2="45" y2="155" stroke="#111" stroke-width="12"/>'+tx(62,112,34,"R","#111")+tx(138,112,34,"R","#111");break;
    case "school": s+='<polygon points="100,12 185,80 185,188 15,188 15,80" fill="#c6d400" stroke="#111" stroke-width="5"/><circle cx="78" cy="88" r="10" fill="#111"/><path d="M78 100 v38 M78 112 l-16 14 M78 112 l14 14 M78 138 l-12 26 M78 138 l12 26" stroke="#111" stroke-width="8" stroke-linecap="round"/><circle cx="124" cy="96" r="9" fill="#111"/><path d="M124 106 v32 M124 116 l-13 12 M124 116 l12 12 M124 138 l-10 22 M124 138 l10 22" stroke="#111" stroke-width="7" stroke-linecap="round"/>';break;
    case "curve": s+=dia("#f2c200")+'<path d="M85 150 V110 Q85 80 115 72" fill="none" stroke="#111" stroke-width="12"/><polygon points="108,55 138,68 112,90" fill="#111"/>';break;
@@ -112,7 +112,7 @@ function marcar(id,bien){if(bien) delete MISS[id]; else MISS[id]=1; store.set("m
 function frase(tipo){var a=P.guide[tipo];return a[Math.floor(Math.random()*a.length)];}
 
 // ---------- Navegación ----------
-var VISTAS=["inicio","examen","practica","juego","roadtest","maniobras","cultura","acerca"];
+var VISTAS=["inicio","examen","practica","manual","juego","roadtest","maniobras","cultura","acerca"];
 function pintarTabs(){$("tabs").innerHTML=VISTAS.map(function(v){return '<a href="#'+v+'" data-v="'+v+'">'+esc(t("tabs")[v])+'</a>';}).join("");}
 function vista(){var v=(location.hash||"#inicio").slice(1); return VISTAS.indexOf(v)<0?"inicio":v;}
 function ir(){
@@ -194,30 +194,60 @@ function examenResultado(){
 
 // ---------- Práctica por tema y "mis errores" ----------
 var PR={ch:"all",qs:[],i:0,ok:0};
+var MAST=store.get("mast",{}), TOTAL=ALL_RULES.length+ALL_SIGNS.length;
+function pintarDominadas(){var n=Object.keys(MAST).length; $("masteredPill").textContent=n>=TOTAL?t("allDone"):fmt(t("mastered"),{n:num(n),t:num(TOTAL)});}
+function hechos(ch){ if(ch==="S") return C.signs.map(function(k){return {id:"s:"+k,txt:P.signs[k],sign:k};});
+  return C.rules.map(function(r,i){return {id:"r"+i,ch:String(r.ch),txt:P.q[i][2]};}).filter(function(x){return x.ch===ch;}); }
+function panelManual(p,revelar){
+  var ch=p.ch, lista=hechos(ch);
+  var h='<h3>📖 '+esc(t("fromManual"))+' · '+esc(ch==="S"?P.chapters.S:manRef(ch)+" "+P.chapters[ch])+'</h3>';
+  if(ch==="S"&&!revelar) h+='<p class="small muted">'+esc(t("practiceLead"))+'</p>';
+  else if(ch==="S") h+='<div class="signgrid">'+lista.map(function(x){return '<div'+(revelar&&x.id===p.id?' style="outline:3px solid var(--warn);border-radius:8px"':'')+'>'+svgSenal(x.sign)+esc(x.txt)+'</div>';}).join("")+'</div>';
+  else h+='<ul class="facts-list">'+lista.map(function(x){return '<li'+(revelar&&x.id===p.id?' class="hit" id="factHit"':'')+'>'+esc(x.txt)+'</li>';}).join("")+'</ul>';
+  h+='<p class="small" style="margin-top:10px"><a href="'+C.fuentes[ch]+'" target="_blank" rel="noopener">'+esc(t("official"))+' ↗</a></p>';
+  $("practiceSide").innerHTML=h;
+  var hit=$("factHit"); if(hit&&window.innerWidth>=900) hit.scrollIntoView({block:"nearest"});
+}
 function pintarChips(){
   var chs=["all"].concat(Object.keys(P.chapters)); if(Object.keys(MISS).length) chs.push("miss");
-  $("chapterChips").innerHTML=chs.map(function(c){var lab=c==="all"?t("allTopics"):c==="miss"?"↻ "+num(Object.keys(MISS).length):(c==="S"?P.chapters.S:c+" · "+P.chapters[c]);return '<button type="button" class="chip" data-c="'+c+'" aria-pressed="'+(PR.ch===c)+'">'+esc(lab)+'</button>';}).join("");
+  $("chapterChips").innerHTML=chs.map(function(c){var lab=c==="all"?t("studyAll")+" · "+num(TOTAL):c==="miss"?"↻ "+num(Object.keys(MISS).length):(c==="S"?P.chapters.S:c+" · "+P.chapters[c]);return '<button type="button" class="chip" data-c="'+c+'" aria-pressed="'+(PR.ch===c)+'">'+esc(lab)+'</button>';}).join("");
   $("chapterChips").querySelectorAll(".chip").forEach(function(b){b.onclick=function(){practicaNueva(b.dataset.c);};});
 }
 function practicaNueva(c){
   PR.ch=c; PR.i=0; PR.ok=0;
-  var ids=c==="miss"?Object.keys(MISS):c==="all"?shuffle(ALL_RULES.concat(ALL_SIGNS)).slice(0,20):c==="S"?ALL_SIGNS:ALL_RULES.filter(function(id){return String(C.rules[+id.slice(1)].ch)===c;});
-  PR.qs=shuffle(ids).map(preparar); pintarChips(); practicaPintar();
+  var ids=c==="miss"?Object.keys(MISS):c==="all"?(function(){var todos=ALL_RULES.concat(ALL_SIGNS);var pend=shuffle(todos.filter(function(id){return !MAST[id];}));return pend.length?pend:shuffle(todos);})():c==="S"?ALL_SIGNS:ALL_RULES.filter(function(id){return String(C.rules[+id.slice(1)].ch)===c;});
+  PR.qs=(c==="all"?ids:shuffle(ids)).map(preparar); pintarChips(); pintarDominadas(); practicaPintar();
 }
 function practicaPintar(){
   var c=$("practiceCard");
-  if(!PR.qs.length){c.innerHTML='<p class="muted">—</p>';return;}
+  if(!PR.qs.length){c.innerHTML='<p class="muted">—</p>';$("practiceSide").innerHTML="";return;}
   if(PR.i>=PR.qs.length){c.innerHTML='<h3>'+esc(t("done"))+'</h3><p class="result-big">'+num(PR.ok)+'/'+num(PR.qs.length)+'</p><button class="btn" id="prAgain" type="button">'+esc(t("again"))+'</button>';$("prAgain").onclick=function(){practicaNueva(PR.ch==="miss"&&!Object.keys(MISS).length?"all":PR.ch);};pintarInicio();return;}
-  var p=PR.qs[PR.i], ops=opciones(p), done=false;
+  var p=PR.qs[PR.i], ops=opciones(p), done=false; panelManual(p,false);
   var h=cabezaImg(p)+'<div class="qhead"><span class="pill">'+num(PR.i+1)+' / '+num(PR.qs.length)+'</span><span class="pill">'+esc(t("score"))+': '+num(PR.ok)+'</span></div>';
   h+='<div class="qtext">'+esc(textoPregunta(p))+'</div><div class="opts">'+ops.map(function(o,k){return '<button type="button" class="opt" data-k="'+k+'">'+esc(o.txt)+'</button>';}).join("")+'</div>'+toolsHtml(p.id)+'<div id="prFb"></div>';
   c.innerHTML=h; bindSay(c,p);
   c.querySelectorAll(".opt").forEach(function(b){b.onclick=function(){
-    if(done)return; done=true; var v=ops[+b.dataset.k].v, bien=v===p.correct; if(bien)PR.ok++; marcar(p.id,bien);
+    if(done)return; done=true; var v=ops[+b.dataset.k].v, bien=v===p.correct; if(bien)PR.ok++; marcar(p.id,bien); if(bien) MAST[p.id]=1; else delete MAST[p.id]; store.set("mast",MAST); pintarDominadas(); panelManual(p,true);
     c.querySelectorAll(".opt").forEach(function(x){var xv=ops[+x.dataset.k].v; x.disabled=true; if(xv===p.correct)x.classList.add("right"); else if(x===b)x.classList.add("wrong");});
     $("prFb").innerHTML='<div class="explain guide"><img src="'+img(P.guide.img)+'" alt=""><div class="bubble"><b>'+esc(frase(bien?"right":"wrong"))+'</b>'+explicacion(p)+'</div></div><div class="row" style="margin-top:12px"><button class="btn" id="prNext" type="button">'+esc(t("next"))+'</button></div>';
     $("prNext").onclick=function(){PR.i++; practicaPintar();}; $("prNext").focus({preventScroll:true});
   };});
+}
+
+// ---------- Manual: guía de estudio por capítulo ----------
+var MANCH="all";
+function pintarManual(){
+  var chs=Object.keys(P.chapters);
+  $("manualChips").innerHTML=["all"].concat(chs).map(function(c){var lab=c==="all"?t("allTopics"):(c==="S"?P.chapters.S:c+" · "+P.chapters[c]);return '<button type="button" class="chip" data-c="'+c+'" aria-pressed="'+(MANCH===c)+'">'+esc(lab)+'</button>';}).join("");
+  $("manualChips").querySelectorAll(".chip").forEach(function(b){b.onclick=function(){MANCH=b.dataset.c; pintarManual();};});
+  $("manualList").innerHTML=chs.filter(function(c){return MANCH==="all"||MANCH===c;}).map(function(c){
+    var lista=hechos(c), titulo=c==="S"?P.chapters.S:manRef(c)+" · "+P.chapters[c];
+    var cuerpo=c==="S"?'<div class="signgrid">'+lista.map(function(x){return '<div>'+svgSenal(x.sign)+esc(x.txt)+'</div>';}).join("")+'</div>':'<ul class="facts-list" style="font-size:15px">'+lista.map(function(x){return '<li style="color:var(--ink)">'+esc(x.txt)+'</li>';}).join("")+'</ul>';
+    return '<div class="card chcard"><div class="head"><img src="'+img(CH_IMG[c])+'" alt="" loading="lazy"></div><h3>'+esc(titulo)+'</h3>'+cuerpo+
+      '<div class="row" style="margin-top:12px"><button class="btn" type="button" data-pr="'+c+'">'+esc(t("practiceCh"))+'</button>'+(hasVoice()?'<button class="btn ghost" type="button" data-say-ch="'+c+'">🔊 '+esc(t("readCh"))+'</button>':'')+'<a class="small" href="'+C.fuentes[c]+'" target="_blank" rel="noopener">'+esc(t("official"))+' ↗</a></div></div>';
+  }).join("");
+  $("manualList").querySelectorAll("[data-pr]").forEach(function(b){b.onclick=function(){location.hash="#practica"; practicaNueva(b.dataset.pr);};});
+  $("manualList").querySelectorAll("[data-say-ch]").forEach(function(b){b.onclick=function(){speak(hechos(b.dataset.sayCh).map(function(x){return x.txt;}).join(". "));};});
 }
 
 // ---------- Juego de señales ----------
@@ -271,44 +301,48 @@ function pintarRoadtest(){
 }
 $("rtReset").onclick=function(){RT={}; store.set("rt",RT); pintarRoadtest();};
 
-// ---------- Maniobras: video generado + animación por pasos ----------
-var MAN={tres:{clip:"tres_puntos",ch:"5",start:[110,196,0],p:[[250,196,0],[352,112,-75],[318,178,-160],[170,118,180]]},
-         paralelo:{clip:"paralelo",ch:"7",start:[300,170,0],p:[[448,170,0],[372,196,-32],[338,214,0],[352,216,0]]},
-         glorieta:{clip:"glorieta",ch:"8",start:[384,300,-90],p:[[384,262,-90],[384,236,-90],[440,160,-90],[600,160,0]]}};
-var MS={k:"tres",i:-1,mode:store.get("manMode","anim")};
+// ---------- Maniobras: video con trayectoria exacta, sincronizado con cada paso ----------
+var MAN={tres:{clip:"tres_puntos",poster:"man_tres",ch:"5",marks:[0,6.42,11.25,13.96],dur:21.17},
+         paralelo:{clip:"paralelo",poster:"man_paralelo",ch:"7",marks:[0,7.75,10.12,13.0],dur:14.83},
+         glorieta:{clip:"glorieta",poster:"man_glorieta",ch:"8",marks:[0,1.38,3.04,8.08],dur:11.5},
+         cruce:{clip:"interseccion",poster:"man_cruce",ch:"5",marks:[0,5.29,6.67,14.92],dur:20.63}};
+var MS={k:"tres",i:-1};
 function pintarManChips(){
-  $("manChips").innerHTML=Object.keys(MAN).map(function(k){return '<button type="button" class="chip" data-k="'+k+'" aria-pressed="'+(MS.k===k)+'">'+esc(P.man[k].name)+'</button>';}).join("");
+  $("manMode").innerHTML="";
+  $("manChips").innerHTML=Object.keys(MAN).filter(function(k){return P.man[k];}).map(function(k){return '<button type="button" class="chip" data-k="'+k+'" aria-pressed="'+(MS.k===k)+'">'+esc(P.man[k].name)+'</button>';}).join("");
   $("manChips").querySelectorAll(".chip").forEach(function(b){b.onclick=function(){MS.k=b.dataset.k; MS.i=-1; pintarManChips(); pintarMan();};});
-  $("manMode").innerHTML=["anim","video"].map(function(m){return '<button type="button" class="chip" data-m="'+m+'" aria-pressed="'+(MS.mode===m)+'">'+esc(m==="video"?"▶ "+t("video"):"⟳ "+t("animation"))+'</button>';}).join("");
-  $("manMode").querySelectorAll(".chip").forEach(function(b){b.onclick=function(){MS.mode=b.dataset.m; store.set("manMode",MS.mode); pintarManChips(); pintarMan();};});
 }
-function auto(id,color,p){return '<g class="car" id="'+id+'" style="transform:translate('+p[0]+'px,'+p[1]+'px) rotate('+p[2]+'deg)"><rect x="-30" y="-14" width="60" height="28" rx="7" fill="'+color+'" stroke="#111" stroke-width="2"/><rect x="6" y="-11" width="14" height="22" rx="3" fill="#bfe3f5" opacity=".9"/>'+(id==="yo"?'<polygon points="30,-6 38,0 30,6" fill="#111"/>':'')+'</g>';}
-function escena(){
-  var m=MAN[MS.k], s='';
-  if(MS.k==="glorieta"){
-    s+='<rect width="720" height="320" fill="#5a6460"/><rect y="120" width="720" height="80" fill="#3b4340"/><rect x="344" width="80" height="320" fill="#3b4340"/><circle cx="384" cy="160" r="110" fill="#3b4340"/><circle cx="384" cy="160" r="50" fill="#6f9b63" stroke="#fff" stroke-width="3"/>';
-    s+='<path d="M454 95 a95 95 0 0 0 -70 -30" fill="none" stroke="#f2c200" stroke-width="3" stroke-dasharray="8 8"/><polygon points="380,58 396,66 380,74" fill="#f2c200"/>';
-  } else {
-    s+='<rect width="720" height="320" fill="#5a6460"/><rect y="80" width="720" height="150" fill="#3b4340"/><rect y="66" width="720" height="14" fill="#c9cfcb"/><rect y="230" width="720" height="14" fill="#c9cfcb"/><line x1="0" y1="155" x2="720" y2="155" stroke="#f2c200" stroke-width="4" stroke-dasharray="26 18"/>';
-    if(MS.k==="paralelo") s+=auto("p1","#8a8f99",[240,214,0])+auto("p2","#8a8f99",[460,214,0]);
-  }
-  return '<svg class="scene" viewBox="0 0 720 320" role="img" aria-label="'+esc(P.man[MS.k].name)+'">'+s+auto("yo","#f2b705",MS.i<0?m.start:m.p[MS.i])+'</svg>';
-}
+function manVideo(){return $("manMedia").querySelector("video");}
 function pintarMan(){
   var m=MAN[MS.k];
-  $("manMedia").innerHTML='<div class="media">'+(MS.mode==="video"?'<video src="clips/'+m.clip+'.mp4" poster="'+img(m.clip)+'" muted loop playsinline autoplay controls preload="metadata"></video>':escena())+'</div>';
-  pasos();
+  $("manMedia").innerHTML='<div class="media"><video src="clips/'+m.clip+'.mp4" poster="'+img(m.poster)+'" muted playsinline preload="metadata" controls></video></div>';
+  var v=manVideo();
+  v.addEventListener("timeupdate",function(){
+    if(v.seeking) return;
+    var k=0; m.marks.forEach(function(t,i){if(v.currentTime>=t-0.05)k=i;});
+    if(MS.stopAt!=null&&v.currentTime>=MS.stopAt){v.pause(); MS.stopAt=null;}
+    if(!v.paused&&k!==MS.i){MS.i=k; pasos(false);}
+  });
+  v.addEventListener("ended",function(){MS.i=3; pasos(false);});
+  pasos(false);
 }
-function pasos(){
+function irPaso(i){
+  var m=MAN[MS.k], v=manVideo(); MS.i=i; pasos(true);
+  if(!v) return;
+  MS.stopAt=i<3?m.marks[i+1]:null; MS.seekTo=m.marks[i]+0.01;
+  var go=function(){ v.currentTime=MS.seekTo; var pr=v.play(); if(pr&&pr.catch) pr.catch(function(){}); };
+  if(v.readyState>=1) go(); else { v.preload="auto"; v.addEventListener("loadedmetadata",go,{once:true}); v.load(); }
+}
+function pasos(hablar){
   var m=MAN[MS.k];
-  $("manSteps").innerHTML=P.man[MS.k].steps.map(function(st,i){return '<li class="'+(i===MS.i?"now":"")+'">'+esc(st)+'</li>';}).join("");
-  $("manPrev").disabled=MS.i<0; $("manNext").disabled=MS.i>=3;
+  $("manSteps").innerHTML=P.man[MS.k].steps.map(function(st,i){return '<li class="'+(i===MS.i?"now":"")+'" data-i="'+i+'" style="cursor:pointer">'+esc(st)+'</li>';}).join("");
+  $("manSteps").querySelectorAll("li").forEach(function(li){li.onclick=function(){irPaso(+li.dataset.i);};});
+  $("manPrev").disabled=MS.i<=0; $("manNext").disabled=MS.i>=3;
   $("manSrc").innerHTML='<a href="'+C.fuentes[m.ch]+'" target="_blank" rel="noopener">'+esc(manRef(m.ch))+'</a>';
-  var g=$("yo"); if(g){var p=MS.i<0?m.start:m.p[MS.i]; g.style.transform='translate('+p[0]+'px,'+p[1]+'px) rotate('+p[2]+'deg)';}
-  if(MS.i>=0&&hasVoice()&&MS.say) speak(P.man[MS.k].steps[MS.i]);
+  if(hablar&&MS.i>=0&&hasVoice()) speak(P.man[MS.k].steps[MS.i]);
 }
-$("manNext").onclick=function(){MS.i++; MS.say=true; pasos();};
-$("manPrev").onclick=function(){MS.i--; MS.say=true; pasos();};
+$("manNext").onclick=function(){irPaso(Math.min(3,MS.i+1));};
+$("manPrev").onclick=function(){irPaso(Math.max(0,MS.i-1));};
 
 // ---------- Cultura y fuentes ----------
 function pintarCultura(){
@@ -323,7 +357,7 @@ function renderAll(){
   document.title="Al Volante NY · "+P.name;
   document.querySelectorAll("[data-t]").forEach(function(el){var v=P.ui[el.dataset.t]; if(typeof v==="string") el.textContent=v;});
   $("langBtn").textContent="🌐 "+P.name; $("langBtn").setAttribute("aria-label",t("langLabel"));
-  pintarTabs(); pintarInicio(); pintarChips(); pintarRoadtest(); pintarManChips(); MS.say=false; pintarMan(); pintarCultura(); pintarAds();
+  pintarTabs(); pintarInicio(); pintarChips(); pintarManual(); pintarDominadas(); pintarRoadtest(); pintarManChips(); pintarMan(); pintarCultura(); pintarAds();
   rehidratar(); if(EX){ if(EX.done) examenResultado(); else examenPintar(); } else examenIntro();
   if(PR.qs.length) practicaPintar(); else practicaNueva("all");
   if(!GM||!GM.timer) juegoIntro();
