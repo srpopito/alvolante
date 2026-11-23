@@ -1,5 +1,5 @@
 // Funciona sin conexión (por ejemplo, en la sala de espera del DMV). Sube VERSION cuando cambies archivos.
-var VERSION="alv-v4";
+var VERSION="alv-v5";
 var CORE=["./","index.html","app.js","core.js","config.js","manifest.json","privacy.html","icons/icon-192.png"];
 self.addEventListener("install",function(e){e.waitUntil(caches.open(VERSION).then(function(c){return c.addAll(CORE);}));self.skipWaiting();});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(ks){return Promise.all(ks.filter(function(k){return k!==VERSION;}).map(function(k){return caches.delete(k);}));}));self.clients.claim();});

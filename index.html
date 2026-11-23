@@ -56,6 +56,7 @@ main{padding:18px 0 40px}section.view{display:none}section.view.on{display:block
 .hero video,.hero img{width:100%;height:100%;object-fit:cover}
 .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,.72))}
 .hero .cap{position:absolute;left:16px;right:16px;bottom:14px;color:#fff;z-index:1}
+.hero .cap .free{display:inline-block;margin-top:8px;background:#f2b705;color:#17201b;font-weight:700;font-size:14px;border-radius:999px;padding:3px 12px}
 .hero .cap h2{font-size:clamp(24px,5vw,38px);line-height:1.08}
 .guide{display:flex;gap:12px;align-items:flex-start}
 .guide img{width:64px;height:64px;border-radius:50%;flex:none;object-fit:cover;border:3px solid var(--warn);background:#efe7d3}
@@ -136,7 +137,7 @@ footer{border-top:1px solid var(--line);padding:16px 0 30px;color:var(--muted);f
 <main class="wrap">
   <section class="view" id="inicio">
     <div class="hero"><video id="heroVid" muted loop playsinline preload="none" poster="img/portada.webp"></video>
-      <div class="cap"><h2 data-t="homeTitle"></h2></div></div>
+      <div class="cap"><h2 data-t="homeTitle"></h2><span class="free" data-t="freeLine"></span></div></div>
     <div class="grid g2">
       <div class="card">
         <div class="guide"><img id="guideImg" alt=""><div class="bubble"><b id="guideName"></b><span id="guideHello"></span></div></div>
