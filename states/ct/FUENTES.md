@@ -24,6 +24,8 @@ Página del examen: https://portal.ct.gov/dmv/licenses-permits-ids/take-knowledg
 | Certificado CS-1 | manual | «…the school will issue you a course completion certificate (form CS-1).» |
 | Vehículo registrado y asegurado | manual | «A vehicle cannot be operated legally on any public highway without registration.» |
 
+| Hoja del road test (3 puntos) | manual | «The road test evaluates: • Ability to properly adjust seat, mirrors, steering wheel, and seat belts … • Response to traffic control signs and signals, signaling … • Backing and/or parking the vehicle» |
+
 ## Pendiente antes de publicar Connecticut
 
 - [ ] Banco de **70–90 preguntas originales** por capítulo y sus 6 idiomas (esto es lo que falta; el resto de la fase ya está investigado).
