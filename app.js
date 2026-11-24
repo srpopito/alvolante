@@ -12,35 +12,57 @@ var META=[
 var store={get:function(k,d){try{var v=localStorage.getItem("alv_"+k);return v===null?d:JSON.parse(v);}catch(e){return d;}},
            set:function(k,v){try{localStorage.setItem("alv_"+k,JSON.stringify(v));}catch(e){}}};
 var LANG=null, P=null;
+// ---------- Estados ----------
+var STATES=(window.STATES||[{code:"ny",name:"New York",agency:"DMV",core:"core.js",lang:"lang/",ui:"ui/",schools:"schools/ny.js"}]);
+var ST=STATES[0];
+function stateByCode(c){for(var i=0;i<STATES.length;i++) if(STATES[i].code===c) return STATES[i]; return null;}
+function loadScript(src){return new Promise(function(res,rej){var s=document.createElement("script");s.src=src;s.onload=res;s.onerror=function(){rej(new Error("No se pudo cargar "+src));};document.head.appendChild(s);});}
+function stpre(){return ST.code==="ny"?"":ST.code+"_";}
 function $(id){return document.getElementById(id);}
 function t(k){var v=P.ui[k];return v===undefined?k:v;}
 function fmt(s,o){return s.replace(/\{(\w+)\}/g,function(_,k){return o[k];});}
+// Sustituye los datos del estado en los textos compartidos ({state}, {agency}, {total}).
+function uis(k){var v=P.ui[k]; if(typeof v!=="string") return v; var ex=examCfg();
+  return v.replace(/\{state\}/g,stName()).replace(/\{agency\}/g,ST.agency||"DMV").replace(/\{total\}/g,ex.total).replace(/\{pass\}/g,ex.pass);}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
 function num(n){try{return new Intl.NumberFormat(LANG).format(n);}catch(e){return String(n);}}
 function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var x=a[i];a[i]=a[j];a[j]=x;}return a;}
 function manRef(ch){return t("manual")+" "+ch+t("manualEnd");}
 var CH_IMG={"4":"senales_calle","5":"interseccion","6":"autopista","7":"cuesta","8":"espejo","9":"alcohol","10":"nieve","11":"peatones","S":"senales_calle"};
 function img(k){return "img/"+k+".webp";}
+function chImg(ch){return img(CH_IMG[ch]||"portada");}
 
 // ---------- Carga de idioma ----------
+function loadUi(code){
+  if(window.UI&&window.UI[code]) return Promise.resolve(window.UI[code]);
+  return loadScript((ST.ui||"ui/")+code+".js").then(function(){return window.UI[code];});
+}
+function loadGames(code){
+  if(window.GAMES&&window.GAMES[code]) return Promise.resolve(window.GAMES[code]);
+  return loadScript("games/"+code+".js").then(function(){return window.GAMES[code];})
+    .catch(function(){ return window.GAMES&&window.GAMES.en ? window.GAMES.en : null; });
+}
+function loadCdl(code){
+  if(window.CDL&&window.CDL[code]) return Promise.resolve(window.CDL[code]);
+  return loadScript("cdl/"+code+".js").then(function(){return window.CDL[code];})
+    .catch(function(){ return window.CDL&&window.CDL.en ? window.CDL.en : null; });
+}
 function loadLang(code){
-  return new Promise(function(res,rej){
-    if(window.LANGS&&window.LANGS[code]) return res(window.LANGS[code]);
-    var s=document.createElement("script"); s.src="lang/"+code+".js";
-    s.onload=function(){res(window.LANGS[code]);}; s.onerror=rej; document.head.appendChild(s);
-  });
+  if(window.LANGS&&window.LANGS[code]&&window.__langState===ST.code) return Promise.resolve(window.LANGS[code]);
+  return loadScript((ST.lang||"lang/")+code+".js").then(function(){window.__langState=ST.code;return window.LANGS[code];})
+    .catch(function(){ if(code!=="en") return loadLang("en"); throw new Error("language pack missing: "+code); });
 }
 function pickerShow(){
-  $("lpList").innerHTML=META.map(function(m){return '<button type="button" data-c="'+m.code+'" aria-current="'+(m.code===LANG)+'" lang="'+m.code+'"><img src="'+img("guia_"+m.code)+'" alt=""><b>'+esc(m.name)+'</b><span>'+esc(m.guide)+'</span></button>';}).join("");
+  $("lpList").innerHTML=META.map(function(m){return '<button type="button" data-c="'+m.code+'" aria-current="'+(m.code===LANG)+'" lang="'+m.code+'"><img src="'+img("guia_"+m.code)+'" alt=""><b>'+esc(m.name)+'</b></button>';}).join("");
   $("lpList").querySelectorAll("button").forEach(function(b){b.onclick=function(){setLang(b.dataset.c);};});
   $("langPick").classList.add("on");
 }
 function setLang(code){
-  loadLang(code).then(function(p){
-    LANG=code; P=p; store.set("lang",code);
+  return Promise.all([loadUi(code),loadLang(code),loadCdl(code),loadGames(code)]).then(function(r){
+    LANG=code; P=r[1]; P.ui=r[0]; P.cdl=r[2]; P.games=r[3]; store.set("lang",code);
     $("langPick").classList.remove("on");
-    document.documentElement.lang=code; document.documentElement.dir=p.dir||"ltr";
-    document.documentElement.style.setProperty("--body",p.font);
+    document.documentElement.lang=code; document.documentElement.dir=P.dir||"ltr";
+    document.documentElement.style.setProperty("--body",P.font);
     renderAll();
   });
 }
@@ -105,27 +127,84 @@ function explicacion(p){
   if(p.sign) return esc(P.signs[p.sign])+' · <a href="'+url+'" target="_blank" rel="noopener">'+esc(t("signsChart"))+'</a>';
   return esc(P.q[p.i][2])+' · <a href="'+url+'" target="_blank" rel="noopener">'+esc(manRef(p.ch))+'</a>';
 }
-function cabezaImg(p){return p.sign?'<div class="signbox">'+svgSenal(p.sign)+'</div>':'<div class="qimg"><img src="'+img(CH_IMG[p.ch])+'" alt="" loading="lazy"></div>';}
-var ALL_RULES=C.rules.map(function(_,i){return "r"+i;}), ALL_SIGNS=C.signs.map(function(k){return "s:"+k;});
-var MISS=store.get("miss",{});
-function marcar(id,bien){if(bien) delete MISS[id]; else MISS[id]=1; store.set("miss",MISS);}
+function cabezaImg(p){return p.sign?'<div class="signbox">'+svgSenal(p.sign)+'</div>':'<div class="qimg"><img src="'+chImg(p.ch)+'" alt="" loading="lazy"></div>';}
+var ALL_RULES=[], ALL_SIGNS=[], TOTAL=0, MISS={}, MAST={}, EX=null, PR={ch:"all",qs:[],i:0,ok:0}, RT={};
+// Cada estado guarda su propio progreso. NY conserva sus claves alv_miss/alv_mast/alv_exam.
+function cargarProgreso(){
+  ALL_RULES=C.rules.map(function(_,i){return "r"+i;});
+  ALL_SIGNS=C.signs.map(function(k){return "s:"+k;});
+  TOTAL=ALL_RULES.length+ALL_SIGNS.length;
+  MISS=store.get(stpre()+"miss",{});
+  MAST=store.get(stpre()+"mast",{});
+  EX=store.get(stpre()+"exam",null);
+  RT=store.get(stpre()+"rt",{});
+  PR={ch:"all",qs:[],i:0,ok:0};
+}
+function marcar(id,bien){if(bien) delete MISS[id]; else MISS[id]=1; store.set(stpre()+"miss",MISS);}
 function frase(tipo){var a=P.guide[tipo];return a[Math.floor(Math.random()*a.length)];}
 
 // ---------- Navegación ----------
-var VISTAS=["inicio","examen","practica","manual","juego","roadtest","escuelas","maniobras","cultura","acerca"];
+var VISTAS=["inicio","examen","practica","manual","juego","roadtest","escuelas","cdl","maniobras","cultura","acerca"];
 function pintarTabs(){var tb=t("tabs"); if(tb&&!tb.escuelas) tb.escuelas=(SCT[LANG]||SCT.en).tab;$("tabs").innerHTML=VISTAS.map(function(v){return '<a href="#'+v+'" data-v="'+v+'">'+esc(t("tabs")[v])+'</a>';}).join("");}
 function vista(){var v=(location.hash||"#inicio").slice(1); return VISTAS.indexOf(v)<0?"inicio":v;}
 function ir(){
   var v=vista();
   VISTAS.forEach(function(x){$(x).classList.toggle("on",x===v);});
   document.querySelectorAll("#tabs a").forEach(function(a){if(a.dataset.v===v)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");});
-  if(v!=="juego"&&GM&&GM.timer) juegoFin();
+  if(v!=="juego"&&GM&&GM.timer) gmStop();
   if(v==="escuelas") pintarEscuelas();
-  var hv=$("heroVid"); if(hv){ if(v==="inicio"){ if(!hv.src) hv.src="clips/portada.mp4"; var pr=hv.play(); if(pr&&pr.catch) pr.catch(function(){}); } else hv.pause(); }
+  if(v==="cdl") pintarCdl();
+  var hv=$("heroVid"), calm=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(hv){ if(v==="inicio"&&!calm){ if(!hv.src) hv.src="clips/portada.mp4"; var pr=hv.play(); if(pr&&pr.catch) pr.catch(function(){}); } else hv.pause(); }
   if(TTS) TTS.cancel();
   window.scrollTo(0,0);
 }
 window.addEventListener("hashchange",ir);
+
+// ---------- Aviso legal por estado (política de Google Play: nunca oculto) ----------
+var GOVN={
+ en:"<b>Not a government app.</b> DriveReady is independent and is not affiliated with, endorsed by or representing the {agency} of {state} or any government agency.",
+ es:"<b>No es una app del gobierno.</b> DriveReady es independiente y no está afiliada, avalada ni representa al {agency} de {state} ni a ninguna agencia del gobierno.",
+ zh:"<b>本应用不是政府应用。</b>DriveReady 是独立产品，与{state}机动车管理局（{agency}）及任何政府机构均无关联，也未获其认可或代表其立场。",
+ ru:"<b>Это не государственное приложение.</b> DriveReady — независимый проект: он не связан с {agency} штата {state}, не одобрен им и не представляет его, как и любое другое государственное ведомство.",
+ ko:"<b>정부 앱이 아닙니다.</b> DriveReady는 독립 학습 도구로, {state} {agency} 및 어떤 정부 기관과도 관련이 없고, 승인받지 않았으며, 대표하지 않습니다.",
+ bn:"<b>এটি সরকারি অ্যাপ নয়।</b> DriveReady একটি স্বাধীন অ্যাপ; এটি {state}-এর {agency} বা কোনো সরকারি সংস্থার সঙ্গে যুক্ত নয়, তাদের অনুমোদিত নয় এবং তাদের প্রতিনিধিত্ব করে না।"
+};
+var GOVL={
+ en:{manual:"Official driver manual",cdl:"CDL manual"},
+ es:{manual:"Manual oficial del conductor",cdl:"Manual CDL"},
+ zh:{manual:"官方驾驶手册",cdl:"CDL 手册"},
+ ru:{manual:"Официальный справочник водителя",cdl:"Справочник CDL"},
+ ko:{manual:"공식 운전자 매뉴얼",cdl:"CDL 매뉴얼"},
+ bn:{manual:"অফিশিয়াল ড্রাইভার ম্যানুয়াল",cdl:"CDL ম্যানুয়াল"}
+};
+function stName(){return (ST.names&&ST.names[LANG])||ST.name;}
+function pintarGov(){
+  var tpl=GOVN[LANG]||GOVN.en;
+  $("govText").innerHTML=tpl.replace(/\{state\}/g,esc(stName())).replace(/\{agency\}/g,esc(ST.agency||"DMV"));
+  var L=GOVL[LANG]||GOVL.en, man=$("govManual"), cdl=$("govCdl");
+  man.textContent=L.manual+" ↗"; man.href=ST.manual||"#"; man.hidden=!ST.manual;
+  cdl.textContent=L.cdl+" ↗"; cdl.href=ST.cdl||"#"; cdl.hidden=!ST.cdl;
+}
+// ---------- Selector de estado ----------
+function pintarSelectorEstado(){
+  var sel=$("estado"); if(!sel) return;
+  if(STATES.length<2){ sel.hidden=true; return; }
+  sel.hidden=false;
+  sel.innerHTML=STATES.map(function(s){var n=(s.names&&s.names[LANG])||s.name;return '<option value="'+s.code+'"'+(s.code===ST.code?" selected":"")+'>'+esc(s.code.toUpperCase()+" · "+n)+"</option>";}).join("");
+  sel.onchange=function(){setState(sel.value);};
+  sel.setAttribute("aria-label",({en:"State",es:"Estado",zh:"州",ru:"Штат",ko:"주",bn:"রাজ্য"}[LANG]||"State"));
+}
+function setState(code){
+  var st=stateByCode(code); if(!st||st.code===ST.code) return;
+  store.set("state",code);
+  window.LANGS={}; window.__langState=null;
+  loadScript(st.core).then(function(){
+    if(!window.CORE) throw new Error("state core failed");
+    C=window.CORE; ST=st; window.__coreState=st.code; cargarProgreso();
+    return setLang(LANG||"en");
+  }).catch(function(e){ try{console.error(e);}catch(x){} });
+}
 
 // ---------- Anuncios: solo fuera de las preguntas ----------
 var adsLoaded=false;
@@ -156,23 +235,51 @@ function pintarInicio(){
   $("guideName").textContent=P.guide.name+" · "+P.guide.role; $("guideHello").textContent=P.guide.hello;
   $("howList").innerHTML=P.ui.how.map(function(x){return "<li>"+esc(x)+"</li>";}).join("");
   var st=store.get("stats",{n:0,p:0,b:0});
-  $("stats").textContent=st.n?fmt(t("statsLine"),{n:num(st.n),p:num(st.p),b:num(st.b),g:num(store.get("best",0))}):t("statsNone");
+  $("stats").textContent=st.n?fmt(uis("statsLine"),{n:num(st.n),p:num(st.p),b:num(st.b),g:num(store.get("best",0))}):t("statsNone");
   var n=Object.keys(MISS).length, gm=$("goMistakes");
   gm.hidden=!n; gm.textContent="↻ "+t("practiceTitle")+" · "+num(n);
   gm.onclick=function(){location.hash="#practica"; practicaNueva("miss");};
+  pintarProgresoCapitulos(); pintarListo(); pintarMas();
+}
+// Barra por capítulo: cuántas preguntas de ese capítulo ya están dominadas.
+function pintarProgresoCapitulos(){
+  var box=$("chapterProgress"); if(!box) return;
+  var chs=Object.keys(P.chapters), h="";
+  chs.forEach(function(c){
+    var items=c==="S"?C.signs.map(function(k){return "s:"+k;}):ALL_RULES.filter(function(id){return String(C.rules[+id.slice(1)].ch)===c;});
+    var done=items.filter(function(id){return MAST[id];}).length, pct=items.length?Math.round(done/items.length*100):0;
+    var lab=c==="S"?P.chapters.S:manRef(c);
+    h+='<div class="chbar"><div class="lab"><span>' + esc(lab) + '</span><span>' + num(done) + "/" + num(items.length) + '</span></div><div class="bar"><span style="width:' + pct + '%"></span></div></div>';
+  });
+  box.innerHTML=h;
+}
+// «Listo para el examen»: tres simulacros seguidos aprobados.
+function pintarListo(){
+  var pill=$("readyPill"); if(!pill) return;
+  var hist=store.get(stpre()+"hist",[]);
+  var last=hist.slice(-3), ready=last.length===3&&last.every(function(x){return x.pass;});
+  pill.hidden=!ready;
+  if(ready){ pill.className="pill ok"; pill.textContent="✅ "+(P.ui.readyYes||"Ready for the exam"); }
+}
+function pintarMas(){
+  var box=$("homeMore"); if(!box) return;
+  var extra=["manual","juego","escuelas","cdl","maniobras","cultura","acerca"];
+  box.innerHTML=extra.map(function(v){return '<a class="chip" href="#'+v+'" style="text-decoration:none">'+esc(t("tabs")[v]||v)+"</a>";}).join("");
 }
 
 // ---------- Simulacro (se guarda después de cada respuesta) ----------
-var EX=store.get("exam",null);
-function guardarEx(){store.set("exam",EX?{ids:EX.qs.map(function(p){return p.id;}),ans:EX.ans,i:EX.i,done:EX.done}:null);}
+function guardarEx(){store.set(stpre()+"exam",EX?{ids:EX.qs.map(function(p){return p.id;}),ans:EX.ans,i:EX.i,done:EX.done}:null);}
 function rehidratar(){if(EX&&EX.ids){var o=EX; EX={qs:o.ids.map(preparar),ans:o.ans||[],i:o.i||0,done:o.done};}}
 function examenIntro(){
   $("examAd").hidden=true;
-  $("examCard").innerHTML='<h2>'+esc(t("examIntro"))+'</h2><div class="guide" style="margin:10px 0"><img src="'+img(P.guide.img)+'" alt=""><div class="bubble">'+esc(t("examIntroLead"))+'</div></div><button class="btn" id="exStart" type="button">'+esc(t("start"))+'</button>';
+  $("examCard").innerHTML='<h2>'+esc(t("examIntro"))+'</h2><div class="guide" style="margin:10px 0"><img src="'+img(P.guide.img)+'" alt=""><div class="bubble">'+esc(P.examLead||t("examIntroLead"))+'</div></div><button class="btn" id="exStart" type="button">'+esc(t("start"))+'</button>';
   $("exStart").onclick=examenNuevo;
 }
+function examCfg(){return C.exam||{total:20,pass:14,signs:4,signsPass:2};}
+// El formato del examen cambia por estado: NY 20/14 + 2 de 4 señales; NJ 50/40 sin sección aparte.
 function examenNuevo(){
-  var ids=shuffle(shuffle(ALL_RULES).slice(0,16).concat(shuffle(ALL_SIGNS).slice(0,4)));
+  var e=examCfg(), signN=Math.min(e.signs||0,ALL_SIGNS.length), ruleN=Math.max(0,e.total-signN);
+  var ids=shuffle(shuffle(ALL_RULES).slice(0,ruleN).concat(signN?shuffle(ALL_SIGNS).slice(0,signN):[]));
   EX={qs:ids.map(preparar),ans:[],i:0,done:false}; guardarEx(); examenPintar();
 }
 function examenPintar(){
@@ -189,12 +296,13 @@ function examenPintar(){
 function examenResultado(){
   var ok=0,sig=0,sigT=0;
   EX.qs.forEach(function(p,i){var b=EX.ans[i]===p.correct; if(b)ok++; if(p.sign){sigT++; if(b)sig++;}});
-  var aprobado=ok>=14&&sig>=2;
+  var e=examCfg(), aprobado=ok>=e.pass&&(!e.signs||sig>=e.signsPass);
   if(!EX.done){EX.done=true; EX.qs.forEach(function(p,i){marcar(p.id,EX.ans[i]===p.correct);});
-    var st=store.get("stats",{n:0,p:0,b:0}); st.n++; if(aprobado)st.p++; st.b=Math.max(st.b,ok); store.set("stats",st); guardarEx();}
+    var st=store.get("stats",{n:0,p:0,b:0}); st.n++; if(aprobado)st.p++; st.b=Math.max(st.b,ok); store.set("stats",st);
+    var hist=store.get(stpre()+"hist",[]); hist.push({ok:ok,total:EX.qs.length,pass:aprobado}); store.set(stpre()+"hist",hist.slice(-10)); guardarEx();}
   var h='<div class="row"><span class="result-big">'+num(ok)+'/'+num(EX.qs.length)+'</span><span class="pill '+(aprobado?"ok":"bad")+'">'+esc(aprobado?t("passed"):t("failed"))+'</span></div>';
   h+='<div class="guide" style="margin:10px 0"><img src="'+img(P.guide.img)+'" alt=""><div class="bubble">'+esc(frase(aprobado?"right":"wrong"))+' '+num(ok)+' '+esc(t("correct"))+' · '+num(sig)+'/'+num(sigT)+' '+esc(t("signsOk"))+'</div></div>';
-  if(ok>=14&&sig<2) h+='<p class="pill warn">'+esc(t("failSigns"))+'</p>';
+  if(ok>=e.pass&&e.signs&&sig<e.signsPass) h+='<p class="pill warn">'+esc(t("failSigns"))+'</p>';
   h+='<div class="row"><button class="btn" id="exAgain" type="button">'+esc(t("again"))+'</button></div><h3 style="margin-top:14px">'+esc(t("reviewTitle"))+'</h3><div class="review">';
   EX.qs.forEach(function(p,i){var b=EX.ans[i]===p.correct;
     h+='<div class="'+(b?"ok":"bad")+'"><b>'+num(i+1)+'. '+esc(textoPregunta(p))+(p.sign?' ('+esc(P.signs[p.sign])+')':'')+'</b><br>';
@@ -205,8 +313,7 @@ function examenResultado(){
 }
 
 // ---------- Práctica por tema y "mis errores" ----------
-var PR={ch:"all",qs:[],i:0,ok:0};
-var MAST=store.get("mast",{}), TOTAL=ALL_RULES.length+ALL_SIGNS.length;
+
 function pintarDominadas(){var n=Object.keys(MAST).length; $("masteredPill").textContent=n>=TOTAL?t("allDone"):fmt(t("mastered"),{n:num(n),t:num(TOTAL)});}
 function hechos(ch){ if(ch==="S") return C.signs.map(function(k){return {id:"s:"+k,txt:P.signs[k],sign:k};});
   return C.rules.map(function(r,i){return {id:"r"+i,ch:String(r.ch),txt:P.q[i][2]};}).filter(function(x){return x.ch===ch;}); }
@@ -239,7 +346,7 @@ function practicaPintar(){
   h+='<div class="qtext">'+esc(textoPregunta(p))+'</div><div class="opts">'+ops.map(function(o,k){return '<button type="button" class="opt" data-k="'+k+'">'+esc(o.txt)+'</button>';}).join("")+'</div>'+toolsHtml(p.id)+'<div id="prFb"></div>';
   c.innerHTML=h; bindSay(c,p);
   c.querySelectorAll(".opt").forEach(function(b){b.onclick=function(){
-    if(done)return; done=true; var v=ops[+b.dataset.k].v, bien=v===p.correct; if(bien)PR.ok++; marcar(p.id,bien); if(bien) MAST[p.id]=1; else delete MAST[p.id]; store.set("mast",MAST); pintarDominadas(); panelManual(p,true);
+    if(done)return; done=true; var v=ops[+b.dataset.k].v, bien=v===p.correct; if(bien)PR.ok++; marcar(p.id,bien); if(bien) MAST[p.id]=1; else delete MAST[p.id]; store.set(stpre()+"mast",MAST); pintarDominadas(); panelManual(p,true);
     c.querySelectorAll(".opt").forEach(function(x){var xv=ops[+x.dataset.k].v; x.disabled=true; if(xv===p.correct)x.classList.add("right"); else if(x===b)x.classList.add("wrong");});
     $("prFb").innerHTML='<div class="explain guide"><img src="'+img(P.guide.img)+'" alt=""><div class="bubble"><b>'+esc(frase(bien?"right":"wrong"))+'</b>'+explicacion(p)+'</div></div><div class="row" style="margin-top:12px"><button class="btn" id="prNext" type="button">'+esc(t("next"))+'</button></div>';
     $("prNext").onclick=function(){PR.i++; practicaPintar();}; $("prNext").focus({preventScroll:true});
@@ -255,48 +362,220 @@ function pintarManual(){
   $("manualList").innerHTML=chs.filter(function(c){return MANCH==="all"||MANCH===c;}).map(function(c){
     var lista=hechos(c), titulo=c==="S"?P.chapters.S:manRef(c)+" · "+P.chapters[c];
     var cuerpo=c==="S"?'<div class="signgrid">'+lista.map(function(x){return '<div>'+svgSenal(x.sign)+esc(x.txt)+'</div>';}).join("")+'</div>':'<ul class="facts-list" style="font-size:15px">'+lista.map(function(x){return '<li style="color:var(--ink)">'+esc(x.txt)+'</li>';}).join("")+'</ul>';
-    return '<div class="card chcard"><div class="head"><img src="'+img(CH_IMG[c])+'" alt="" loading="lazy"></div><h3>'+esc(titulo)+'</h3>'+cuerpo+
+    return '<div class="card chcard"><div class="head"><img src="'+chImg(c)+'" alt="" loading="lazy"></div><h3>'+esc(titulo)+'</h3>'+cuerpo+
       '<div class="row" style="margin-top:12px"><button class="btn" type="button" data-pr="'+c+'">'+esc(t("practiceCh"))+'</button>'+(hasVoice()?'<button class="btn ghost" type="button" data-say-ch="'+c+'">🔊 '+esc(t("readCh"))+'</button>':'')+'<a class="small" href="'+C.fuentes[c]+'" target="_blank" rel="noopener">'+esc(t("official"))+' ↗</a></div></div>';
   }).join("");
   $("manualList").querySelectorAll("[data-pr]").forEach(function(b){b.onclick=function(){location.hash="#practica"; practicaNueva(b.dataset.pr);};});
   $("manualList").querySelectorAll("[data-say-ch]").forEach(function(b){b.onclick=function(){speak(hechos(b.dataset.sayCh).map(function(x){return x.txt;}).join(". "));};});
 }
 
-// ---------- Juego de señales ----------
+// ---------- Juegos ----------
 var GM=null;
+function gp(){return P.games||(window.GAMES&&window.GAMES[LANG])||null;}
+function gbest(mode){return store.get(stpre()+"game_"+mode,{best:0,stars:0});}
+function gsave(mode,pts,stars){var r=gbest(mode); if(pts>r.best){r.best=pts; r.stars=Math.max(r.stars,stars); store.set(stpre()+"game_"+mode,r); return true;} return false;}
+function starsFor(pts,t1,t2,t3){return pts>=t3?3:pts>=t2?2:pts>=t1?1:0;}
+function starsHtml(n){var s=""; for(var i=0;i<3;i++) s+=i<n?"★":"☆"; return s;}
+function gmStop(){if(GM&&GM.timer){clearInterval(GM.timer); GM.timer=null;}}
 function juegoIntro(){
-  $("gameCard").innerHTML='<h2>'+esc(t("gameTitle"))+'</h2><p>'+esc(t("gameLead"))+'</p><p class="small">'+esc(t("best"))+': <b>'+num(store.get("best",0))+'</b></p><button class="btn" id="gmStart" type="button">'+esc(t("play"))+'</button>';
-  $("gmStart").onclick=juegoNuevo;
+  gmStop(); GM=null;
+  var g=gp(); if(!g){$("gameCard").innerHTML="";return;}
+  var modes=[["who",g.g1],["numbers",g.g2],["tf",g.g3],["signs",g.g4]];
+  var h='<h2>'+esc(g.hubTitle)+"</h2><p>"+esc(g.hubLead)+"</p><div class=\"grid g2\" style=\"margin-top:12px\">";
+  h+=modes.map(function(m){var r=gbest(m[0]); return '<div class="card" role="button" tabindex="0" data-gm="'+m[0]+'" style="text-align:start;cursor:pointer"><h3>'+esc(m[1].name)+"</h3><p class=\"small muted\">"+esc(m[1].desc)+"</p><p class=\"small\">"+esc(g.labels.best)+": <b>"+num(r.best)+"</b> · "+starsHtml(r.stars)+"</p></div>";}).join("");
+  h+="</div>";
+  $("gameCard").innerHTML=h;
+  $("gameCard").querySelectorAll("[data-gm]").forEach(function(b){b.onclick=function(){startGame(b.dataset.gm);}; b.onkeydown=function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();startGame(b.dataset.gm);}};});
 }
-function juegoNuevo(){
-  if(GM&&GM.timer)clearInterval(GM.timer);
-  GM={t:60,pts:0,streak:0,last:null};
-  GM.timer=setInterval(function(){GM.t--; var e=$("gmTime"); if(e)e.textContent=num(GM.t); if(GM.t<=0)juegoFin();},1000);
-  juegoRonda();
+function startGame(mode){
+  gmStop();
+  if(mode==="signs") return startSigns();
+  if(mode==="numbers") return startNumbers();
+  if(mode==="tf") return startTF();
+  if(mode==="who") return startWho();
 }
-function juegoRonda(){
-  var k; do{k=C.signs[Math.floor(Math.random()*C.signs.length)];}while(k===GM.last);
+function gameLayout(g,body,extra){
+  var h='<div class="row" style="justify-content:space-between"><button class="btn ghost" id="gmBack" type="button">← '+esc(g.labels.back)+"</button>";
+  h+='<div class="gamebar"><div><b id="gmTime">'+num(GM.t)+"</b>"+esc(g.labels.timeLeft)+"</div><div><b>"+num(GM.pts)+"</b>"+esc(g.labels.score)+"</div></div></div>";
+  h+=body;
+  $("gameCard").innerHTML=h+(extra||"");
+  var back=$("gmBack"); if(back) back.onclick=juegoIntro;
+}
+// --- Señales: niveles, rachas, estrellas, solo mis errores ---
+function startSigns(onlyMiss){
+  var g=gp();
+  var pool=C.signs.filter(function(k){return !onlyMiss||MISS["s:"+k];});
+  if(!pool.length) pool=C.signs.slice();
+  GM={mode:"signs",t:60,pts:0,streak:0,right:0,level:1,pool:pool,last:null};
+  GM.timer=setInterval(function(){GM.t--; var e=$("gmTime"); if(e)e.textContent=num(GM.t); if(GM.t<=0)signsEnd();},1000);
+  signsRound();
+}
+function signsRound(){
+  var g=gp(), pool=GM.pool, k; do{k=pool[Math.floor(Math.random()*pool.length)];}while(k===GM.last&&pool.length>1);
   GM.last=k; var p=preparar("s:"+k), ops=opciones(p);
-  var h='<div class="gamebar"><div><b id="gmTime">'+num(GM.t)+'</b>'+esc(t("time"))+'</div><div><b>'+num(GM.pts)+'</b>'+esc(t("points"))+'</div><div><b>×'+num(1+Math.floor(GM.streak/3))+'</b>'+esc(t("streak"))+' '+num(GM.streak)+'</div></div>';
-  h+='<div class="signbox">'+svgSenal(k)+'</div><div class="opts">'+ops.map(function(o,i){return '<button type="button" class="opt" data-k="'+i+'">'+esc(o.txt)+'</button>';}).join("")+'</div>';
-  var c=$("gameCard"); c.innerHTML=h;
-  c.querySelectorAll(".opt").forEach(function(b){b.onclick=function(){
-    var v=ops[+b.dataset.k].v, bien=v===p.correct;
-    if(bien){GM.streak++; GM.pts+=1+Math.floor((GM.streak-1)/3);} else GM.streak=0;
-    c.querySelectorAll(".opt").forEach(function(x){x.disabled=true; var xv=ops[+x.dataset.k].v; if(xv===p.correct)x.classList.add("right"); else if(x===b)x.classList.add("wrong");});
-    setTimeout(function(){if(GM&&GM.timer)juegoRonda();},bien?250:700);
-  };});
+  var h='<div class="qhead"><span class="pill">'+esc(g.labels.level)+" "+num(GM.level)+'</span><span class="pill">×'+num(1+Math.floor(GM.streak/3))+"</span></div>";
+  h+='<div class="signbox">'+svgSenal(k)+"</div><div class=\"opts\">"+ops.map(function(o,i){return '<button type="button" class="opt" data-k="'+i+'">'+esc(o.txt)+"</button>";}).join("")+"</div><div id=\"gmFb\"></div>";
+  gameLayout(g,h);
+  document.querySelectorAll("#gameCard .opt").forEach(function(b){
+    b.onclick=function(){
+      var v=ops[+b.dataset.k].v, bien=v===p.correct;
+      if(bien){GM.streak++; GM.right++; GM.pts+=1+Math.floor((GM.streak-1)/3)+(GM.level-1); if(GM.right%8===0) GM.level++;}
+      else {GM.streak=0;}
+      document.querySelectorAll("#gameCard .opt").forEach(function(x){x.disabled=true; var xv=ops[+x.dataset.k].v; if(xv===p.correct)x.classList.add("right"); else if(x===b)x.classList.add("wrong");});
+      if(!bien){ $("gmFb").innerHTML='<div class="explain"><div class="bubble">'+esc(P.signs[p.correct])+' · <a href="'+C.fuentes.S+'" target="_blank" rel="noopener">'+esc(t("signsChart"))+"</a></div></div>"; }
+      setTimeout(function(){if(GM&&GM.timer)signsRound();},bien?260:1200);
+    };
+  });
 }
-function juegoFin(){
-  if(!GM)return; clearInterval(GM.timer); GM.timer=null;
-  var best=store.get("best",0), record=GM.pts>best; if(record)store.set("best",GM.pts);
-  if(vista()!=="juego"){GM=null; juegoIntro(); return;}
-  $("gameCard").innerHTML='<h2>'+esc(t("gameOver"))+'</h2><p class="result-big">'+num(GM.pts)+'</p><p class="small">'+esc(t("best"))+': <b>'+num(Math.max(best,GM.pts))+'</b>'+(record?' <span class="pill ok">★</span>':'')+'</p><button class="btn" id="gmAgain" type="button">'+esc(t("playAgain"))+'</button><div class="ad" data-ad></div>';
-  $("gmAgain").onclick=juegoNuevo; pintarAds(); pintarInicio();
+function signsEnd(){
+  var g=gp(); gmStop();
+  var stars=starsFor(GM.pts,15,30,50), rec=gsave("signs",GM.pts,stars);
+  var h='<h2>'+esc(g.labels.finish)+"</h2><p class=\"result-big\">"+num(GM.pts)+"</p><p>"+starsHtml(stars)+(rec?' <span class="pill ok">'+esc(g.labels.best)+"</span>":"")+"</p>";
+  h+='<div class="row"><button class="btn" id="gmAgain" type="button">'+esc(g.labels.again)+"</button></div>";
+  $("gameCard").innerHTML=h;
+  $("gmAgain").onclick=function(){startSigns();};
+  pintarInicio();
+}
+// --- Números: la respuesta correcta es una cifra ---
+function numberBank(){
+  var out=[];
+  for(var i=0;i<C.rules.length;i++){ var correct=P.q[i][1][C.rules[i].a]; if(/\d/.test(correct)) out.push(i); }
+  return out;
+}
+function startNumbers(){
+  var bank=numberBank(); if(!bank.length) return juegoIntro();
+  GM={mode:"numbers",t:60,pts:0,right:0,bank:bank,used:[]};
+  GM.timer=setInterval(function(){GM.t--; var e=$("gmTime"); if(e)e.textContent=num(GM.t); if(GM.t<=0)quickEnd("numbers",15,30,45);},1000);
+  numbersRound();
+}
+function numbersRound(){
+  var g=gp(); if(GM.used.length>=GM.bank.length) GM.used=[];
+  var pool=GM.bank.filter(function(i){return GM.used.indexOf(i)<0;});
+  var qi=pool[Math.floor(Math.random()*pool.length)]; GM.used.push(qi);
+  var p=preparar("r"+qi), ops=opciones(p), correct=P.q[qi][1][C.rules[qi].a];
+  var h='<div class="qtext">'+esc(P.q[qi][0])+"</div><div class=\"opts\">"+ops.map(function(o,i){return '<button type="button" class="opt" data-k="'+i+'">'+esc(o.txt)+"</button>";}).join("")+"</div><div id=\"gmFb\"></div>";
+  gameLayout(g,h);
+  document.querySelectorAll("#gameCard .opt").forEach(function(b){
+    b.onclick=function(){
+      var v=ops[+b.dataset.k].v, bien=v===p.correct;
+      if(bien) GM.pts+=2;
+      document.querySelectorAll("#gameCard .opt").forEach(function(x){x.disabled=true; var xv=ops[+x.dataset.k].v; if(xv===p.correct)x.classList.add("right"); else if(x===b)x.classList.add("wrong");});
+      if(!bien) $("gmFb").innerHTML='<div class="explain"><div class="bubble">'+esc(correct)+"</div></div>";
+      setTimeout(function(){if(GM&&GM.timer)numbersRound();},bien?260:1100);
+    };
+  });
+}
+// --- Verdadero o falso, 60 segundos ---
+function startTF(){
+  GM={mode:"tf",t:60,pts:0,right:0};
+  GM.timer=setInterval(function(){GM.t--; var e=$("gmTime"); if(e)e.textContent=num(GM.t); if(GM.t<=0)quickEnd("tf",10,20,30);},1000);
+  tfRound();
+}
+function tfRound(){
+  var g=gp();
+  var qi=Math.floor(Math.random()*C.rules.length);
+  var correct=C.rules[qi].a, shownIdx = Math.random()<0.5 ? correct : ((correct+1+Math.floor(Math.random()*3))%4);
+  var isTrue = shownIdx===correct;
+  var h='<div class="qtext">'+esc(P.q[qi][0])+"</div>";
+  h+='<p class="pill" style="display:block;margin:6px 0">'+esc(P.q[qi][1][shownIdx])+"</p>";
+  h+='<div class="row"><button class="btn" id="tfT" type="button">'+esc(g.labels.right)+"</button><button class=\"btn ghost\" id=\"tfF\" type=\"button\">"+esc(g.labels.wrong)+"</button></div><div id=\"gmFb\"></div>";
+  gameLayout(g,h);
+  var answer=function(saysTrue){
+    var ok=(saysTrue===isTrue); if(ok) GM.pts+=2;
+    $("tfT").disabled=true; $("tfF").disabled=true;
+    $("gmFb").innerHTML='<div class="explain"><div class="bubble"><b>'+(isTrue?"✓":"✗")+"</b> "+esc(P.q[qi][1][correct])+"<br><span class=\"small muted\">"+esc(P.q[qi][2])+"</span></div></div>";
+    setTimeout(function(){if(GM&&GM.timer)tfRound();},ok?350:1300);
+  };
+  $("tfT").onclick=function(){answer(true);}; $("tfF").onclick=function(){answer(false);};
+}
+// --- ¿Quién pasa primero? ---
+function startWho(){
+  var g=gp(); if(!g||!g.who) return juegoIntro();
+  GM={mode:"who",t:90,pts:0,i:0,total:g.who.length};
+  GM.timer=setInterval(function(){GM.t--; var e=$("gmTime"); if(e)e.textContent=num(GM.t); if(GM.t<=0)quickEnd("who",3,5,6);},1000);
+  whoRound();
+}
+function carSvg(){
+  var car=function(x,y,id,label){return '<g class="gcar" data-id="'+id+'" style="cursor:pointer" transform="translate('+x+','+y+')">'+
+    '<rect x="-24" y="-16" width="48" height="32" rx="7" fill="#0b6e4f" stroke="#fff" stroke-width="2"/>'+
+    '<text x="0" y="6" text-anchor="middle" font-size="18" font-weight="700" fill="#fff">'+label+"</text></g>";};
+  return '<svg viewBox="0 0 300 300" role="img" aria-label="Intersection" style="max-width:320px;display:block;margin:0 auto">'+
+    '<rect x="0" y="0" width="300" height="300" fill="#e7ece8"/>'+
+    '<rect x="115" y="0" width="70" height="300" fill="#8d9a92"/>'+
+    '<rect x="0" y="115" width="300" height="70" fill="#8d9a92"/>'+
+    '<rect x="148" y="10" width="4" height="105" fill="#f2b705"/>'+
+    '<rect x="148" y="185" width="4" height="105" fill="#f2b705"/>'+
+    car(150,45,"S","C")+car(255,150,"W","D")+car(150,255,"N","A")+car(45,150,"E","B")+
+    '<g class="gcar" data-id="P" style="cursor:pointer" transform="translate(205,95)"><circle r="14" fill="#1d4f9a"/><text y="5" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">P</text></g>'+
+    '<g class="gcar" data-id="E" style="cursor:pointer" transform="translate(95,205)"><rect x="-16" y="-13" width="32" height="26" rx="5" fill="#b3261e"/><text y="5" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">E</text></g>'+
+    "</svg>";
+}
+function whoRound(){
+  var g=gp(), sc=g.who[GM.i];
+  var h='<p class="small">'+esc(g.labels.tapCar)+"</p><p><b>"+esc(sc.cap)+"</b></p>"+carSvg();
+  gameLayout(g,h);
+  document.querySelectorAll("#gameCard .gcar").forEach(function(el){
+    el.onclick=function(){
+      var ok=el.dataset.id===sc.a; if(ok) GM.pts++;
+      document.querySelectorAll("#gameCard .gcar").forEach(function(x){x.style.opacity=x.dataset.id===sc.a?"1":".45";});
+      $("gmFb").innerHTML='<div class="explain"><div class="bubble">'+(ok?"✓":"✗")+" "+esc(sc.e)+"</div></div>"+'<div class="row" style="margin-top:10px"><button class="btn" id="gmNext" type="button">'+esc(g.labels.next)+"</button></div>";
+      $("gmNext").onclick=function(){ GM.i++; if(GM.i>=GM.total) return quickEnd("who",3,5,6); whoRound(); };
+    };
+  });
+}
+function quickEnd(mode,t1,t2,t3){
+  var g=gp(); gmStop();
+  var stars=starsFor(GM.pts,t1,t2,t3), rec=gsave(mode,GM.pts,stars);
+  var h='<h2>'+esc(g.labels.finish)+"</h2><p class=\"result-big\">"+num(GM.pts)+"</p><p>"+starsHtml(stars)+(rec?' <span class="pill ok">'+esc(g.labels.best)+"</span>":"")+"</p>";
+  h+='<div class="row"><button class="btn" id="gmAgain" type="button">'+esc(g.labels.again)+"</button><button class=\"btn ghost\" id=\"gmHub\" type=\"button\">"+esc(g.labels.back)+"</button></div>";
+  $("gameCard").innerHTML=h;
+  $("gmAgain").onclick=function(){startGame(mode);}; $("gmHub").onclick=juegoIntro;
+  pintarInicio();
+}
+// ---------- Licencia comercial (CDL) ----------
+var CDLQ={i:0,ok:0,done:false};
+function cdlQuiz(){
+  var c=P.cdl; if(!c||!c.practice) return "";
+  var h='<h3>'+esc(c.hPractice||"Practice")+"</h3>";
+  if(CDLQ.done){
+    h+='<p class="result-big">'+num(CDLQ.ok)+"/"+num(c.practice.length)+'</p><div class="row"><button class="btn" id="cdlAgain" type="button">'+esc(t("again"))+'</button></div>';
+    return h;
+  }
+  var p=c.practice[CDLQ.i];
+  h+='<div class="qhead"><span class="pill">'+num(CDLQ.i+1)+" / "+num(c.practice.length)+'</span><span class="pill">'+esc(t("score"))+": "+num(CDLQ.ok)+"</span></div>";
+  h+='<div class="qtext">'+esc(p.q)+"</div><div class=\"opts\">"+p.o.map(function(o,k){return '<button type="button" class="opt" data-k="'+k+'">'+esc(o)+"</button>";}).join("")+"</div>";
+  h+='<div id="cdlFb"></div>';
+  return h;
+}
+function cdlBind(){
+  var c=P.cdl; if(!c||!c.practice) return;
+  var again=$("cdlAgain"); if(again){ again.onclick=function(){CDLQ={i:0,ok:0,done:false}; pintarCdl();}; return; }
+  var done=false, p=c.practice[CDLQ.i];
+  document.querySelectorAll("#cdlCard .opt").forEach(function(b){
+    b.onclick=function(){
+      if(done) return; done=true;
+      var v=+b.dataset.k, bien=v===p.a; if(bien) CDLQ.ok++;
+      document.querySelectorAll("#cdlCard .opt").forEach(function(x){ x.disabled=true; var k=+x.dataset.k; if(k===p.a) x.classList.add("right"); else if(x===b) x.classList.add("wrong"); });
+      $("cdlFb").innerHTML='<div class="explain"><div class="bubble">'+esc(p.e)+(p.src?' <span class="muted small">· '+esc(p.src)+"</span>":"")+"</div></div>"+'<div class="row" style="margin-top:10px"><button class="btn" id="cdlNext" type="button">'+esc(CDLQ.i===c.practice.length-1?t("finish"):t("next"))+"</button></div>";
+      $("cdlNext").onclick=function(){ if(CDLQ.i===c.practice.length-1) CDLQ.done=true; else CDLQ.i++; pintarCdl(); };
+      $("cdlNext").focus({preventScroll:true});
+    };
+  });
+}
+function pintarCdl(){
+  var c=P.cdl; if(!c) return;
+  var h='<h2>'+esc(c.title)+"</h2><p>"+esc(c.lead)+"</p>";
+  h+='<p class="pill warn" style="display:block;margin:10px 0">'+esc(c.notice)+"</p>";
+  h+='<div class="grid g2" style="margin-top:12px">'+c.classes.map(function(x){return '<div class="card" style="border-left:4px solid var(--warn)"><h3>'+esc(x.t)+"</h3><p class=\"small\">"+esc(x.d)+"</p></div>";}).join("")+"</div>";
+  h+='<h3 style="margin-top:16px">'+esc(c.hSteps||"How to get it")+"</h3><ol class=\"steps\" style=\"padding-inline-start:20px\">"+c.steps.map(function(s){return "<li><b>"+esc(s.t)+"</b><br><span class=\"small muted\">"+esc(s.d)+"</span></li>";}).join("")+"</ol>";
+  h+='<h3 style="margin-top:16px">'+esc(c.hEnd||"Endorsements")+"</h3><div class=\"grid g2\">"+c.endorsements.map(function(e){return '<div class="card"><h3>'+esc(e.k+" · "+e.t)+"</h3><p class=\"small\">"+esc(e.d)+"</p></div>";}).join("")+"</div>";
+  h+='<h3 style="margin-top:16px">'+esc(c.hAir||"Air brakes")+"</h3><p class=\"small\"><b>"+esc(c.air.t)+":</b> "+esc(c.air.d)+"</p>";
+  h+=cdlQuiz();
+  h+='<h3 style="margin-top:16px">'+esc(c.hState||"Your state")+"</h3><p class=\"small\">"+esc(stName())+" · "+esc(ST.agency||"DMV")+'</p><p><a class="btn ghost" target="_blank" rel="noopener" href="'+esc(ST.cdl||"#")+'">'+esc(c.hOfficial||"Official CDL manual")+" ↗</a></p>";
+  $("cdlCard").innerHTML=h; cdlBind();
 }
 
 // ---------- Road test ----------
-var RT=store.get("rt",{});
 function pintarRoadtest(){
   $("rtSource").href=C.fuentes.R;
   var h="";
@@ -306,12 +585,12 @@ function pintarRoadtest(){
       h+='<div class="rt-item"><div><div>'+esc(it)+'</div>'+(ch?'<div class="small muted">'+esc(manRef(ch))+'</div>':'')+'</div><div class="counter"><button type="button" data-id="'+id+'" data-d="-1" aria-label="−">−</button><span>'+num(n)+'</span><button type="button" data-id="'+id+'" data-d="1" aria-label="+">+</button></div></div>';});
     h+='</div>';});
   $("rtList").innerHTML=h;
-  $("rtList").querySelectorAll(".counter button").forEach(function(b){b.onclick=function(){var id=b.dataset.id; RT[id]=Math.max(0,(RT[id]||0)+(+b.dataset.d)); store.set("rt",RT); pintarRoadtest();};});
+  $("rtList").querySelectorAll(".counter button").forEach(function(b){b.onclick=function(){var id=b.dataset.id; RT[id]=Math.max(0,(RT[id]||0)+(+b.dataset.d)); store.set(stpre()+"rt",RT); pintarRoadtest();};});
   var total=0, porCat=P.rt.map(function(cat,ci){var s=0; cat.items.forEach(function(_,ii){s+=RT[ci+"-"+ii]||0;}); total+=s; return {n:s,name:cat.cat};});
   var peor=porCat.filter(function(x){return x.n>0;}).sort(function(a,b){return b.n-a.n;}).slice(0,2).map(function(x){return x.name+" ("+num(x.n)+")";}).join(", ");
   $("rtSummary").textContent=total?fmt(t("rtTotal"),{n:num(total),c:peor}):t("rtNone");
 }
-$("rtReset").onclick=function(){RT={}; store.set("rt",RT); pintarRoadtest();};
+$("rtReset").onclick=function(){RT={}; store.set(stpre()+"rt",RT); pintarRoadtest();};
 
 
 // ---------- Escuelas de manejo (lista oficial del DMV; patrocinadas marcadas como tales) ----------
@@ -322,17 +601,33 @@ var SCT={
  ru:{tab:"Автошколы",title:"Найдите лицензированную автошколу рядом",lead:"Все школы из официального списка DMV штата Нью-Йорк, сначала ближайшие. 5-часовой курс, занятия к экзамену по вождению или мотоцикл.",near:"Моё местоположение",search:"Поиск по названию, городу или индексу",p:"5-часовой курс",a:"Вождение авто",m:"Мотоцикл",call:"Позвонить",dir:"Маршрут",rev:"Отзывы в Google Maps",sp:"Спонсор",locErr:"Не удалось определить местоположение. Ищите по городу или индексу.",count:"{n} лицензированных школ",mi:"миль",note:"Источник: список лицензированных автошкол DMV штата Нью-Йорк (data.ny.gov). Наличие в списке — не рекомендация DriveReady или DMV. Спонсоры платят за место вверху и всегда отмечены.",own:"У вас автошкола? Покажитесь на 6 языках",more:"Показать ещё"},
  ko:{tab:"운전학원",title:"가까운 인가 운전학원 찾기",lead:"뉴욕주 DMV 공식 인가 운전학원 목록을 가까운 순서로 보여 드려요. 5시간 교육, 도로주행 연수, 오토바이 교육을 찾아보세요.",near:"내 위치 사용",search:"이름, 도시, 우편번호로 검색",p:"5시간 교육",a:"자동차 연수",m:"오토바이",call:"전화",dir:"길찾기",rev:"Google 지도 리뷰",sp:"후원",locErr:"위치를 가져올 수 없어요. 도시나 우편번호로 검색하세요.",count:"인가 학원 {n}곳",mi:"마일",note:"출처: 뉴욕주 DMV 인가 운전학원 목록 (data.ny.gov). 목록에 있다고 DriveReady나 DMV가 추천하는 것은 아니에요. 후원 학원은 비용을 내고 위에 표시되며 항상 '후원'으로 표시돼요.",own:"운전학원을 운영하세요? 6개 언어로 소개하세요",more:"더 보기"},
  bn:{tab:"ড্রাইভিং স্কুল",title:"কাছের লাইসেন্সপ্রাপ্ত ড্রাইভিং স্কুল খুঁজুন",lead:"নিউ ইয়র্ক স্টেট DMV-এর অফিশিয়াল তালিকার সব স্কুল, কাছেরগুলো আগে। ৫ ঘণ্টার কোর্স, রোড টেস্টের ক্লাস বা মোটরসাইকেল।",near:"আমার লোকেশন",search:"নাম, শহর বা ZIP দিয়ে খুঁজুন",p:"৫ ঘণ্টার কোর্স",a:"গাড়ির ক্লাস",m:"মোটরসাইকেল",call:"কল",dir:"রাস্তা",rev:"Google Maps রিভিউ",sp:"স্পনসর",locErr:"লোকেশন পাওয়া যায়নি। শহর বা ZIP দিয়ে খুঁজুন।",count:"{n}টি লাইসেন্সপ্রাপ্ত স্কুল",mi:"মাইল",note:"উৎস: নিউ ইয়র্ক স্টেট DMV-এর লাইসেন্সপ্রাপ্ত ড্রাইভিং স্কুলের তালিকা (data.ny.gov)। তালিকায় থাকা মানে DriveReady বা DMV-এর সুপারিশ নয়। স্পনসর স্কুল টাকা দিয়ে উপরে থাকে এবং সবসময় চিহ্নিত।",own:"ড্রাইভিং স্কুল আছে? ৬টি ভাষায় দেখান",more:"আরও দেখুন"}};
+// Textos para estados sin lista descargable de autoescuelas.
+var SCTX={
+ en:{noList:"New Jersey publishes its registered driving schools as an official MVC list, not as a data file we can ship offline. Open the official list below: it is updated by the MVC.",officialSearch:"Official list of registered driving schools"},
+ es:{noList:"Nueva Jersey publica sus autoescuelas registradas en una lista oficial del MVC, no en un archivo de datos que podamos incluir sin conexión. Abre la lista oficial: la actualiza el MVC.",officialSearch:"Lista oficial de autoescuelas registradas"},
+ zh:{noList:"新泽西州的注册驾校名单由 MVC 官方发布，不是我们可以离线打包的数据文件。请打开下方官方名单，它由 MVC 更新。",officialSearch:"官方注册驾校名单"},
+ ru:{noList:"Нью-Джерси публикует список зарегистрированных автошкол в официальном перечне MVC, а не в файле данных, который можно встроить в приложение. Откройте официальный список ниже.",officialSearch:"Официальный список автошкол"},
+ ko:{noList:"뉴저지는 등록 운전학원 목록을 MVC 공식 명단으로만 공개하며, 앱에 넣을 수 있는 데이터 파일은 제공하지 않아요. 아래 공식 목록을 열어 보세요.",officialSearch:"공식 등록 운전학원 목록"},
+ bn:{noList:"নিউ জার্সি তাদের নিবন্ধিত ড্রাইভিং স্কুলের তালিকা MVC-এর অফিশিয়াল তালিকা হিসেবে প্রকাশ করে, অফলাইনে দেওয়ার মতো ডেটা ফাইল হিসেবে নয়। নিচের অফিশিয়াল তালিকা খুলুন।",officialSearch:"নিবন্ধিত ড্রাইভিং স্কুলের অফিসিয়াল তালিকা"}
+};
+for(var _k in SCTX){ for(var _j in SCTX[_k]) SCT[_k][_j]=SCTX[_k][_j]; }
 var SC={pos:null,q:"",lim:20};
 function st(k){var o=SCT[LANG]||SCT.en; return o[k]||SCT.en[k];}
 function dist(a,b,c,d){var R=3958.8,r=Math.PI/180,x=(c-a)*r,y=(d-b)*r,h=Math.sin(x/2)*Math.sin(x/2)+Math.cos(a*r)*Math.cos(c*r)*Math.sin(y/2)*Math.sin(y/2);return 2*R*Math.asin(Math.sqrt(h));}
-function cargarEscuelas(cb){if(window.SCHOOLS_NY) return cb(); var s=document.createElement("script"); s.src="schools/ny.js"; s.onload=cb; document.head.appendChild(s);}
+function listaEscuelas(){return window.SCHOOLS||window.SCHOOLS_NY||null;}
+function cargarEscuelas(cb){if(listaEscuelas()) return cb(); if(!ST.schools) return cb(); var s=document.createElement("script"); s.src=ST.schools; s.onload=cb; document.head.appendChild(s);}
 function pintarEscuelas(){
   $("scTitle").textContent=st("title"); $("scLead").textContent=st("lead"); $("scNear").textContent="📍 "+st("near"); $("scQ").placeholder=st("search"); $("scNote").textContent=st("note");
   $("scOwn").textContent=st("own"); $("scOwn").href=CFG.sponsorEmail?"mailto:"+CFG.sponsorEmail+"?subject="+encodeURIComponent("DriveReady featured driving school"):"#";
   $("scOwn").hidden=!CFG.sponsorEmail;
-  if(!window.SCHOOLS_NY){ $("scList").innerHTML='<p class="muted small">…</p>'; return cargarEscuelas(pintarEscuelas); }
+  var list=listaEscuelas();
+  if(!list){
+    if(!ST.schools){ $("scCount").textContent=""; $("scMore").hidden=true;
+      $("scList").innerHTML='<p class="small">'+esc(st("noList"))+"</p>"+(ST.schoolSearch?'<p><a class="btn ghost" target="_blank" rel="noopener" href="'+esc(ST.schoolSearch)+'">'+esc(st("officialSearch"))+" ↗</a></p>":"");
+      return; }
+    $("scList").innerHTML='<p class="muted small">…</p>'; return cargarEscuelas(pintarEscuelas); }
   var sp={}; (CFG.sponsors||[]).forEach(function(s){sp[s.id]=s;});
-  var q=SC.q.trim().toLowerCase(), L=SCHOOLS_NY.filter(function(s){return !q||(s[1]+" "+s[2]+" "+s[3]+" "+s[4]+" "+s[5]).toLowerCase().indexOf(q)>=0;});
+  var q=SC.q.trim().toLowerCase(), L=list.filter(function(s){return !q||(s[1]+" "+s[2]+" "+s[3]+" "+s[4]+" "+s[5]).toLowerCase().indexOf(q)>=0;});
   L=L.map(function(s){return {s:s,d:(SC.pos&&s[7]!=null)?dist(SC.pos[0],SC.pos[1],s[7],s[8]):null,sp:sp[s[0]]};});
   if(SC.pos) L.sort(function(a,b){return (a.d==null?1e9:a.d)-(b.d==null?1e9:b.d);});
   var spon=L.filter(function(x){return x.sp&&(x.d==null||x.d<25);}), rest=L.filter(function(x){return !x.sp;});
@@ -409,10 +704,52 @@ function pintarCultura(){
   $("sourceList").innerHTML=l+'<li><a href="'+C.fuentes.S+'" target="_blank" rel="noopener">'+esc(P.chapters.S)+'</a></li><li><a href="'+C.fuentes.R+'" target="_blank" rel="noopener">'+esc(t("rtSourceLink"))+'</a></li>';
 }
 
+// ---------- Primer arranque en tres pasos ----------
+var ONB={step:0,lang:null,state:"ny",goal:"permit"};
+function onbShow(){
+  if(store.get("onboard",false)) return false;
+  ONB={step:0,lang:LANG||"en",state:ST.code,goal:store.get("goal","permit")};
+  $("onb").hidden=false; onbPaint(); return true;
+}
+function onbPaint(){
+  var u=P.ui, h='<div class="onb-step">'+[0,1,2].map(function(i){return '<span class="'+(i<=ONB.step?"on":"")+'"></span>';}).join("")+"</div>";
+  if(ONB.step===0){
+    h+="<h2>"+esc(u.onbLang||"Language")+"</h2><div class=\"onb-grid\">"+META.map(function(m){return '<button type="button" data-l="'+m.code+'" aria-pressed="'+(m.code===ONB.lang)+'" lang="'+m.code+'">'+esc(m.name)+"</button>";}).join("")+"</div>";
+  } else if(ONB.step===1){
+    h+="<h2>"+esc(u.onbState||"State")+"</h2><div class=\"onb-grid\">"+STATES.map(function(s){return '<button type="button" data-s="'+s.code+'" aria-pressed="'+(s.code===ONB.state)+'">'+esc((s.names&&s.names[ONB.lang])||s.name)+"</button>";}).join("")+"</div>";
+  } else {
+    h+="<h2>"+esc(u.onbGoal||"Goal")+"</h2><div class=\"onb-grid\">"
+      +'<button type="button" data-g="permit" aria-pressed="'+(ONB.goal==="permit")+'">'+esc(u.goalPermit||"Permit")+"</button>"
+      +'<button type="button" data-g="road" aria-pressed="'+(ONB.goal==="road")+'">'+esc(u.goalRoad||"Road test")+"</button>"
+      +'<button type="button" data-g="cdl" aria-pressed="'+(ONB.goal==="cdl")+'">'+esc(u.goalCdl||"CDL")+"</button></div>";
+  }
+  h+='<div class="row" style="justify-content:flex-end;margin-top:10px">'+
+    (ONB.step>0?'<button class="btn ghost" type="button" id="onbBack">←</button>':"")+
+    '<button class="btn" type="button" id="onbNext">'+esc(ONB.step===2?(u.onbStart||"Start"):(u.onbNext||"Next"))+"</button></div>";
+  $("onbBody").innerHTML=h;
+  $("onbBody").querySelectorAll("[data-l]").forEach(function(b){b.onclick=function(){ONB.lang=b.dataset.l; setLang(ONB.lang).then(onbPaint);};});
+  $("onbBody").querySelectorAll("[data-s]").forEach(function(b){b.onclick=function(){ONB.state=b.dataset.s; onbPaint();};});
+  $("onbBody").querySelectorAll("[data-g]").forEach(function(b){b.onclick=function(){ONB.goal=b.dataset.g; onbPaint();};});
+  var back=$("onbBack"); if(back) back.onclick=function(){ONB.step--; onbPaint();};
+  $("onbNext").onclick=function(){
+    if(ONB.step<2){ ONB.step++; return onbPaint(); }
+    store.set("onboard",true); store.set("goal",ONB.goal);
+    $("onb").hidden=true;
+    if(ONB.state!==ST.code){ setState(ONB.state); }
+    location.hash = ONB.goal==="cdl"?"#cdl":ONB.goal==="road"?"#roadtest":"#practica";
+  };
+}
+function conectarMas(){ var b=$("moreBtn"); if(b) b.onclick=function(){var m=$("homeMore"); m.hidden=!m.hidden; b.setAttribute("aria-expanded",String(!m.hidden));}; }
+
 // ---------- Todo ----------
 function renderAll(){
-  document.title="DriveReady: Permit & Road Test · "+P.name;
-  document.querySelectorAll("[data-t]").forEach(function(el){var v=P.ui[el.dataset.t]; if(typeof v==="string") el.textContent=v;});
+  document.title="DriveReady: Permit & Road Test · "+stName()+" · "+P.name;
+  document.querySelectorAll("[data-t]").forEach(function(el){var v=uis(el.dataset.t); if(typeof v==="string") el.textContent=v;});
+  var ex=examCfg();
+  if($("factTotal")){ $("factTotal").textContent=num(ex.total); $("factPass").textContent=num(ex.pass);
+    $("factSigns").textContent=ex.signs?num(ex.signsPass)+"/"+num(ex.signs):"—";
+    $("factSignsWrap").hidden=!ex.signs; }
+  pintarGov(); pintarSelectorEstado();
   $("langBtn").textContent="🌐 "+P.name; $("langBtn").setAttribute("aria-label",t("langLabel"));
   pintarTabs(); pintarInicio(); pintarChips(); pintarManual(); pintarDominadas(); pintarRoadtest(); if(vista()==="escuelas") pintarEscuelas(); pintarManChips(); pintarMan(); pintarCultura(); pintarAds();
   rehidratar(); if(EX){ if(EX.done) examenResultado(); else examenPintar(); } else examenIntro();
@@ -426,13 +763,25 @@ if(TTS&&TTS.addEventListener) TTS.addEventListener("voiceschanged",function(){})
 // Instalar como app (Android/Chrome) y uso sin conexión
 var deferred=null;
 window.addEventListener("beforeinstallprompt",function(e){e.preventDefault(); deferred=e; var b=$("installBtn"); b.hidden=false; b.onclick=function(){deferred.prompt(); deferred=null; b.hidden=true;};});
-if("serviceWorker" in navigator && location.protocol==="https:") navigator.serviceWorker.register("sw.js").catch(function(){});
+var swOK=location.protocol==="https:"||/^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+if("serviceWorker" in navigator && swOK) navigator.serviceWorker.register("sw.js").catch(function(){});
 
-// Primer arranque: idioma guardado, o el del teléfono, o el selector
-var q=(location.search.match(/[?&]lang=([a-z]{2})/)||[])[1];
-var saved=META.some(function(m){return m.code===q;})?q:store.get("lang",null);
-if(saved) setLang(saved);
-else {
-  LANG=(navigator.language||"en").slice(0,2); pickerShow();
+// Primer arranque: estado (URL o guardado), idioma (URL, guardado o del teléfono)
+function soportado(c){return META.some(function(m){return m.code===c;});}
+function arrancar(){
+  var stCode=(location.search.match(/[?&]state=([a-z]{2})/)||[])[1];
+  var st=(stCode&&stateByCode(stCode))||stateByCode(store.get("state","ny"))||STATES[0];
+  var ready=(st.code==="ny")?Promise.resolve():loadScript(st.core).then(function(){C=window.CORE;});
+  return ready.then(function(){
+    ST=st; window.__coreState=st.code; cargarProgreso();
+    var q=(location.search.match(/[?&]lang=([a-z]{2})/)||[])[1];
+    var saved=soportado(q)?q:store.get("lang",null);
+    var guess=(navigator.language||"en").slice(0,2);
+    return setLang(saved||(soportado(guess)?guess:"en")).then(function(){
+      conectarMas();
+      if(!onbShow() && !saved) pickerShow();
+    });
+  });
 }
+arrancar().catch(function(e){try{console.error(e);}catch(x){}});
 })();

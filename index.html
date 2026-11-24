@@ -43,6 +43,20 @@ main{padding:18px 0 40px}section.view{display:none}section.view.on{display:block
 .muted{color:var(--muted)}.small{font-size:14px}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:10px;padding:11px 16px;font-weight:600;background:var(--accent);color:var(--accent-ink);text-decoration:none;min-height:44px}
 .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.big{min-height:56px;font-size:17px;padding:14px 18px;flex:1 1 160px}
+#onb{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:18px}
+#onb[hidden]{display:none}
+.onb-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;max-width:560px;width:100%}
+.onb-card h2{font-size:24px;margin-bottom:8px}
+.onb-step{display:flex;gap:8px;margin:10px 0 16px}
+.onb-step span{height:6px;flex:1;border-radius:999px;background:var(--line)}
+.onb-step span.on{background:var(--accent)}
+.onb-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:14px 0}
+.onb-grid button{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;min-height:52px;font-weight:600}
+.onb-grid button[aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
+.chbar{margin:6px 0}.chbar .lab{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted)}
+.chbar .bar{height:8px;background:var(--line);border-radius:999px;overflow:hidden}.chbar .bar span{display:block;height:100%;background:var(--accent)}
+@media (prefers-reduced-motion:reduce){video{display:none}}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .pill{display:inline-block;border-radius:999px;padding:2px 10px;font-size:13px;font-weight:600;border:1px solid var(--line)}
 .pill.ok{background:color-mix(in srgb,var(--ok) 15%,transparent);border-color:var(--ok)}
@@ -126,10 +140,19 @@ main{padding:18px 0 40px}section.view{display:none}section.view.on{display:block
 .signgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:8px}.signgrid div{text-align:center;font-size:13px}.signgrid svg{width:70px;height:70px;display:block;margin:0 auto 4px}
 .chcard h3{font-size:22px}.chcard .head{display:flex;gap:12px;align-items:center;margin:-16px -16px 12px;padding:0}.chcard .head img{width:100%;aspect-ratio:21/7;object-fit:cover}
 footer{border-top:1px solid var(--line);padding:16px 0 30px;color:var(--muted);font-size:13px}footer a{color:var(--accent)}
+/* Aviso legal: visible siempre, en todos los estados e idiomas (política de Google Play). */
+.govbar{background:color-mix(in srgb,var(--warn) 16%,var(--surface));border-bottom:1px solid var(--line);font-size:12.5px;line-height:1.45;color:var(--ink)}
+.govbar .wrap{padding:8px 16px;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline}
+.govbar span{flex:1 1 320px;min-width:200px}
+.govbar a{color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:2px}
+.govbar b{font-weight:700}
 @media (max-width:440px){.brand small{display:none}.qtext{font-size:17px}.facts{grid-template-columns:1fr 1fr 1fr}.fact b{font-size:22px}}
 </style>
 </head>
 <body>
+<div id="onb" role="dialog" aria-modal="true" hidden>
+  <div class="onb-card"><div id="onbBody"></div></div>
+</div>
 <div id="langPick" role="dialog" aria-modal="true" aria-label="Language">
   <h2>Choose your language · Elige tu idioma</h2>
   <p class="muted small" style="text-align:center">中文 · Русский · 한국어 · বাংলা</p>
@@ -146,6 +169,11 @@ footer{border-top:1px solid var(--line);padding:16px 0 30px;color:var(--muted);f
   </div>
 </div></header>
 <nav class="tabs" aria-label="Menu"><div class="wrap" id="tabs"></div></nav>
+<div class="govbar"><div class="wrap">
+  <span id="govText"></span>
+  <a id="govManual" target="_blank" rel="noopener"></a>
+  <a id="govCdl" target="_blank" rel="noopener"></a>
+</div></div>
 <main class="wrap">
   <section class="view" id="inicio">
     <div class="hero"><video id="heroVid" muted loop playsinline preload="none" poster="img/portada.webp"></video>
@@ -154,11 +182,17 @@ footer{border-top:1px solid var(--line);padding:16px 0 30px;color:var(--muted);f
       <div class="card">
         <div class="guide"><img id="guideImg" alt=""><div class="bubble"><b id="guideName"></b><span id="guideHello"></span></div></div>
         <p data-t="homeLead"></p>
-        <div class="facts"><div class="fact"><b>20</b><span data-t="f1"></span></div><div class="fact"><b>14</b><span data-t="f2"></span></div><div class="fact"><b>2/4</b><span data-t="f3"></span></div></div>
-        <div class="row" style="margin-top:14px"><a class="btn" href="#examen" data-t="goExam"></a><a class="btn ghost" href="#roadtest" data-t="goRoad"></a></div>
+        <div class="facts"><div class="fact"><b id="factTotal">20</b><span data-t="f1"></span></div><div class="fact"><b id="factPass">14</b><span data-t="f2"></span></div><div class="fact" id="factSignsWrap"><b id="factSigns">2/4</b><span data-t="f3"></span></div></div>
+        <div class="row" id="homeActions" style="margin-top:14px">
+          <a class="btn big" href="#practica" data-t="homeStudy"></a>
+          <a class="btn big" href="#examen" data-t="homeExam"></a>
+          <a class="btn big ghost" href="#roadtest" data-t="homeRoad"></a>
+        </div>
+        <button class="btn ghost" id="moreBtn" type="button" data-t="homeMore" aria-expanded="false" style="margin-top:10px"></button>
+        <div id="homeMore" class="chips" style="margin-top:10px" hidden></div>
       </div>
       <div class="card">
-        <h3 data-t="progressTitle"></h3><div id="stats" class="small"></div>
+        <h3 data-t="progressTitle"></h3><div id="stats" class="small"></div><div id="chapterProgress" style="margin-top:10px"></div><p id="readyPill" class="pill" hidden></p>
         <div class="row" style="margin-top:10px"><button class="btn ghost" id="goMistakes" type="button" hidden></button><button class="btn ghost" id="installBtn" type="button" hidden data-t="install"></button></div>
         <h3 style="margin-top:14px" data-t="howTitle"></h3><ol class="small" id="howList" style="padding-inline-start:18px;margin:6px 0 0"></ol>
       </div>
@@ -195,6 +229,9 @@ footer{border-top:1px solid var(--line);padding:16px 0 30px;color:var(--muted);f
       <p class="small muted" id="scNote"></p>
     </div>
   </section>
+  <section class="view" id="cdl">
+    <div class="card" id="cdlCard"></div>
+  </section>
   <section class="view" id="maniobras">
     <div class="card">
       <h2 data-t="manTitle"></h2><p class="muted small" data-t="manLead"></p>
@@ -213,6 +250,7 @@ footer{border-top:1px solid var(--line);padding:16px 0 30px;color:var(--muted);f
 </main>
 <footer><div class="wrap"><span data-t="footer"></span> · <a href="privacy.html">Privacy</a></div></footer>
 <script src="config.js"></script>
+<script src="states/registry.js"></script>
 <script src="core.js"></script>
 <script src="app.js"></script>
 </body>
