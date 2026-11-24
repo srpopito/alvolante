@@ -156,6 +156,9 @@ await go(win,"roadtest");await sleep(300);
 T("day kit is shown",!!q(d,"#kitBox h3"),q(d,"#kitBox h3")?q(d,"#kitBox h3").textContent:"");
 T("day kit lists what to bring",qa(d,"#kitBox li").length===5,qa(d,"#kitBox li").length+"");
 T("day kit links the official page",/\.gov$/.test((q(d,"#kitBox a")||{}).hostname||""),(q(d,"#kitBox a")||{}).href||"");
+win=await load("../index.html?state=ct&lang=es");d=await ready(win,9000);await go(win,"roadtest");await sleep(400);
+T("CT day kit has its own four items",qa(d,"#kitBox li").length===4,qa(d,"#kitBox li").length+"");
+T("CT day kit points at ct.gov",/portal\.ct\.gov$/.test((q(d,"#kitBox a")||{}).hostname||""),(q(d,"#kitBox a")||{}).href||"");
 }catch(e){T("day kit",false,e.message);}
 
 group("1g. No misleading claims");
