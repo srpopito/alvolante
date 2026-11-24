@@ -985,9 +985,11 @@ function pintarSupervisor(){
      '<label class="small">'+esc(t("supNight"))+' <input id="supNight" type="number" min="0" step="5" value="0" style="width:84px"></label></div>';
   h+='<input id="supNote" type="text" placeholder="'+esc(t("supNote"))+'" style="width:100%;margin:8px 0;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink)">';
   h+='<button class="btn" id="supAdd" type="button">'+esc(t("supAdd"))+"</button>";
-  h+='<p class="small muted" style="margin-top:12px">'+esc(t("supSkills"))+"</p><div class=\"chips\">";
+  var doneSkills=Object.keys(stt.skills).filter(function(k){return stt.skills[k];}).length;
+  var totalSkills=0; P.rt.forEach(function(c){totalSkills+=c.items.length;});
+  h+='<details style="margin-top:12px"><summary style="min-height:44px;display:flex;align-items:center;cursor:pointer">'+esc(t("supSkills"))+": "+num(doneSkills)+"/"+num(totalSkills)+"</summary><div class=\"chips\">";
   P.rt.forEach(function(cat,ci){cat.items.forEach(function(it,ii){var id=ci+"-"+ii;h+='<button type="button" class="chip" data-skill="'+id+'" aria-pressed="'+(!!stt.skills[id])+'">'+esc(it)+"</button>";});});
-  h+="</div>";
+  h+="</div></details>";
   b.innerHTML=h;
   $("supAdd").onclick=function(){
     var d=+($("supDay").value||0), n=+($("supNight").value||0);
