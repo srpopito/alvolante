@@ -293,3 +293,14 @@ f4110f3 Add New Jersey, a state selector, the CDL section and four games
 - Licencias de las fotos y `assetlinks`.
 - Endosos CDL como lecciones (hoy solo el enlace al manual).
 - Revisión humana de NJ y PA.
+---
+
+## 10. Estado al cerrar la sesión
+
+- **Cuatro estados**: NY, NJ, PA y CT. CT con 70 preguntas en 6 idiomas, examen 25/20, kit del día y capturas; le faltan señales, maniobras y hoja del road test.
+- **197/197** pruebas.
+- Matriz final **4 estados × 6 idiomas × 11 pestañas a 360 px**: 0 errores de consola, 0 desbordes.
+- Sin conexión: `alv-v20`, la app abre y CT muestra su examen y su kit.
+- 42 capturas de tienda (7 por idioma), 22 de «antes» y 22 de «después».
+- Rama `minke-update`, sin push ni merge a `main`.
+- Pendiente principal: señales, maniobras y hoja del road test de CT; después MA, FL, CA, TX e IL. Lighthouse sigue sin poder ejecutarse (no hay npm en el equipo).
