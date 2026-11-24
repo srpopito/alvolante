@@ -1111,7 +1111,7 @@ function pintarManChips(){
 function manVideo(){return $("manMedia").querySelector("video");}
 function pintarMan(){
   var m=MAN[MS.k];
-  if(!C.man||!m){return;}
+  if(!P.man||!P.man[MS.k]||!m){return;}
   $("manMedia").innerHTML='<div class="media"><video src="clips/'+m.clip+'.mp4" poster="'+img(m.poster)+'" muted playsinline preload="metadata" controls></video></div>';
   var v=manVideo();
   v.addEventListener("timeupdate",function(){

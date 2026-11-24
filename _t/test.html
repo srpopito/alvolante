@@ -394,6 +394,18 @@ T("switching language keeps the PA content",/펜실베이니아/.test(d.title),d
 T("no Spanish leftovers after switching to Korean",!/Estudiar|Inicio|Pensilvania/.test(d.body.innerText),"");
 }catch(e){T("language/state mixing",false,e.message);}
 
+group("7d. Connecticut");
+try{
+win=await load("../index.html?state=ct&lang=es");d=await ready(win,9000);
+T("CT loads with its own title",/Connecticut/.test(d.title),d.title);
+await go(win,"examen");await sleep(300);
+var ctLead=q(d,"#examCard .bubble").textContent;
+T("CT intro gives the 25 and 20",/25/.test(ctLead)&&/20/.test(ctLead),ctLead.slice(0,60));
+q(d,"#exStart").click();await sleep(400);
+T("CT exam has 25 questions",/25/.test(q(d,"#examCard .qhead .pill").textContent),q(d,"#examCard .qhead .pill").textContent);
+T("CT chapters are its own",qa(d,"#chapterProgress .chbar").length===6,qa(d,"#chapterProgress .chbar").length+"");
+}catch(e){T("Connecticut",false,e.message);}
+
 group("8. Switching state without reload");
 try{
 win=await load("../index.html?state=ny&lang=en");d=await ready(win,9000);
