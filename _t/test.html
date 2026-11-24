@@ -210,6 +210,22 @@ T("NJ exam is 50 questions",/50/.test(q(d,"#examCard .pill").textContent),q(d,"#
 await go(win,"escuelas");await sleep(300);
 T("NJ schools tab points to the official register",/state\.nj\.us|nj\.gov/.test(q(d,"#scList").innerHTML),"");
 }catch(e){T("nj",false,e.message);}
+group("7b. Third state (Pennsylvania)");
+try{
+win=await load("../index.html?state=pa&lang=en");d=await ready(win,9000);
+T("loads Pennsylvania",/Pennsylvania/.test(d.title),d.title);
+T("PA exam facts are 18 and 15",q(d,"#factTotal").textContent==="18"&&q(d,"#factPass").textContent==="15",q(d,"#factTotal").textContent+"/"+q(d,"#factPass").textContent);
+T("PA notice names PennDOT",/PennDOT/.test(d.getElementById("govText").textContent)&&/Pennsylvania/.test(d.getElementById("govText").textContent),"");
+T("PA has 72 questions plus 34 signs",/106/.test(q(d,"#chapterChips .chip").textContent),q(d,"#chapterChips .chip").textContent);
+await go(win,"examen");q(d,"#exStart").click();await sleep(250);
+T("PA exam is 18 questions",/18/.test(q(d,"#examCard .pill").textContent),q(d,"#examCard .pill").textContent);
+await go(win,"manual");
+T("PA manual lists six chapters",qa(d,"#manualList .chcard").length===6,qa(d,"#manualList .chcard").length+" cards");
+T("PA sources are official .gov links",qa(d,"#manualList a[target=_blank]").every(function(a){return /\.gov/.test(a.href);}),"");
+await go(win,"escuelas");await sleep(300);
+T("PA schools tab points to the official state page",/pa\.gov/.test(q(d,"#scList").innerHTML),"");
+}catch(e){T("pennsylvania",false,e.message);}
+
 group("8. Switching state without reload");
 try{
 win=await load("../index.html?state=ny&lang=en");d=await ready(win,9000);
@@ -217,7 +233,10 @@ var sel=d.getElementById("estado");sel.value="nj";sel.dispatchEvent(new win.Even
 T("switching to NJ updates the title",/New Jersey/.test(d.title),d.title);
 T("switching to NJ updates the facts",q(d,"#factTotal").textContent==="50",q(d,"#factTotal").textContent);
 T("switching to NJ keeps the language",d.documentElement.lang==="en","");
-sel.value="ny";sel.dispatchEvent(new win.Event("change"));await sleep(1500);
+sel.value="pa";sel.dispatchEvent(new win.Event("change"));await sleep(1800);
+T("switching to PA updates the title",/Pennsylvania/.test(d.title),d.title);
+T("switching to PA updates the facts",q(d,"#factTotal").textContent==="18",q(d,"#factTotal").textContent);
+sel.value="ny";sel.dispatchEvent(new win.Event("change"));await sleep(1800);
 T("switching back to NY restores 20 questions",q(d,"#factTotal").textContent==="20",q(d,"#factTotal").textContent);
 }catch(e){T("state switch",false,e.message);}
 group("9. Onboarding");

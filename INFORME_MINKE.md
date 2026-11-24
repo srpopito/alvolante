@@ -13,7 +13,7 @@ Rama: **`minke-update`** · Base: `main` @ `3fd9013` · Fecha: 2026-11-23
 | 0. Reglas y seguridad (rama, copia de seguridad) | ✅ Hecho |
 | 1. Auditoría + arreglos críticos | ✅ Hecho (`AUDITORIA.md`) |
 | 2. Minijuegos | ✅ Hecho: juego de señales mejorado + 3 juegos nuevos |
-| 3. Más estados | ✅ **New Jersey completo**; los otros 7 quedan pendientes (ver §7) |
+| 3. Más estados | ✅ **New Jersey y Pennsylvania completos**; los otros 6 quedan pendientes (ver §9) |
 | 4. Licencia comercial (CDL) | ✅ Hecho, en 6 idiomas |
 | 5. Más dinámica e intuitiva | ✅ Hecho: 3 botones, recorrido de 3 pasos, progreso, «listo para el examen» |
 | 6. Comprobaciones | ✅ `_t/test.html`: **99/99**; consola limpia; sin conexión; sin secretos |
@@ -38,17 +38,19 @@ Detalle completo en [`AUDITORIA.md`](AUDITORIA.md). Lo esencial:
 
 ## 3. Lo que se añadió
 
-### 3.1 New Jersey, completo
+### 3.1 New Jersey y Pennsylvania, completos
 
-- **Selector de estado** al inicio (`New Jersey` / `New York`) y también por URL: `?state=nj`.
-- **Formato real del examen de NJ**: 50 preguntas, 40 correctas para aprobar, sin sección aparte de señales. La app lo dice y lo aplica (antes el examen era siempre de 20).
-- **78 preguntas originales** repartidas por los 9 capítulos del manual, cada una con su explicación y el enlace al PDF oficial en la página exacta.
+- **Selector de estado** al inicio (New York / New Jersey / Pennsylvania) y también por URL: `?state=nj`, `?state=pa`.
+- **Formato real de cada examen**: NY 20 preguntas y 14 correctas + 2 de 4 señales; NJ 50 y 40 correctas; **PA 18 y 15 correctas**. La app lo dice y lo aplica.
+- **New Jersey**: 78 preguntas originales por los 9 capítulos del manual, road test con la lista real del examinador, enlace al registro oficial de autoescuelas del MVC y su propio aviso legal.
+- **Pennsylvania**: **72 preguntas originales** por los 6 capítulos del PUB 95 (4-21), requisitos reales del permiso (6 meses, 65 horas con 10 de noche y 5 con mal tiempo), licencia júnior (11 p. m.–5 a. m., 1 pasajero y luego 3), señales con la regla propia de PA (izquierda en rojo solo de vía única a vía única), DUI con las tablas de alcoholemia y el examen de 18 preguntas.
+- **Autoescuelas**: NJ y PA no publican una lista descargable, así que la app **enlaza el registro oficial** de cada estado en vez de inventar una lista.
+- **Aviso legal propio por estado**: «no es una app del gobierno… ni representa al MVC de New Jersey / PennDOT de Pennsylvania…», con enlaces al manual del conductor y al manual CDL.
+- **Progreso separado por estado**: cambiar de estado no pisa el progreso de los demás.
 - **Road test de NJ** con la lista real de lo que evalúa el examinador y los motivos de rechazo.
-- **Autoescuelas**: NJ no publica una lista descargable, así que la app **enlaza el registro oficial del MVC** en vez de inventar una lista.
-- **Aviso legal propio**: «no es una app del gobierno… ni representa al MVC de New Jersey…», con enlaces al manual del conductor y al manual CDL de NJ.
-- **Progreso separado por estado**: un usuario de NJ no pisa el progreso de NY.
+- **Road test de PA**: controles del vehículo, estacionamiento en paralelo en un espacio de 24 × 8 pies con tres maniobras como máximo, giros, carriles y frenado.
 
-Fuentes y frases exactas: [`states/nj/FUENTES.md`](states/nj/FUENTES.md).
+Fuentes y frases exactas: [`states/nj/FUENTES.md`](states/nj/FUENTES.md) y [`states/pa/FUENTES.md`](states/pa/FUENTES.md).
 - Catálogo completo de señales y sus fuentes: [`SENALES.md`](SENALES.md).
 
 ### 3.2 Licencia comercial (CDL)
@@ -97,8 +99,9 @@ En total, **44 de las 73 preguntas de Nueva York** y **23 de las 78 de Nueva Jer
 |---|---|---|---|
 | **New York** | 20 preguntas, 14 correctas y 2 de 4 señales | 73 | [Manual del conductor MV-21](https://dmv.ny.gov/driver-license/drivers-manual-practice-tests) |
 | **New Jersey** | 50 preguntas, 40 correctas | 78 | [New Jersey Driver Manual 2026](https://www.nj.gov/mvc/pdf/license/drivermanual.pdf) |
+| **Pennsylvania** | 18 preguntas, 15 correctas | 72 | [Pennsylvania Driver's Manual PUB 95 (4-21)](https://www.pa.gov/content/dam/copapwp-pagov/en/penndot/documents/public/dvspubsforms/bdl/bdl-manuals/pa-drivers-manual-non-commercial/english/pub%2095.pdf) |
 
-Los otros estados de la lista (PA, CT, MA, FL, CA, TX, IL) **no** se han hecho. La orden pedía «uno completo y verificado antes de empezar el siguiente» y es mejor 2 estados sólidos que 8 a medias.
+Los otros estados de la lista (CT, MA, FL, CA, TX, IL) **no** se han hecho. La orden pedía «uno completo y verificado antes de empezar el siguiente» y es mejor pocos estados sólidos que ocho a medias.
 
 ---
 
@@ -115,6 +118,10 @@ Los otros estados de la lista (PA, CT, MA, FL, CA, TX, IL) **no** se han hecho. 
 | Práctica (NJ, chino) | Inicio (Nueva York, bengalí) |
 |---|---|
 | ![Práctica](docs/capturas/practice-zh-nj.png) | ![Inicio bn](docs/capturas/home-bn.png) |
+
+| Portada de Pensilvania (español) | Examen de 18 preguntas (PA, inglés) |
+|---|---|
+| ![PA](docs/capturas/home-es-pa.png) | ![Examen PA](docs/capturas/exam-en-pa.png) |
 
 | Portada (Nueva York, inglés) | CDL (español) |
 |---|---|
@@ -148,12 +155,13 @@ Para probar sin conexión: abre la app, espera unos segundos (el service worker 
 
 | Comprobación | Resultado |
 |---|---|
-| Suite `_t/test.html` | **109 / 109** |
-| Consola: 6 idiomas × 2 estados × 11 pestañas | **0 errores** (132 cargas de pestaña) |
+| Suite `_t/test.html` | **133 / 133** |
+| Consola: 6 idiomas × 3 estados × 11 pestañas | **0 errores** (198 cargas de pestaña) |
 | Sin conexión (Chrome, red desactivada) | Carga NY y NJ con 43 archivos en caché |
 | Enlaces oficiales de NY | 10/10 responden 200 con el título correcto |
 | Preguntas de NY con cifras | 18/18 coinciden con el capítulo asignado |
 | Documentos de NJ | 78 preguntas, 4 opciones, sin duplicados, respuesta correcta intacta en los 6 idiomas |
+| Documentos de PA | 72 preguntas, 4 opciones, sin duplicados, respuesta correcta intacta en los 6 idiomas |
 | Secretos (`keystore`, `password`, `API_KEY`) | 0 resultados en el repo |
 | Peso de imágenes de la app | todas por debajo de 300 KB (la mayor: 87 KB) |
 | Peso de capturas de tienda | 17,4 MB → 5,8 MB; la mayor, 239 KB |
@@ -169,7 +177,10 @@ Para probar sin conexión: abre la app, espera unos segundos (el service worker 
 states/registry.js          registro de estados (nombre, agencia, manuales, rutas)
 states/nj/core.js           reglas, señales, fuentes y formato de examen de NJ
 states/nj/lang/{en,es,zh,ru,ko,bn}.js   contenido de NJ por idioma
-states/nj/FUENTES.md        cada dato con su página y su frase
+states/nj/FUENTES.md        cada dato de NJ con su página y su frase
+states/pa/core.js           reglas, señales, fuentes y examen de PA
+states/pa/lang/{en,es,zh,ru,ko,bn}.js   contenido de PA por idioma
+states/pa/FUENTES.md        cada dato de PA con su página y su frase
 SENALES.md                  catálogo de las 34 señales y su fuente `.gov`
 ui/{en,es,zh,ru,ko,bn}.js   textos de interfaz compartidos por todos los estados
 cdl/{en,es,zh,ru,ko,bn}.js  sección de licencia comercial
@@ -193,7 +204,7 @@ docs/capturas/              capturas del informe
 
 ## 9. Lo que quedó pendiente (y por qué)
 
-1. **7 estados más.** Cada uno exige leer su manual, confirmar formato de examen y escribir 70–90 preguntas en 6 idiomas. Hacerlo a medias sería justo lo que la orden prohíbe, así que quedan en `PENDIENTES.md`.
+1. **6 estados más** (CT, MA, FL, CA, TX, IL). Cada uno exige leer su manual, confirmar formato de examen y escribir 70–90 preguntas en 6 idiomas. Hacerlo a medias sería justo lo que la orden prohíbe, así que quedan en `PENDIENTES.md`.
 2. **Capturas de tienda**: recomprimidas de 17,4 MB a 5,8 MB (ninguna pasa de 239 KB), sin cambiar el diseño. Siguen mostrando solo Nueva York: faltan capturas nuevas con NJ, los juegos y la CDL antes del próximo envío a Play Console.
 3. **Ficha de Play** con los textos nuevos (estados, CDL): preparada en `store/ficha_google_play.md` en los 6 idiomas. **No se ha subido a Play Console.**
 4. **Prueba en un Android viejo real** (fuentes bengalí y china) y **prueba sin conexión en producción**: en local el service worker ya se registra, pero la prueba definitiva es en `https://srpopito.github.io/alvolante/`.

@@ -11,7 +11,7 @@ Límites de Play: título ≤ 30 caracteres · descripción corta ≤ 80 · desc
 
 **Title:** DriveReady: Permit & Road Test
 
-**Short description:** Free DMV permit practice in 6 languages. NY and NJ. No ads in questions.
+**Short description:** Free DMV permit practice in 6 languages. NY, NJ and PA.
 
 **Full description:**
 
@@ -22,6 +22,11 @@ NEW JERSEY IS HERE
 • 78 original questions from the official New Jersey Driver Manual
 • The real NJ format: 50 questions, 40 right to pass
 • NJ road test checklist and the MVC's official driving-school register
+
+PENNSYLVANIA
+• 72 original questions from the official PennDOT Driver's Manual (PUB 95)
+• The real PA format: 18 questions, 15 right to pass
+• PA permit rules: 6 months, 65 hours, junior licence limits
 
 NEW YORK
 • 73 original questions from the official MV-21 manual
@@ -46,6 +51,7 @@ DriveReady is independent and is not affiliated with, endorsed by or representin
 Official sources
 • New York: https://dmv.ny.gov/driver-license/drivers-manual-practice-tests
 • New Jersey: https://www.nj.gov/mvc/pdf/license/drivermanual.pdf
+• Pennsylvania: https://www.pa.gov/content/dam/copapwp-pagov/en/penndot/documents/public/dvspubsforms/bdl/bdl-manuals/pa-drivers-manual-non-commercial/english/pub%2095.pdf
 • FMCSA (CDL): https://www.fmcsa.dot.gov
 ```
 
@@ -55,7 +61,7 @@ Official sources
 
 **Title:** DriveReady: Examen de manejo
 
-**Short description:** Practica el examen escrito gratis en 6 idiomas. NY y NJ.
+**Short description:** Practica el examen escrito gratis en 6 idiomas. NY, NJ y PA.
 
 **Full description:**
 
@@ -66,6 +72,11 @@ YA ESTÁ NEW JERSEY
 • 78 preguntas originales del Manual oficial del conductor de New Jersey
 • El formato real de NJ: 50 preguntas, 40 buenas para aprobar
 • Lista del road test de NJ y el registro oficial de autoescuelas del MVC
+
+YA ESTÁ PENNSYLVANIA
+• 72 preguntas originales del manual oficial de PennDOT (PUB 95)
+• El formato real de PA: 18 preguntas, 15 buenas para aprobar
+• Permiso de PA: 6 meses, 65 horas y límites de la licencia júnior
 
 NUEVA YORK
 • 73 preguntas originales del manual oficial MV-21
@@ -88,8 +99,9 @@ NO ES UNA APP DEL GOBIERNO
 DriveReady es independiente y no está afiliada, avalada ni representa al DMV del estado de Nueva York, al MVC de Nueva Jersey ni a ninguna agencia del gobierno. Es material de estudio: los manuales oficiales siempre mandan.
 
 Fuentes oficiales
-• New York: https://dmv.ny.gov/driver-license/drivers-manual-practice-tests
-• New Jersey: https://www.nj.gov/mvc/pdf/license/drivermanual.pdf
+• Nueva York: https://dmv.ny.gov/driver-license/drivers-manual-practice-tests
+• Nueva Jersey: https://www.nj.gov/mvc/pdf/license/drivermanual.pdf
+• Pensilvania: https://www.pa.gov/content/dam/copapwp-pagov/en/penndot/documents/public/dvspubsforms/bdl/bdl-manuals/pa-drivers-manual-non-commercial/english/pub%2095.pdf
 • FMCSA (CDL): https://www.fmcsa.dot.gov
 ```
 
@@ -99,7 +111,7 @@ Fuentes oficiales
 
 **Title:** DriveReady：驾照笔试路考
 
-**Short description:** 六种语言的免费驾照笔试练习，纽约和新泽西。
+**Short description:** 六种语言的免费驾照笔试练习：纽约、新泽西和宾夕法尼亚。
 
 **Full description:**
 
@@ -110,6 +122,11 @@ Fuentes oficiales
 • 78 道原创题目，全部出自新泽西州官方驾驶手册
 • 新泽西真实考试格式：50 题，答对 40 题及格
 • 新泽西路考清单，以及 MVC 官方驾校登记名单
+
+新增宾夕法尼亚州
+• 72 道原创题目，出自 PennDOT 官方驾驶手册（PUB 95）
+• 真实格式：18 题，答对 15 题及格
+• 宾州学员许可：6 个月、65 小时、初级驾照限制
 
 纽约州
 • 73 道原创题目，出自官方 MV-21 手册
@@ -134,6 +151,7 @@ DriveReady 是独立产品，与纽约州 DMV、新泽西州 MVC 或任何政府
 官方来源
 • 纽约: https://dmv.ny.gov/driver-license/drivers-manual-practice-tests
 • 新泽西: https://www.nj.gov/mvc/pdf/license/drivermanual.pdf
+• 宾夕法尼亚: https://www.pa.gov/content/dam/copapwp-pagov/en/penndot/documents/public/dvspubsforms/bdl/bdl-manuals/pa-drivers-manual-non-commercial/english/pub%2095.pdf
 • 美国联邦 FMCSA (CDL): https://www.fmcsa.dot.gov
 ```
 
@@ -143,7 +161,7 @@ DriveReady 是独立产品，与纽约州 DMV、新泽西州 MVC 或任何政府
 
 **Title:** DriveReady: билеты и вождение
 
-**Short description:** Бесплатная подготовка к экзамену на права. Нью-Йорк и Нью-Джерси.
+**Short description:** Бесплатная подготовка к экзамену на права. Нью-Йорк, Нью-Джерси и Пенсильвания.
 
 **Full description:**
 
@@ -154,6 +172,11 @@ DriveReady 是独立产品，与纽约州 DMV、新泽西州 MVC 或任何政府
 • 78 авторских вопросов по официальному справочнику водителя Нью-Джерси
 • Настоящий формат NJ: 50 вопросов, нужно 40 правильных
 • Список экзамена по вождению и официальный реестр автошкол MVC
+
+ДОБАВЛЕНА ПЕНСИЛЬВАНИЯ
+• 72 авторских вопроса по официальному справочнику PennDOT (PUB 95)
+• Настоящий формат: 18 вопросов, 15 правильных
+• Правила пермита PA: 6 месяцев, 65 часов, ограничения junior-прав
 
 НЬЮ-ЙОРК
 • 73 авторских вопроса по официальному справочнику MV-21
@@ -178,6 +201,7 @@ DriveReady — независимый проект: он не связан с DM
 Официальные источники
 • Нью-Йорк: https://dmv.ny.gov/driver-license/drivers-manual-practice-tests
 • Нью-Джерси: https://www.nj.gov/mvc/pdf/license/drivermanual.pdf
+• Пенсильвания: https://www.pa.gov/content/dam/copapwp-pagov/en/penndot/documents/public/dvspubsforms/bdl/bdl-manuals/pa-drivers-manual-non-commercial/english/pub%2095.pdf
 • FMCSA (CDL): https://www.fmcsa.dot.gov
 ```
 
@@ -187,7 +211,7 @@ DriveReady — независимый проект: он не связан с DM
 
 **Title:** DriveReady: 필기·도로주행
 
-**Short description:** 6개 언어로 무료 운전면허 필기 연습. 뉴욕과 뉴저지.
+**Short description:** 6개 언어로 무료 운전면허 필기 연습. 뉴욕, 뉴저지, 펜실베이니아.
 
 **Full description:**
 
@@ -198,6 +222,11 @@ DriveReady — независимый проект: он не связан с DM
 • 뉴저지 공식 운전자 매뉴얼에서 만든 78개 자체 문제
 • 뉴저지 실제 형식: 50문제, 40개 맞히면 합격
 • 뉴저지 도로주행 체크리스트와 MVC 공식 운전학원 명단
+
+펜실베이니아 추가
+• PennDOT 공식 매뉴얼(PUB 95) 기반 72문제
+• 실제 형식: 18문제, 15개 정답
+• PA 학습 면허: 6개월, 65시간, 주니어 면허 제한
 
 뉴욕
 • 공식 MV-21 매뉴얼에서 만든 73개 자체 문제
@@ -222,6 +251,7 @@ DriveReady는 독립 학습 도구로, 뉴욕주 DMV, 뉴저지 MVC 및 어떤 �
 공식 출처
 • 뉴욕: https://dmv.ny.gov/driver-license/drivers-manual-practice-tests
 • 뉴저지: https://www.nj.gov/mvc/pdf/license/drivermanual.pdf
+• 펜실베이니아: https://www.pa.gov/content/dam/copapwp-pagov/en/penndot/documents/public/dvspubsforms/bdl/bdl-manuals/pa-drivers-manual-non-commercial/english/pub%2095.pdf
 • FMCSA (CDL): https://www.fmcsa.dot.gov
 ```
 
@@ -231,7 +261,7 @@ DriveReady는 독립 학습 도구로, 뉴욕주 DMV, 뉴저지 MVC 및 어떤 �
 
 **Title:** DriveReady: ড্রাইভিং টেস্ট
 
-**Short description:** ৬ ভাষায় বিনামূল্যে ড্রাইভিং লিখিত পরীক্ষার প্রস্তুতি।
+**Short description:** ৬ ভাষায় বিনামূল্যে ড্রাইভিং লিখিত পরীক্ষার প্রস্তুতি। NY, NJ ও PA।
 
 **Full description:**
 
@@ -242,6 +272,11 @@ DriveReady는 독립 학습 도구로, 뉴욕주 DMV, 뉴저지 MVC 및 어떤 �
 • নিউ জার্সির অফিশিয়াল ড্রাইভার ম্যানুয়াল থেকে ৭৮টি মৌলিক প্রশ্ন
 • নিউ জার্সির আসল ফরম্যাট: ৫০ প্রশ্ন, ৪০টি সঠিক হলে পাস
 • নিউ জার্সির রোড টেস্ট চেকলিস্ট ও MVC-এর অফিশিয়াল ড্রাইভিং স্কুল তালিকা
+
+নতুন: পেনসিলভানিয়া
+• PennDOT-এর অফিশিয়াল ম্যানুয়াল (PUB 95) থেকে ৭২টি প্রশ্ন
+• আসল ফরম্যাট: ১৮ প্রশ্ন, ১৫টি সঠিক
+• PA পারমিট: ৬ মাস, ৬৫ ঘণ্টা, জুনিয়র লাইসেন্সের সীমা
 
 নিউ ইয়র্ক
 • অফিশিয়াল MV-21 ম্যানুয়াল থেকে ৭৩টি মৌলিক প্রশ্ন
@@ -266,5 +301,6 @@ DriveReady একটি স্বাধীন অ্যাপ; এটি নি�
 অফিশিয়াল সূত্র
 • নিউ ইয়র্ক: https://dmv.ny.gov/driver-license/drivers-manual-practice-tests
 • নিউ জার্সি: https://www.nj.gov/mvc/pdf/license/drivermanual.pdf
+• পেনসিলভানিয়া: https://www.pa.gov/content/dam/copapwp-pagov/en/penndot/documents/public/dvspubsforms/bdl/bdl-manuals/pa-drivers-manual-non-commercial/english/pub%2095.pdf
 • FMCSA (CDL): https://www.fmcsa.dot.gov
 ```
