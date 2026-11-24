@@ -262,7 +262,7 @@ var ALL_RULES=[], ALL_SIGNS=[], TOTAL=0, MISS={}, MAST={}, EX=null, PR={ch:"all"
 // Cada estado guarda su propio progreso. NY conserva sus claves alv_miss/alv_mast/alv_exam.
 function cargarProgreso(){
   ALL_RULES=C.rules.map(function(_,i){return "r"+i;});
-  ALL_SIGNS=C.signs.map(function(k){return "s:"+k;});
+  ALL_SIGNS=(C.signs||[]).map(function(k){return "s:"+k;});
   TOTAL=ALL_RULES.length+ALL_SIGNS.length;
   MISS=store.get(stpre()+"miss",{});
   MAST=store.get(stpre()+"mast",{});
@@ -1111,6 +1111,7 @@ function pintarManChips(){
 function manVideo(){return $("manMedia").querySelector("video");}
 function pintarMan(){
   var m=MAN[MS.k];
+  if(!C.man||!m){return;}
   $("manMedia").innerHTML='<div class="media"><video src="clips/'+m.clip+'.mp4" poster="'+img(m.poster)+'" muted playsinline preload="metadata" controls></video></div>';
   var v=manVideo();
   v.addEventListener("timeupdate",function(){
