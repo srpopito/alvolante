@@ -11,7 +11,8 @@ Rama: **`minke-update`** · Base: `main` @ `3fd9013` · Fecha: 2026-11-23
 | 0. Base y foto del estado | ✅ | Árbol limpio; **22 capturas «antes»** en `docs/antes/` (11 pantallas × es/en a 360 px); **153/153** pruebas al empezar |
 | 1. QA a fondo | ✅ | Matriz 6 idiomas × 3 estados × 3 anchos × claro/oscuro: **0 errores de consola, 0 desbordes, 0 imágenes rotas**; **37 enlaces oficiales comprobados, 37 OK**; controles por debajo de 44 px corregidos y con prueba propia; **158/158** pruebas |
 | 2. Diseño | ✅ (con reserva) | Variables de diseño (tipografía 14/16/20/28, espaciado 4–32, radio 12, una sombra), **cero emojis** (sustituidos por 15 iconos SVG de línea), transiciones de 180 ms, vibración al fallar y todo bajo `prefers-reduced-motion`; **22 capturas «después»** en `docs/despues/`. Reserva: el origen de las fotos de `img/` no está documentado (ver `img/CREDITS.md` y `DUDAS.md`) |
-| 3–8 | ⏳ | Pendientes |
+| 3. Textos humanos | ✅ | `ESTILO.md` con reglas y registro por idioma; barrido de palabras de marketing en los 6 idiomas (0 hallazgos reales); retirada la promesa «igual de exigente»; lista de inicio de 4 a 3 pasos; `CAMBIOS_ESTILO.md` con antes/después; **164/164** pruebas, con cuatro nuevas de estilo |
+| 4–8 | ⏳ | Pendientes |
 
 ### Capturas antes / después
 

@@ -89,6 +89,20 @@ for(var tv=0;tv<3;tv++){
 T("every control is at least 44px tall",smallAll.length===0,smallAll.join(" | "));
 }catch(e){T("touch targets",false,e.message);}
 
+group("1c. Style rules");
+try{
+win=await load("../index.html?state=ny&lang=es");d=await ready(win,9000);
+var banned2=["desbloquea","potencial","sin esfuerzo","revolucionario","sumérgete","empodera","igual de exigente"];
+var uiEs=win.UI.es;
+var txtEs=JSON.stringify(uiEs);
+var badWords=banned2.filter(function(w){return txtEs.toLowerCase().indexOf(w)>=0;});
+T("no marketing language in the Spanish UI",badWords.length===0,badWords.join(","));
+T("home explains itself in three steps",uiEs.how.length===3,uiEs.how.length+"");
+T("no promise of being as strict as the real test",txtEs.indexOf("igual de exigente")<0,"");
+var tooLong=Object.keys(uiEs).filter(function(k){var v=uiEs[k];return typeof v==="string"&&v.trim().split(/\s+/).length>60;});
+T("no UI string over 60 words",tooLong.length===0,tooLong.join(","));
+}catch(e){T("style rules",false,e.message);}
+
 group("2. Language switch");
 try{
 win=await load("../index.html?lang=en");d=await ready(win,9000);
