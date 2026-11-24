@@ -271,7 +271,7 @@ function cargarProgreso(){
   PR={ch:"all",qs:[],i:0,ok:0};
 }
 function marcar(id,bien){if(bien) delete MISS[id]; else MISS[id]=1; store.set(stpre()+"miss",MISS);}
-function frase(tipo){var a=P.guide[tipo];return a[Math.floor(Math.random()*a.length)];}
+function frase(tipo){var a=(P.guide&&P.guide[tipo])||[""];return a[Math.floor(Math.random()*a.length)]||"";}
 
 // ---------- Navegación ----------
 var VISTAS=["inicio","examen","practica","manual","juego","roadtest","escuelas","cdl","maniobras","cultura","acerca"];
@@ -411,7 +411,7 @@ function bumpStreak(){
 // ---------- Inicio ----------
 function pintarInicio(){
   $("guideImg").src=img(P.guide.img); $("guideImg2").src=img(P.guide.img);
-  $("guideName").textContent=P.guide.name+" · "+P.guide.role; $("guideHello").textContent=P.guide.hello;
+  $("guideName").textContent=P.guide.name+(P.guide.role?" · "+P.guide.role:""); $("guideHello").textContent=P.guide.hello;
   $("howList").innerHTML=P.ui.how.map(function(x){return "<li>"+esc(x)+"</li>";}).join("");
   var st=store.get("stats",{n:0,p:0,b:0});
   $("stats").textContent=st.n?fmt(uis("statsLine"),{n:num(st.n),p:num(st.p),b:num(st.b),g:num(store.get("best",0))}):t("statsNone");
