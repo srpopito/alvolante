@@ -160,6 +160,27 @@ for(var r2=0;r2<6;r2++){var pick=q(d,"#gameCard .opt")||q(d,"#gameCard .signopt"
 T("sign rounds show a sign drawing",firstSvg,"");
 }catch(e){T("sign catalogue",false,e.message);}
 
+group("5c. Question images match the question");
+try{
+win=await load("../index.html?state=ny&lang=en");d=await ready(win,9000);
+var qm=win.DR.qimg();
+var brokenImg=Object.keys(qm).filter(function(i){var h=win.DR.head(+i);return !h||(h.indexOf("<svg")<0&&h.indexOf(".webp")<0);});
+T("every mapped question draws its image",brokenImg.length===0,brokenImg.join(","));
+T("red-arrow question shows a red arrow, not a STOP sign",/light-red-arrow/.test(win.DR.head(4)),win.DR.head(4).slice(0,60));
+T("flashing-red question shows a traffic light",/light-red-flash/.test(win.DR.head(0)),"");
+T("yellow-lines question shows road markings",/lines-yellow/.test(win.DR.head(9)),"");
+T("school-bus question shows a school bus",/schoolbus/.test(win.DR.head(35)),"");
+T("questions with no matching picture show none",win.DR.head(14)===""&&win.DR.head(45)==="","");
+T("illustrated questions use drawings, not stray photos",Object.keys(qm).every(function(i){var k=qm[i],h=win.DR.head(+i);return k.indexOf("p:")===0?h.indexOf(".webp")>0:h.indexOf("<svg")>0;}),"");
+var badPhotos=Object.keys(qm).filter(function(i){var k=qm[i];return k.indexOf("p:")===0&&["p:alcohol","p:cuesta","p:nieve"].indexOf(k)<0;});
+T("only topic-matched photos are reused",badPhotos.length===0,badPhotos.join(","));
+win=await load("../index.html?state=nj&lang=en");d=await ready(win,9000);
+var qn=win.DR.qimg();
+T("New Jersey also maps question images",Object.keys(qn).length>=10,Object.keys(qn).length+"");
+T("NJ solid-lines question shows double solid lines",/lines-double-solid/.test(win.DR.head(28)),"");
+T("NJ hand-signal question shows the arm",/hand-right/.test(win.DR.head(73)),"");
+}catch(e){T("question images",false,e.message);}
+
 group("6. CDL section");
 try{
 win=await load("../index.html?lang=en");d=await ready(win,9000);await go(win,"cdl");await sleep(300);

@@ -145,6 +145,60 @@ function svgSenal(k){
   return s+'</svg>';
 }
 
+// Ilustraciones para preguntas que no son de una señal concreta: semáforos, flechas,
+// marcas viales, señales de mano, autobús escolar, peatón con bastón y glorieta.
+function lightBody(lit){
+  var c={red:"#3a1414",yellow:"#3a3410",green:"#123a1f"};
+  if(lit==="red")c.red="#e23b3b"; if(lit==="yellow")c.yellow="#f2c200"; if(lit==="green")c.green="#2bb35a";
+  return '<rect x="74" y="26" width="52" height="148" rx="12" fill="#111"/>'+
+    '<circle cx="100" cy="62" r="16" fill="'+c.red+'"/><circle cx="100" cy="100" r="16" fill="'+c.yellow+'"/><circle cx="100" cy="138" r="16" fill="'+c.green+'"/>';
+}
+function rays(cx,cy,color){var o="";for(var a=0;a<8;a++){var g=a*Math.PI/4,x1=cx+Math.cos(g)*24,y1=cy+Math.sin(g)*24,x2=cx+Math.cos(g)*34,y2=cy+Math.sin(g)*34;o+='<line x1="'+x1.toFixed(0)+'" y1="'+y1.toFixed(0)+'" x2="'+x2.toFixed(0)+'" y2="'+y2.toFixed(0)+'" stroke="'+color+'" stroke-width="5" stroke-linecap="round"/>';}return o;}
+function roadBase(extra){
+  return '<rect x="0" y="0" width="200" height="200" fill="#6f7a73"/><rect x="46" y="0" width="108" height="200" fill="#8d9a92"/>'+ (extra||"");
+}
+function svgIlust(k){
+  var tx=function(x,y,size,txt,fill){return '<text x="'+x+'" y="'+y+'" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="'+size+'" fill="'+fill+'" text-anchor="middle">'+txt+"</text>";};
+  var s='<svg viewBox="0 0 200 200" role="img" aria-label="'+k+'">';
+  switch(k){
+   case "light-red-flash": s+=lightBody("red")+rays(100,62,"#e23b3b");break;
+   case "light-yellow-flash": s+=lightBody("yellow")+rays(100,100,"#f2c200");break;
+   case "light-yellow": s+=lightBody("yellow");break;
+   case "light-red": s+=lightBody("red");break;
+   case "light-green": s+=lightBody("green");break;
+   case "light-off": s+=lightBody("off");break;
+   case "light-red-arrow": s+='<rect x="66" y="26" width="68" height="148" rx="12" fill="#111"/>'+
+     '<path d="M110 150 V100 H92" stroke="#e23b3b" stroke-width="13" fill="none"/><polygon points="70,100 98,84 98,116" fill="#e23b3b"/>';break;
+   case "lane-red-x": s+=roadBase('<line x1="46" y1="14" x2="46" y2="30" stroke="#fff" stroke-width="4"/><line x1="154" y1="14" x2="154" y2="30" stroke="#fff" stroke-width="4"/><line x1="46" y1="170" x2="46" y2="186" stroke="#fff" stroke-width="4"/><line x1="154" y1="170" x2="154" y2="186" stroke="#fff" stroke-width="4"/>')+
+     '<line x1="76" y1="70" x2="124" y2="118" stroke="#e23b3b" stroke-width="16" stroke-linecap="round"/><line x1="124" y1="70" x2="76" y2="118" stroke="#e23b3b" stroke-width="16" stroke-linecap="round"/>';break;
+   case "lane-yellow-x": s+=roadBase('<line x1="46" y1="14" x2="46" y2="30" stroke="#fff" stroke-width="4"/><line x1="154" y1="14" x2="154" y2="30" stroke="#fff" stroke-width="4"/>')+
+     '<line x1="76" y1="70" x2="124" y2="118" stroke="#f2c200" stroke-width="16" stroke-linecap="round"/><line x1="124" y1="70" x2="76" y2="118" stroke="#f2c200" stroke-width="16" stroke-linecap="round"/>';break;
+   case "lane-hov": s+=roadBase('<line x1="100" y1="10" x2="100" y2="190" stroke="#fff" stroke-width="4" stroke-dasharray="14 12"/>')+
+     '<polygon points="100,60 136,100 100,140 64,100" fill="none" stroke="#fff" stroke-width="9"/>';break;
+   case "lines-yellow": s+=roadBase('<line x1="92" y1="0" x2="92" y2="200" stroke="#f2c200" stroke-width="6"/><line x1="108" y1="0" x2="108" y2="200" stroke="#f2c200" stroke-width="6"/>');break;
+   case "lines-solid-broken": s+=roadBase('<line x1="92" y1="0" x2="92" y2="200" stroke="#f2c200" stroke-width="6"/>'+
+     '<line x1="108" y1="0" x2="108" y2="46" stroke="#f2c200" stroke-width="6"/><line x1="108" y1="66" x2="108" y2="112" stroke="#f2c200" stroke-width="6"/><line x1="108" y1="132" x2="108" y2="178" stroke="#f2c200" stroke-width="6"/>');break;
+   case "lines-double-solid": s+=roadBase('<line x1="92" y1="0" x2="92" y2="200" stroke="#f2c200" stroke-width="6"/><line x1="108" y1="0" x2="108" y2="200" stroke="#f2c200" stroke-width="6"/>');break;
+   case "crosswalk-stopline": s+=roadBase('<rect x="46" y="112" width="108" height="10" fill="#fff"/>')+
+     [0,1,2,3,4].map(function(i){return '<rect x="'+(52+i*21)+'" y="132" width="12" height="58" fill="#fff"/>';}).join("");break;
+   case "hand-right": s+='<rect x="78" y="118" width="44" height="60" rx="10" fill="#0b6e4f"/>'+
+     '<rect x="88" y="62" width="24" height="60" rx="10" fill="#e8b98a"/><circle cx="100" cy="54" r="15" fill="#e8b98a"/>'+
+     '<path d="M126 52 q20 -6 26 10" stroke="#0b6e4f" stroke-width="6" fill="none" stroke-linecap="round"/><polygon points="156,70 148,52 164,54" fill="#0b6e4f"/>';break;
+   case "hand-stop": s+='<rect x="78" y="24" width="44" height="60" rx="10" fill="#0b6e4f"/>'+
+     '<rect x="88" y="82" width="24" height="62" rx="10" fill="#e8b98a"/><circle cx="100" cy="152" r="15" fill="#e8b98a"/>';break;
+   case "schoolbus": s+='<rect x="36" y="38" width="128" height="134" rx="16" fill="#f2c200" stroke="#111" stroke-width="4"/>'+
+     '<rect x="54" y="60" width="92" height="44" rx="6" fill="#9fd8f0" stroke="#111" stroke-width="3"/>'+
+     '<circle cx="72" cy="46" r="8" fill="#e23b3b"/><circle cx="128" cy="46" r="8" fill="#e23b3b"/>'+
+     tx(100,142,17,"SCHOOL BUS","#111")+'<rect x="60" y="150" width="80" height="10" rx="4" fill="#111"/>';break;
+   case "blind-ped": s+=
+     '<circle cx="92" cy="56" r="13" fill="#111"/><path d="M92 70 v44 M92 82 l-16 16 M92 82 l16 14 M92 114 l-14 32 M92 114 l14 32" stroke="#111" stroke-width="8" fill="none" stroke-linecap="round"/>'+
+     '<line x1="112" y1="150" x2="140" y2="96" stroke="#fff" stroke-width="6" stroke-linecap="round"/><circle cx="112" cy="150" r="5" fill="#e23b3b"/>';break;
+   case "roundabout": s+='<circle cx="100" cy="100" r="66" fill="none" stroke="#111" stroke-width="14"/>'+
+     '<polygon points="100,20 84,44 116,44" fill="#111"/><polygon points="168,120 140,112 148,138" fill="#111"/><polygon points="36,84 56,108 60,80" fill="#111"/>';break;
+  }
+  return s+"</svg>";
+}
+
 // ---------- Preguntas ----------
 // id estable: "r12" = regla 12, "s:stop" = señal; las opciones se barajan pero se guardan por índice original
 function preparar(id){
@@ -160,7 +214,14 @@ function explicacion(p){
   if(p.sign) return esc(P.signs[p.sign])+' · <a href="'+url+'" target="_blank" rel="noopener">'+esc(t("signsChart"))+'</a>';
   return esc(P.q[p.i][2])+' · <a href="'+url+'" target="_blank" rel="noopener">'+esc(manRef(p.ch))+'</a>';
 }
-function cabezaImg(p){return p.sign?'<div class="signbox">'+svgSenal(p.sign)+'</div>':'<div class="qimg"><img src="'+chImg(p.ch)+'" alt="" loading="lazy"></div>';}
+function cabezaImg(p){
+  if(p.sign) return '<div class="signbox">'+svgSenal(p.sign)+"</div>";
+  var k=C.qimg&&C.qimg[p.i];
+  if(!k) return "";
+  if(k.indexOf("p:")===0) return '<div class="qimg"><img src="'+img(k.slice(2))+'" alt="" loading="lazy"></div>';
+  var art=k.indexOf("s:")===0?svgSenal(k.slice(2)):svgIlust(k);
+  return '<div class="qart">'+art+"</div>";
+}
 var ALL_RULES=[], ALL_SIGNS=[], TOTAL=0, MISS={}, MAST={}, EX=null, PR={ch:"all",qs:[],i:0,ok:0}, RT={};
 // Cada estado guarda su propio progreso. NY conserva sus claves alv_miss/alv_mast/alv_exam.
 function cargarProgreso(){
@@ -853,5 +914,5 @@ function arrancar(){
 arrancar().catch(function(e){try{console.error(e);}catch(x){}});
 
 // Gancho para las pruebas automáticas y para depurar: no lo usa la interfaz.
-window.DR={svg:svgSenal,signs:function(){return C.signs.slice();},signcat:function(){return C.signcat;},meanings:function(){return P.signs;}};
+window.DR={svg:svgSenal,ilust:svgIlust,signs:function(){return C.signs.slice();},signcat:function(){return C.signcat;},meanings:function(){return P.signs;},qimg:function(){return C.qimg||{};},head:function(i){return cabezaImg({i:i,ch:String(C.rules[i].ch)});}};
 })();

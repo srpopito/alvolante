@@ -76,6 +76,18 @@ Todos funcionan sin conexión y comparten los 6 idiomas.
 - **`prefers-reduced-motion`**: con esa preferencia activada no se reproduce el vídeo de portada ni las transiciones.
 - Textos de inicio, lema, pie y «acerca de» ahora se generan con el estado y el formato del examen (`{state}`, `{agency}`, `{total}`), así que NJ nunca dice «Nueva York».
 
+### 3.5 Imágenes de las preguntas
+
+Antes cada pregunta mostraba la foto genérica de su capítulo, y eso hacía que una pregunta sobre **la flecha roja** saliera con una foto de un **STOP**, o que una pregunta de límites de velocidad saliera con una autopista cualquiera. Ahora **cada pregunta tiene su imagen o no tiene ninguna**:
+
+- **Semáforos**: rojo intermitente, amarillo intermitente, amarillo fijo, rojo fijo, apagado y **flecha roja**.
+- **Marcas viales**: líneas amarillas, línea continua + discontinua, doble continua, línea de parada con paso peatonal y carril HOV.
+- **Señales con dibujo**: la señal concreta de la pregunta (STOP, ceda el paso, no girar en U, obras, paso a nivel, límite 55, vehículo lento…).
+- **Señales de mano**: giro a la derecha y alto.
+- **Otros**: autobús escolar, peatón ciego con bastón y glorieta.
+- **Fotos temáticas solo cuando encajan sin ambigüedad**: alcohol (BAC y drogas), bordillo (estacionar) y nieve (hielo en invierno).
+
+En total, **44 de las 73 preguntas de Nueva York** y **23 de las 78 de Nueva Jersey** llevan imagen propia; el resto son preguntas de edades, multas, puntos o plazos, donde una foto solo distraía, así que se quedan sin imagen. La suite comprueba que la pregunta de la flecha roja dibuje una flecha roja y que ninguna pregunta vuelva a la foto genérica.
 ---
 
 ## 4. Estados terminados y sus fuentes
