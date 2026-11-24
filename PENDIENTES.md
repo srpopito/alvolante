@@ -1,25 +1,38 @@
 # PENDIENTES
 
-Cosas que **no** están en la app porque no se han podido confirmar en una fuente oficial `.gov`, o que quedan para después. Nada de esto se inventa: si no hay fuente, aquí se queda.
+Lo que **no** está en la app porque no se ha podido confirmar en una fuente oficial `.gov`, o que queda para después. Nada de esto se inventa.
+
+## Hecho en esta entrega
+
+- ✅ **New Jersey completo** (78 preguntas, 6 idiomas, fuentes en `states/nj/FUENTES.md`).
+- ✅ **CDL** en 6 idiomas con FMCSA y el manual CDL del estado.
+- ✅ **4 juegos** y modo «solo mis errores».
+- ✅ **Aviso «no es una app del gobierno»** visible en todas las pantallas, por estado.
+- ✅ **Tests**: `_t/test.html` con 99 comprobaciones.
 
 ## Contenido y fuentes
 
-- [ ] **Estados**: NJ, PA, CT, MA, FL, CA, TX, IL. Solo NY está verificado hoy. Cada uno necesita su manual oficial, formato de examen, requisitos de permiso y road test antes de escribir una sola pregunta.
-- [ ] **CDL por estado**: enlace al manual CDL oficial de cada estado (en NY, CDL-10) y dónde se hace el trámite.
-- [ ] **Listas oficiales de autoescuelas** de los estados nuevos: si el estado no publica una lista descargable, se enlaza su buscador oficial (no se inventa una lista).
-- [ ] Séptima tarjeta cultural en inglés (los otros 5 idiomas tienen 7) — decidir si se añade, y con qué fuente.
-- [ ] Revisar las preguntas de NY con una segunda pasada humana antes de publicar: están cotejadas contra el manual, pero una lectura de Cristian vale más que diez scripts.
+- [ ] **7 estados más**: Pennsylvania (PennDOT), Connecticut (CT DMV), Massachusetts (RMV), Florida (FLHSMV), California (CA DMV), Texas (DPS), Illinois (SOS). Cada uno necesita su manual, formato de examen, requisitos de permiso y road test antes de escribir una sola pregunta.
+- [ ] **Listas oficiales de autoescuelas** de los estados nuevos: si el estado no publica una lista descargable, se enlaza su buscador oficial (como ya se hace con NJ).
+- [ ] **Revisión humana de las 78 preguntas de NJ** antes de publicar. Están contrastadas con el manual página a página, pero la lectura de Cristian vale más.
+- [ ] Séptima tarjeta cultural en inglés de NY (los otros 5 idiomas tienen 7).
 
 ## Técnico
 
-- [ ] Capturas de tienda (`store/*.png`): están entre 500 y 750 KB. Recomprimir antes de volver a subir a Play Console.
+- [ ] Capturas de tienda (`store/*.png`): 500–750 KB cada una. Recomprimir antes de volver a subir a Play Console.
 - [ ] `privacy.html`: añadir `<link rel="icon">` (hoy provoca un 404 de favicon).
-- [ ] Diálogo de idioma: trampa de foco + cerrar con Escape.
-- [ ] `prefers-reduced-motion`: parar también el vídeo de portada, no solo las transiciones.
+- [ ] Diálogo de idioma (`#langPick`): trampa de foco + cerrar con Escape.
 - [ ] `hasVoice()`: no devolver `true` cuando la lista de voces aún está vacía.
-- [ ] `store/ficha_google_play.md`: existe `DriveReady_android/ficha_google_play.md` fuera del repo; si cambian textos de tienda (estados nuevos, CDL) hay que regenerarla dentro del repo. **No se sube a Play Console**: eso lo hace Cristian.
+- [ ] Revisar gramática rusa con `{state}` en frases que pidan caso prepositivo si se añaden estados con nombre declinable.
 
 ## Verificación pendiente
 
 - [ ] Probar la app instalada en un Android antiguo real (fuentes bengalí y china).
-- [ ] Probar el modo sin conexión en producción (`https://srpopito.github.io/alvolante/`) después de publicar: en local el service worker no se registra porque el registro exige `https:`.
+- [ ] Probar el modo sin conexión **en producción** después de publicar. En local ya se verifica con Chrome sin red (43 archivos en caché), pero la prueba definitiva es en `https://srpopito.github.io/alvolante/`.
+- [ ] Revisar que la app de Android (TWA) sigue abriendo la web nueva sin regenerar el paquete.
+
+## Publicación (lo hace Cristian)
+
+- [ ] Revisar la rama `minke-update` y hacer merge a `main` cuando todo esté conforme.
+- [ ] Subir la ficha nueva de `store/ficha_google_play.md` a Play Console (no se ha subido).
+- [ ] Añadir las capturas nuevas de NJ y CDL a la ficha de Play.

@@ -145,3 +145,23 @@ Lo que más se repite en las reseñas malas de apps de examen del DMV en Google 
 ## 8. Pendientes que salen de esta auditoría
 
 Ver `PENDIENTES.md` (se mantiene al día con cada fase).
+---
+
+## 9. Estado al cerrar la entrega
+
+| # | Hallazgo | Estado |
+|---|---|---|
+| A1 | No existía suite de pruebas | ✅ Resuelto: `_t/test.html` con 99 comprobaciones |
+| A2 | Selector de estado muerto | ✅ Resuelto: registro de estados real y `?state=` |
+| A3 | Aviso de gobierno solo en el pie | ✅ Resuelto: barra fija visible, por estado y con enlaces `.gov` |
+| M1 | `sw.js` sin precachear idiomas | ✅ Resuelto: `alv-v9`, 43 archivos, verificado sin conexión |
+| M2 | 20 fijo en el resultado | ✅ Resuelto: usa el número real y el formato del estado |
+| M3 | Capturas de tienda pesadas | ⏳ Pendiente (no afecta a la app) |
+| M4 | Tarjetas culturales desiguales | ⏳ Pendiente |
+| B1 | Sin trampa de foco en el diálogo de idioma | ⏳ Pendiente |
+| B2 | Favicon 404 en `privacy.html` | ⏳ Pendiente |
+| B3 | Vídeo de portada sin `prefers-reduced-motion` | ✅ Resuelto |
+| B4 | `pintarTabs()` mutaba el paquete de idioma | ⏳ Pendiente (sin efecto visible) |
+| B5 | `hasVoice()` con lista vacía | ⏳ Pendiente |
+
+También se corrigió, ya fuera de la auditoría inicial, un error de contenido en el inicio: los textos compartidos decían «Nueva York» y «20 preguntas» también en New Jersey. Ahora se generan con el estado y el formato reales.
