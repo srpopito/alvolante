@@ -192,7 +192,7 @@ function examenResultado(){
   var aprobado=ok>=14&&sig>=2;
   if(!EX.done){EX.done=true; EX.qs.forEach(function(p,i){marcar(p.id,EX.ans[i]===p.correct);});
     var st=store.get("stats",{n:0,p:0,b:0}); st.n++; if(aprobado)st.p++; st.b=Math.max(st.b,ok); store.set("stats",st); guardarEx();}
-  var h='<div class="row"><span class="result-big">'+num(ok)+'/'+num(20)+'</span><span class="pill '+(aprobado?"ok":"bad")+'">'+esc(aprobado?t("passed"):t("failed"))+'</span></div>';
+  var h='<div class="row"><span class="result-big">'+num(ok)+'/'+num(EX.qs.length)+'</span><span class="pill '+(aprobado?"ok":"bad")+'">'+esc(aprobado?t("passed"):t("failed"))+'</span></div>';
   h+='<div class="guide" style="margin:10px 0"><img src="'+img(P.guide.img)+'" alt=""><div class="bubble">'+esc(frase(aprobado?"right":"wrong"))+' '+num(ok)+' '+esc(t("correct"))+' · '+num(sig)+'/'+num(sigT)+' '+esc(t("signsOk"))+'</div></div>';
   if(ok>=14&&sig<2) h+='<p class="pill warn">'+esc(t("failSigns"))+'</p>';
   h+='<div class="row"><button class="btn" id="exAgain" type="button">'+esc(t("again"))+'</button></div><h3 style="margin-top:14px">'+esc(t("reviewTitle"))+'</h3><div class="review">';

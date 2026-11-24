@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DriveReady self-tests</title>
+<link rel="icon" href="../icons/icon-192.png">
+<style>
+body{font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;margin:0;padding:16px;color:#17201b;background:#f4f6f3}
+h1{font-size:20px;margin:0 0 6px}#summary{font-weight:700;margin:10px 0;padding:10px 12px;border-radius:8px;background:#fff;border:1px solid #d9dfda}
+#summary.pass{border-color:#1d7a3a;background:#eaf6ee}#summary.fail{border-color:#b3261e;background:#fdeeed}
+ol{padding-left:22px;margin:8px 0}li{margin:3px 0}li.bad{color:#b3261e;font-weight:600}li small{color:#5b6660;font-weight:400}
+#app{width:360px;height:640px;border:1px solid #d9dfda;border-radius:8px;background:#fff;margin-top:14px}
+code{background:#eef1ee;padding:0 4px;border-radius:4px}
+</style>
+</head>
+<body>
+<h1>DriveReady self-tests</h1>
+<p>Runs the real app inside the iframe below at 360&nbsp;px wide. Open this page over HTTP: <code>python -m http.server 8765</code> then <code>http://localhost:8765/_t/test.html</code>.</p>
+<div id="summary">Running…</div>
+<ol id="log"></ol>
+<iframe id="app" title="App under test"></iframe>
+<script>
+(function(){
+"use strict";
+var LANGS=["en","es","zh","ru","ko","bn"];
+var VISTAS=["inicio","examen","practica","manual","juego","roadtest","escuelas","maniobras","cultura","acerca"];
+var results=[],frame=document.getElementById("app"),log=document.getElementById("log"),sum=document.getElementById("summary");
+function rec(name,pass,detail){results.push({name:name,pass:!!pass,detail:detail||""});}
+function paint(){log.innerHTML=results.map(function(r){return '<li class="'+(r.pass?"":"bad")+'">'+(r.pass?"PASS":"FAIL")+" — "+r.name+(r.detail?' <small>'+r.detail+"</small>":"")+"</li>";}).join("");
+  var bad=results.filter(function(r){return !r.pass;}).length, total=results.length;
+  sum.className=bad?"fail":"pass";
+  sum.textContent=(total-bad)+" / "+total+" checks passed"+(bad?" · "+bad+" failed":"");
+  window.__TEST_RESULT={total:total,passed:total-bad,failed:bad,results:results,done:window.__TEST_DONE===true};
+}
+function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
+function load(url){return new Promise(function(res,rej){var done=false;
+  frame.onload=function(){if(done)return;done=true;setTimeout(function(){res(frame.contentWindow);},80);};
+  frame.onerror=function(){if(!done){done=true;rej(new Error("iframe load error"));}};
+  frame.src=url;setTimeout(function(){if(!done){done=true;rej(new Error("iframe load timeout: "+url));}},15000);});}
+function ready(win,ms){var t0=Date.now();return new Promise(function(res,rej){(function poll(){
+  try{var d=win.document,tabs=d.getElementById("tabs");if(tabs&&tabs.children.length>=8)return res(d);}catch(e){}
+  if(Date.now()-t0>ms)return rej(new Error("app did not render"));setTimeout(poll,50);})();});}
+function q(d,s){return d.querySelector(s);}
+function qa(d,s){return Array.prototype.slice.call(d.querySelectorAll(s));}
+function go(win,v){win.location.hash="#"+v;return sleep(140);}
+async function main(){
+var i,t,win,d;
+for(i=0;i<LANGS.length;i++){
+  t=LANGS[i];
+  try{
+    win=await load("../index.html?lang="+t);d=await ready(win,8000);
+    rec("boots in "+t,d.documentElement.lang===t,"documentElement.lang="+d.documentElement.lang);
+    var tabs=qa(d,"#tabs a");
+    rec(t+": all 10 tabs render",tabs.length===VISTAS.length,tabs.length+" tabs");
+    rec(t+": no empty tab labels",tabs.every(function(a){return a.textContent.trim().length>0;}),"");
+    var badT=qa(d,"[data-t]").filter(function(el){return !el.textContent.trim();});
+    rec(t+": every data-t slot filled",badT.length===0,badT.map(function(e){return e.getAttribute("data-t");}).join(","));
+    var body=d.body.innerText||"";
+    rec(t+": no undefined or NaN in UI",body.indexOf("undefined")<0&&body.indexOf("NaN")<0,"");
+    rec(t+": guide name shown",(d.getElementById("guideName").textContent||"").trim().length>0,d.getElementById("guideName").textContent);
+    rec(t+": not-a-government notice present",/not affiliated|independiente|独立|не связано|관련|যুক্ত নয়|no pertenece|not a government/i.test(d.body.innerText),"");
+    var govLinks=qa(d,"a[href^=\"https://\"]").filter(function(a){return /\.gov(\/|$)/.test(a.hostname||a.href);});
+    rec(t+": links to official .gov sources",govLinks.length>=3,govLinks.length+" .gov links");
+    await go(win,"acerca");
+    var src=qa(d,"#sourceList a");
+    rec(t+": source list has the 10 manual chapters",src.length===10,src.length+" links");
+    rec(t+": every source link is .gov",src.every(function(a){return /\.gov(\/|$)/.test(a.hostname||a.href);}),"");
+    await go(win,"inicio");
+    var sw=d.documentElement.scrollWidth,vw=win.innerWidth||360;
+    rec(t+": no horizontal overflow at 360px",sw<=vw+1,"scrollWidth="+sw+" viewport="+vw);
+  }catch(e){rec(t+": boot sequence",false,String(e&&e.message||e));}
+}
+try{
+win=await load("../index.html?lang=en");d=await ready(win,8000);
+q(d,"#langBtn").click();await sleep(120);
+rec("language picker opens",q(d,"#langPick").classList.contains("on"),"");
+rec("picker lists 6 languages",qa(d,"#lpList button").length===6,qa(d,"#lpList button").length+" buttons");
+q(d,'#lpList button[data-c="es"]').click();await sleep(700);
+rec("switching language updates html lang",d.documentElement.lang==="es",d.documentElement.lang);
+rec("switching language translates tabs",/Inicio/.test(q(d,"#tabs").textContent),q(d,"#tabs").textContent.slice(0,40));
+}catch(e){rec("language picker",false,e.message);}
+try{
+win=await load("../index.html?lang=en");d=await ready(win,8000);
+await go(win,"examen");
+q(d,"#exStart").click();await sleep(200);
+rec("exam starts on question 1",/1/.test((q(d,"#examCard .pill")||{}).textContent||""),(q(d,"#examCard .pill")||{}).textContent);
+var n=0;
+for(n=0;n<20;n++){
+  var opt=q(d,"#examCard .opt");if(!opt){rec("exam renders question "+(n+1),false,"no .opt");break;}
+  opt.click();await sleep(60);
+  var nxt=q(d,"#exNext");if(!nxt){rec("exam has a next button",false,"missing");break;}
+  nxt.click();await sleep(70);
+}
+var big=(q(d,"#examCard .result-big")||{}).textContent||"";
+rec("exam finishes with a score out of 20",/^\d+\/20$/.test(big.trim()),big);
+rec("exam shows a pass/fail verdict",(q(d,"#examCard .pill.ok")||q(d,"#examCard .pill.bad"))!==null,"");
+rec("exam review lists all 20 questions",qa(d,"#examCard .review > div").length===20,qa(d,"#examCard .review > div").length+" rows");
+var alvKeys=(function(){var ks=[];for(var j=0;j<win.localStorage.length;j++)ks.push(win.localStorage.key(j));return ks;})();
+rec("exam progress saved under alv_ keys",alvKeys.indexOf("alv_exam")>=0,alvKeys.join(","));
+}catch(e){rec("exam flow",false,e.message);}
+try{
+win=await load("../index.html?lang=en");d=await ready(win,8000);
+await go(win,"practica");
+var chip=q(d,"#chapterChips .chip");rec("practice shows topic chips",!!chip,qa(d,"#chapterChips .chip").length+" chips");
+chip.click();await sleep(200);
+var popt=q(d,"#practiceCard .opt");rec("practice shows a question",!!popt,"");
+popt.click();await sleep(200);
+rec("practice explains the answer",!!q(d,"#prFb .bubble"),"");
+var pl=q(d,"#practiceSide a[href^=\"https\"]");
+rec("practice links to the official chapter",!!pl&&/\.gov/.test(pl.href),pl?pl.href:"");
+}catch(e){rec("practice flow",false,e.message);}
+try{
+win=await load("../index.html?lang=en");d=await ready(win,8000);
+await go(win,"examen");
+rec("saved exam survives a reload",!!q(d,"#examCard .result-big")||!!q(d,"#examCard .qtext"),"restored="+!!q(d,"#examCard .result-big"));
+}catch(e){rec("progress restore",false,e.message);}
+try{
+win=await load("../index.html?lang=en");d=await ready(win,8000);
+await go(win,"juego");
+q(d,"#gmStart").click();await sleep(300);
+rec("sign game starts and shows a sign",!!q(d,"#gameCard svg")&&!!q(d,"#gameCard .gamebar"),"");
+var before=q(d,"#gmTime").textContent;await sleep(1250);var after=q(d,"#gmTime").textContent;
+rec("sign game timer counts down",before!==after,before+" -> "+after);
+q(d,"#gameCard .opt").click();await sleep(400);
+rec("sign game keeps 4 options",qa(d,"#gameCard .opt").length===4,"");
+await go(win,"inicio");
+}catch(e){rec("sign game",false,e.message);}
+try{
+win=await load("../index.html?lang=en");d=await ready(win,8000);
+await go(win,"roadtest");
+q(d,"#rtList .counter button[data-d=\"1\"]").click();await sleep(160);
+rec("road-test counter increments",q(d,"#rtList .counter span").textContent.trim()==="1",q(d,"#rtList .counter span").textContent);
+rec("road-test links to official results sheet",/\.gov/.test(q(d,"#rtSource").href),q(d,"#rtSource").href);
+d.getElementById("rtReset").click();await sleep(140);
+rec("road-test reset clears marks",q(d,"#rtList .counter span").textContent.trim()==="0",q(d,"#rtList .counter span").textContent);
+}catch(e){rec("road test",false,e.message);}
+try{
+win=await load("../index.html?lang=en");d=await ready(win,8000);
+await go(win,"escuelas");
+for(var w=0;w<40&&!qa(d,"#scList .school").length;w++)await sleep(100);
+rec("school finder loads the official NY list",qa(d,"#scList .school").length>0,qa(d,"#scList .school").length+" shown");
+rec("school count is reported",/\d/.test(q(d,"#scCount").textContent),q(d,"#scCount").textContent);
+rec("school finder cites data.ny.gov",/data\.ny\.gov/.test(q(d,"#scNote").textContent),"");
+}catch(e){rec("schools",false,e.message);}
+try{
+win=await load("../index.html?lang=en");d=await ready(win,8000);
+await go(win,"maniobras");
+rec("maneuvers show a video",!!q(d,"#manMedia video"),"");
+rec("maneuvers list steps",qa(d,"#manSteps li").length>=3,qa(d,"#manSteps li").length+" steps");
+rec("maneuvers cite the official chapter",/\.gov/.test(q(d,"#manSrc a").href),"");
+}catch(e){rec("maneuvers",false,e.message);}
+try{
+win=await load("../index.html?lang=en");d=await ready(win,8000);
+await go(win,"manual");
+rec("manual renders chapter cards",qa(d,"#manualList .chcard").length>=9,qa(d,"#manualList .chcard").length+" cards");
+rec("manual cards link to official chapters",qa(d,"#manualList a[target=_blank]").length>=9,"");
+await go(win,"cultura");
+rec("culture cards render",qa(d,"#cultList .card").length>=6,qa(d,"#cultList .card").length+" cards");
+rec("culture cards have images",qa(d,"#cultList img, #cultList video").length>=6,"");
+}catch(e){rec("manual/culture",false,e.message);}
+try{
+win=await load("../index.html?lang=es");d=await ready(win,8000);
+var errs=[];win.addEventListener("error",function(ev){errs.push(ev.message||"error");});
+for(var v=0;v<VISTAS.length;v++){await go(win,VISTAS[v]);}
+rec("tab tour in es raises no errors",errs.length===0,errs.join(" | "));
+rec("tab tour leaves a working app",qa(d,"#tabs a").length===10,"");
+}catch(e){rec("tab tour",false,e.message);}
+window.__TEST_DONE=true;paint();
+}
+main().catch(function(e){rec("suite crashed",false,String(e&&e.message||e));window.__TEST_DONE=true;paint();});
+})();
+</script>
+</body>
+</html>
