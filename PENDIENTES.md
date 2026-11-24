@@ -38,3 +38,10 @@ Lo que **no** está en la app porque no se ha podido confirmar en una fuente ofi
 - [ ] Revisar la rama `minke-update` y hacer merge a `main` cuando todo esté conforme.
 - [ ] Subir la ficha nueva de `store/ficha_google_play.md` a Play Console (no se ha subido).
 - [ ] Añadir las capturas nuevas de NJ y CDL a la ficha de Play.
+## CDL — pendiente
+
+- [ ] **Número de preguntas del examen de conocimientos** (general, frenos de aire, combinados y endosos) en NY y NJ: no está publicado en las páginas oficiales consultadas. Por eso el simulacro es modo práctica con el 80 % federal. Si Cristian consigue el dato oficial, se pone.
+- [ ] **Idiomas en que cada estado ofrece el examen de conocimientos CDL**: no confirmado. La app solo afirma el requisito federal de inglés.
+- [ ] **Juego de control básico del vehículo** (animaciones cenitales de marcha atrás recta, desplazada y en ángulo): no hecho en esta entrega.
+- [ ] **Calculadora de horas de servicio (HOS)**: no hecha; requiere confirmar todas las reglas de 49 CFR 395 y explicarlas sin errores.
+- [ ] Lecciones para los endosos P, S, N, T, H y X: hoy la app explica cuándo se necesitan y enlaza el manual, pero el curso solo tiene los tres exámenes base (general, frenos, combinados).

@@ -40,7 +40,7 @@ STUDY YOUR WAY
 • Works offline
 
 COMMERCIAL LICENCE (CDL)
-Classes A, B and C, how to get it (CLP, medical card, ELDT, skills test), the H/N/P/S/T/X endorsements and practice questions.
+Classes A, B and C, how to get it (CLP, medical card, ELDT, skills test), the H/N/P/S/T/X endorsements, plus a short course: 11 lessons, spaced review, a practice test at the federal 80% and five games.
 
 100% FREE
 No subscriptions, no purchases, no account. No ads inside a question and no pop-ups.
@@ -90,7 +90,7 @@ ESTUDIA A TU MANERA
 • Funciona sin conexión
 
 LICENCIA COMERCIAL (CDL)
-Clases A, B y C, cómo sacarla (CLP, certificado médico, ELDT, examen práctico), los endosos H/N/P/S/T/X y preguntas de práctica.
+Clases A, B y C, cómo sacarla (CLP, certificado médico, ELDT, examen práctico), los endosos H/N/P/S/T/X y un curso corto: 11 lecciones, repaso espaciado, simulacro con el 80 % federal y cinco juegos.
 
 100 % GRATIS
 Sin suscripciones, sin compras, sin cuentas. Sin anuncios dentro de una pregunta y sin ventanas emergentes.
@@ -140,7 +140,7 @@ Fuentes oficiales
 • 支持离线使用
 
 商业驾照（CDL）
-A、B、C 三类、办理流程（CLP、体检证明、ELDT、技能考试）、H/N/P/S/T/X 附加资格和练习题。
+A、B、C 三类、办理流程（CLP、体检证明、ELDT、技能考试）、H/N/P/S/T/X 附加资格，以及短课程：11 节课、间隔复习、按联邦 80% 标准的模拟测试和五个游戏。
 
 完全免费
 没有订阅、没有购买、不需要账号。题目里没有广告，也没有弹窗。
@@ -190,7 +190,7 @@ DriveReady 是独立产品，与纽约州 DMV、新泽西州 MVC 或任何政府
 • Работает без интернета
 
 КОММЕРЧЕСКИЕ ПРАВА (CDL)
-Классы A, B и C, как получить (CLP, медсправка, ELDT, практический экзамен), допуски H/N/P/S/T/X и вопросы для тренировки.
+Классы A, B и C, как получить (CLP, медсправка, ELDT, практический экзамен), допуски H/N/P/S/T/X и короткий курс: 11 уроков, интервальное повторение, пробный тест по федеральным 80 % и пять игр.
 
 100 % БЕСПЛАТНО
 Без подписок, покупок и аккаунтов. Без рекламы внутри вопроса и без всплывающих окон.
@@ -240,7 +240,7 @@ DriveReady — независимый проект: он не связан с DM
 • 오프라인 사용 가능
 
 상용 면허(CDL)
-A·B·C 클래스, 취득 절차(CLP, 건강 진단서, ELDT, 기능 시험), H/N/P/S/T/X 추가 자격, 연습 문제.
+A·B·C 클래스, 취득 절차(CLP, 건강 진단서, ELDT, 기능 시험), H/N/P/S/T/X 추가 자격, 그리고 짧은 코스: 11개 레슨, 간격 반복, 연방 80% 기준 모의시험과 다섯 가지 게임.
 
 100% 무료
 구독·결제·계정 없음. 문제 안에 광고나 팝업 없음.
@@ -290,7 +290,7 @@ DriveReady는 독립 학습 도구로, 뉴욕주 DMV, 뉴저지 MVC 및 어떤 �
 • ইন্টারনেট ছাড়াও চলে
 
 বাণিজ্যিক লাইসেন্স (CDL)
-A, B, C ক্লাস, কীভাবে পাবেন (CLP, মেডিকেল সার্টিফিকেট, ELDT, স্কিল টেস্ট), H/N/P/S/T/X এন্ডোর্সমেন্ট ও অনুশীলন প্রশ্ন।
+A, B, C ক্লাস, কীভাবে পাবেন (CLP, মেডিকেল সার্টিফিকেট, ELDT, স্কিল টেস্ট), H/N/P/S/T/X এন্ডোর্সমেন্ট, আর একটি ছোট কোর্স: ১১টি পাঠ, ব্যবধানে পুনরাবৃত্তি, ফেডারেল ৮০% মানদণ্ডে মক টেস্ট ও পাঁচটি খেলা।
 
 সম্পূর্ণ ফ্রি
 কোনো সাবস্ক্রিপশন, কেনাকাটা বা অ্যাকাউন্ট নেই। প্রশ্নের ভেতরে বিজ্ঞাপন বা পপ-আপ নেই।

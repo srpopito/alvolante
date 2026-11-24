@@ -42,6 +42,11 @@ function loadGames(code){
   return loadScript("games/"+code+".js").then(function(){return window.GAMES[code];})
     .catch(function(){ return window.GAMES&&window.GAMES.en ? window.GAMES.en : null; });
 }
+function loadCourse(code){
+  if(window.CDLCOURSE&&window.CDLCOURSE[code]) return Promise.resolve(window.CDLCOURSE[code]);
+  return loadScript("cdl/course/"+code+".js").then(function(){return window.CDLCOURSE[code];})
+    .catch(function(){ return window.CDLCOURSE&&window.CDLCOURSE.en ? window.CDLCOURSE.en : null; });
+}
 function loadCdl(code){
   if(window.CDL&&window.CDL[code]) return Promise.resolve(window.CDL[code]);
   return loadScript("cdl/"+code+".js").then(function(){return window.CDL[code];})
@@ -72,8 +77,8 @@ function pickerShow(){
   var first=$("lpList").querySelector("button"); if(first) first.focus();
 }
 function setLang(code){
-  return Promise.all([loadUi(code),loadLang(code),loadCdl(code),loadGames(code)]).then(function(r){
-    LANG=code; P=r[1]; P.ui=r[0]; P.cdl=r[2]; P.games=r[3]; store.set("lang",code);
+  return Promise.all([loadUi(code),loadLang(code),loadCdl(code),loadGames(code),loadCourse(code),loadCourse("en")]).then(function(r){
+    LANG=code; P=r[1]; P.ui=r[0]; P.cdl=r[2]; P.games=r[3]; P.course=r[4]; store.set("lang",code);
     $("langPick").classList.remove("on");
     document.documentElement.lang=code; document.documentElement.dir=P.dir||"ltr";
     document.documentElement.style.setProperty("--body",P.font);
@@ -657,49 +662,220 @@ function quickEnd(mode,t1,t2,t3){
   $("gmAgain").onclick=function(){startGame(mode);}; $("gmHub").onclick=juegoIntro;
   pintarInicio();
 }
-// ---------- Licencia comercial (CDL) ----------
-var CDLQ={i:0,ok:0,done:false};
-function cdlQuiz(){
-  var c=P.cdl; if(!c||!c.practice) return "";
-  var h='<h3>'+esc(c.hPractice||"Practice")+"</h3>";
-  if(CDLQ.done){
-    h+='<p class="result-big">'+num(CDLQ.ok)+"/"+num(c.practice.length)+'</p><div class="row"><button class="btn" id="cdlAgain" type="button">'+esc(t("again"))+'</button></div>';
-    return h;
-  }
-  var p=c.practice[CDLQ.i];
-  h+='<div class="qhead"><span class="pill">'+num(CDLQ.i+1)+" / "+num(c.practice.length)+'</span><span class="pill">'+esc(t("score"))+": "+num(CDLQ.ok)+"</span></div>";
-  h+='<div class="qtext">'+esc(p.q)+"</div><div class=\"opts\">"+p.o.map(function(o,k){return '<button type="button" class="opt" data-k="'+k+'">'+esc(o)+"</button>";}).join("")+"</div>";
-  h+='<div id="cdlFb"></div>';
-  return h;
-}
-function cdlBind(){
-  var c=P.cdl; if(!c||!c.practice) return;
-  var again=$("cdlAgain"); if(again){ again.onclick=function(){CDLQ={i:0,ok:0,done:false}; pintarCdl();}; return; }
-  var done=false, p=c.practice[CDLQ.i];
-  document.querySelectorAll("#cdlCard .opt").forEach(function(b){
-    b.onclick=function(){
-      if(done) return; done=true;
-      var v=+b.dataset.k, bien=v===p.a; if(bien) CDLQ.ok++;
-      document.querySelectorAll("#cdlCard .opt").forEach(function(x){ x.disabled=true; var k=+x.dataset.k; if(k===p.a) x.classList.add("right"); else if(x===b) x.classList.add("wrong"); });
-      $("cdlFb").innerHTML='<div class="explain"><div class="bubble">'+esc(p.e)+(p.src?' <span class="muted small">· '+esc(p.src)+"</span>":"")+"</div></div>"+'<div class="row" style="margin-top:10px"><button class="btn" id="cdlNext" type="button">'+esc(CDLQ.i===c.practice.length-1?t("finish"):t("next"))+"</button></div>";
-      $("cdlNext").onclick=function(){ if(CDLQ.i===c.practice.length-1) CDLQ.done=true; else CDLQ.i++; pintarCdl(); };
-      $("cdlNext").focus({preventScroll:true});
-    };
-  });
-}
+// ---------- Licencia comercial (CDL): curso, repaso y juegos ----------
+var CDL={view:"home",mod:null,les:null,qi:0,ans:[],res:null,en:false,game:null,order:[],step:0};
+function cc(){var a=(P.course||(window.CDLCOURSE&&window.CDLCOURSE[LANG])||{}),b=P.cdl||{},o={};
+  for(var k in b)o[k]=b[k]; for(var j in a)o[j]=a[j]; return o;}
+function cen(){return (window.CDLCOURSE&&window.CDLCOURSE.en)||null;}
+function cplan(){return store.get("cdl_plan",null);}
+function cprog(){return store.get("cdl_prog",{});}
+function cqid(m,l,i){return m+"/"+l+"/"+i;}
+function cwhen(b){var ms=[0,10*60e3,24*36e5,3*864e5,7*864e5,21*864e5];return Date.now()+(ms[Math.min(b,5)]||0);}
+function cmark(id,ok){var p=cprog(),r=p[id]||{b:1};r.b=ok?Math.min(5,(r.b||1)+1):1;r.d=cwhen(r.b);p[id]=r;store.set("cdl_prog",p);}
+function cmods(){var p=cplan();if(!p)return [];var c=cc();return (c.modulesList||[]).filter(function(m){return p.need.indexOf(m.id)>=0;});}
+function ctotal(){var n=0;cmods().forEach(function(m){m.lessons.forEach(function(l){n+=l.q.length;});});return n;}
+function cdone(){var p=cprog(),n=0;cmods().forEach(function(m){m.lessons.forEach(function(l,i){l.q.forEach(function(_,j){if((p[cqid(m.id,l.id,j)]||{}).b>=3)n++;});});});return n;}
+function cnextLesson(){var p=cprog();var ms=cmods();for(var a=0;a<ms.length;a++){for(var b=0;b<ms[a].lessons.length;b++){var l=ms[a].lessons[b],done=l.q.filter(function(_,j){return (p[cqid(ms[a].id,l.id,j)]||{}).b>=3;}).length;if(done<l.q.length)return {m:ms[a],l:l};}}return null;}
+function clessonQ(m,l){return l.q;}
+function cPracticePool(){var out=[],ms=cmods();ms.forEach(function(m){m.lessons.forEach(function(l){l.q.forEach(function(q,i){out.push({m:m.id,l:l.id,i:i,q:q});});});});return out;}
+function cshuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),x=a[i];a[i]=a[j];a[j]=x;}return a;}
+
 function pintarCdl(){
-  var c=P.cdl; if(!c) return;
-  var h='<h2>'+esc(c.title)+"</h2><p>"+esc(c.lead)+"</p>";
-  h+='<p class="pill warn" style="display:block;margin:10px 0">'+esc(c.notice)+"</p>";
-  h+='<div class="grid g2" style="margin-top:12px">'+c.classes.map(function(x){return '<div class="card" style="border-left:4px solid var(--warn)"><h3>'+esc(x.t)+"</h3><p class=\"small\">"+esc(x.d)+"</p></div>";}).join("")+"</div>";
-  h+='<h3 style="margin-top:16px">'+esc(c.hSteps||"How to get it")+"</h3><ol class=\"steps\" style=\"padding-inline-start:20px\">"+c.steps.map(function(s){return "<li><b>"+esc(s.t)+"</b><br><span class=\"small muted\">"+esc(s.d)+"</span></li>";}).join("")+"</ol>";
-  h+='<h3 style="margin-top:16px">'+esc(c.hEnd||"Endorsements")+"</h3><div class=\"grid g2\">"+c.endorsements.map(function(e){return '<div class="card"><h3>'+esc(e.k+" · "+e.t)+"</h3><p class=\"small\">"+esc(e.d)+"</p></div>";}).join("")+"</div>";
-  h+='<h3 style="margin-top:16px">'+esc(c.hAir||"Air brakes")+"</h3><p class=\"small\"><b>"+esc(c.air.t)+":</b> "+esc(c.air.d)+"</p>";
-  h+=cdlQuiz();
-  h+='<h3 style="margin-top:16px">'+esc(c.hState||"Your state")+"</h3><p class=\"small\">"+esc(stName())+" · "+esc(ST.agency||"DMV")+'</p><p><a class="btn ghost" target="_blank" rel="noopener" href="'+esc(ST.cdl||"#")+'">'+esc(c.hOfficial||"Official CDL manual")+" ↗</a></p>";
-  $("cdlCard").innerHTML=h; cdlBind();
+  var c=cc(); if(!c){$("cdlCard").innerHTML="";return;}
+  if(CDL.view==="lesson"&&cplan()) return pintarLeccion();
+  if((CDL.view==="mock"||CDL.view==="review")&&CDL.pool&&CDL.pool.length) return pintarMock();
+  if(CDL.view==="gloss") return pintarGlosario();
+  if(CDL.view==="game") return pintarJuegoCdl();
+  var h='<div class="row" style="justify-content:space-between;align-items:center"><h2 style="margin:0">'+esc(c.title||"CDL")+"</h2>";
+  var plan=cplan();
+  if(plan){h+='<button class="btn ghost" id="cdlPlanBtn" type="button">'+esc(c.change||"Change plan")+"</button>";}
+  h+="</div>";
+  h+='<p class="pill warn" style="display:block;margin:10px 0">'+esc(c.notice||"")+"</p>";
+  h+='<p class="small"><a href="'+esc(ST.cdl||"#")+'" target="_blank" rel="noopener">'+esc(c.hOfficial||"CDL manual")+' ↗</a> · <a href="https://www.fmcsa.dot.gov" target="_blank" rel="noopener">FMCSA ↗</a> · <a href="https://tpr.fmcsa.dot.gov" target="_blank" rel="noopener">ELDT ↗</a> · <a href="https://nationalregistry.fmcsa.dot.gov" target="_blank" rel="noopener">Medical ↗</a></p>';
+  if(!plan){h+=cdlSetup(c);}else{h+=cdlHome(c,plan);}
+  $("cdlCard").innerHTML=h;
+  if(!plan)cdlSetupBind(c); else cdlHomeBind(c);
 }
 
+// Arranque: plan de 30 segundos
+function cdlSetup(c){
+  var p=CDL.setup||{v:"A",air:"yes",permit:"no"};CDL.setup=p;
+  var h='<h3>'+esc(c.plan.qWhat)+"</h3><div class=\"chips\">"+c.plan.vehicles.map(function(v){return '<button type="button" class="chip" data-v="'+v.id+'" aria-pressed="'+(p.v===v.id)+'">'+esc(v.t)+"</button>";}).join("")+"</div>";
+  h+='<h3 style="margin-top:14px">'+esc(c.plan.qAir)+"</h3><div class=\"chips\">"+c.plan.air.map(function(a){return '<button type="button" class="chip" data-air="'+a.id+'" aria-pressed="'+(p.air===a.id)+'">'+esc(a.t)+"</button>";}).join("")+"</div>";
+  if(p.air==="dunno")h+='<p class="small muted">'+esc(c.airHint||"Air brakes have a compressor, gauges and a low pressure warning. If your vehicle has none of these, it has hydraulic brakes.")+"</p>";
+  h+='<h3 style="margin-top:14px">'+esc(c.plan.qPermit)+"</h3><div class=\"chips\">"+c.plan.permit.map(function(a){return '<button type="button" class="chip" data-per="'+a.id+'" aria-pressed="'+(p.permit===a.id)+'">'+esc(a.t)+"</button>";}).join("")+"</div>";
+  h+='<div class="row" style="margin-top:16px"><button class="btn" id="cdlMake" type="button">'+esc(c.plan.start)+"</button></div>";
+  return h;
+}
+function cdlSetupBind(c){
+  var box=$("cdlCard");
+  box.querySelectorAll("[data-v]").forEach(function(b){b.onclick=function(){CDL.setup.v=b.dataset.v;pintarCdl();};});
+  box.querySelectorAll("[data-air]").forEach(function(b){b.onclick=function(){CDL.setup.air=b.dataset.air;pintarCdl();};});
+  box.querySelectorAll("[data-per]").forEach(function(b){b.onclick=function(){CDL.setup.permit=b.dataset.per;pintarCdl();};});
+  $("cdlMake").onclick=function(){
+    var p=CDL.setup, veh=c.plan.vehicles.filter(function(x){return x.id===p.v;})[0];
+    var need=veh.need.slice();
+    if(p.air==="no")need=need.filter(function(x){return x!=="air";});
+    store.set("cdl_plan",{v:p.v,air:p.air,permit:p.permit,need:need,done:false});
+    pintarCdl();
+  };
+}
+
+// Pantalla principal del plan
+function cdlHome(c,plan){
+  var mods=cmods(),done=cdone(),tot=ctotal();
+  var h='<div class="chips" style="justify-content:space-between"><b>'+esc(c.plan.planTitle)+"</b><span>"+num(done)+"/"+num(tot)+"</span></div>";
+  h+='<div class="progress" style="margin:8px 0 14px"><span style="width:'+(tot?Math.round(done/tot*100):0)+'%"></span></div>';
+  var nxt=cnextLesson();
+  h+='<div class="row" style="margin-bottom:12px"><button class="btn" id="cdlGo" type="button">'+esc(nxt?c.resume:c.start)+"</button>";
+  h+='<button class="btn ghost" id="cdlReview" type="button">'+esc(c.reviewToday)+"</button></div>";
+  h+='<div class="chips">'+mods.map(function(m){var p=cprog(),n=0,t=0;m.lessons.forEach(function(l){l.q.forEach(function(_,j){t++;if(((p[cqid(m.id,l.id,j)]||{}).b)>=3)n++;});});return '<button class="chip" data-mod="'+m.id+'" aria-pressed="false">'+esc(m.name)+" · "+num(n)+"/"+num(t)+"</button>";}).join("")+"</div>";
+  h+='<div class="grid g2" style="margin-top:14px">';
+  mods.forEach(function(m){
+    h+='<div class="card"><h3>'+esc(m.name)+"</h3><p class=\"small muted\">"+esc(m.desc||"")+"</p><ol class=\"small\" style=\"padding-inline-start:18px\">";
+    m.lessons.forEach(function(l,li){
+      var p=cprog(),d=l.q.filter(function(_,j){return ((p[cqid(m.id,l.id,j)]||{}).b)>=3;}).length;
+      h+='<li><a href="#" data-les="'+m.id+'|'+l.id+'">'+esc(l.name)+"</a> <span class=\"muted\">"+num(d)+"/"+num(l.q.length)+"</span></li>";
+    });
+    h+="</ol></div>";
+  });
+  h+="</div>";
+  h+='<div class="row" style="margin-top:14px"><button class="btn ghost" id="cdlMock" type="button">'+esc(c.practice)+"</button>";
+  h+='<button class="btn ghost" id="cdlGloss" type="button">'+esc(c.glossaryTitle)+"</button></div>";
+  h+='<p class="small muted">'+esc(c.practiceLead)+"</p>";
+  h+=cdlGames(c);
+  return h;
+}
+function cdlHomeBind(c){
+  var box=$("cdlCard");
+  var go=$("cdlGo");if(go)go.onclick=function(){var n=cnextLesson();if(n)abrirLeccion(n.m.id,n.l.id);else abrirMock();};
+  var rv=$("cdlReview");if(rv)rv.onclick=abrirRepaso;
+  var mk=$("cdlMock");if(mk)mk.onclick=abrirMock;
+  var gl=$("cdlGloss");if(gl)gl.onclick=abrirGlosario;
+  box.querySelectorAll("[data-les]").forEach(function(a){a.onclick=function(ev){ev.preventDefault();var x=a.dataset.les.split("|");abrirLeccion(x[0],x[1]);};});
+  var ch=$("cdlPlanBtn");if(ch)ch.onclick=function(){store.set("cdl_plan",null);CDL.view="home";pintarCdl();};
+  cdlGamesBind(c);
+}
+
+// Lección
+function abrirLeccion(mid,lid){CDL.view="lesson";CDL.mod=mid;CDL.les=lid;CDL.qi=0;CDL.ans=[];pintarCdl();}
+function cLesson(){var ms=cmods();for(var i=0;i<ms.length;i++){if(ms[i].id===CDL.mod){for(var j=0;j<ms[i].lessons.length;j++){if(ms[i].lessons[j].id===CDL.les)return {m:ms[i],l:ms[i].lessons[j]};}}}return null;}
+function pintarLeccion(){
+  var x=cLesson(),c=cc();if(!x){CDL.view="home";return pintarCdl();}
+  var l=x.l,q=l.q[CDL.qi];
+  var h='<div class="row" style="justify-content:space-between"><button class="btn ghost" id="cdlBack" type="button">← '+esc(c.back)+"</button><span class=\"pill\">"+esc(l.name)+" · "+num(CDL.qi+1)+"/"+num(l.q.length)+"</span></div>";
+  if(CDL.qi===0)h+='<div class="card" style="margin:12px 0;border-left:5px solid var(--warn)"><b>'+esc(l.name)+"</b><p style=\"margin:6px 0 0\">"+esc(l.idea)+"</p></div>";
+  h+='<div class="qtext">'+esc(q.q)+"</div>";
+  if(CDL.en){var e=cenq(x.m.id,l.id,CDL.qi);if(e)h+='<p class="small muted">EN: '+esc(e.q)+"</p>";}
+  h+='<div class="opts">'+q.o.map(function(o,k){var cls="opt";if(CDL.ans.length){if(k===q.a)cls+=" right";else if(k===CDL.ans[0])cls+=" wrong";}return '<button type="button" class="'+cls+'" data-k="'+k+'"'+(CDL.ans.length?" disabled":"")+">"+esc(o)+"</button>";}).join("")+"</div>";
+  h+='<div class="row" style="margin-top:10px"><button class="btn ghost" id="cdlEn" type="button">'+esc(CDL.en?c.hideEn:c.seeEn)+"</button>";
+  if(hasVoice())h+='<button class="btn ghost" id="cdlSay" type="button">🔊 '+esc(t("listen"))+"</button>";
+  h+="</div>";
+  if(CDL.ans.length){h+='<div class="explain"><div class="bubble">'+esc(q.e)+"</div></div>";
+    h+='<div class="row" style="margin-top:10px"><button class="btn" id="cdlNextQ" type="button">'+esc(CDL.qi===l.q.length-1?c.finish:c.next)+"</button></div>";}
+  $("cdlCard").innerHTML=h;
+  $("cdlBack").onclick=function(){CDL.view="home";pintarCdl();};
+  $("cdlEn").onclick=function(){CDL.en=!CDL.en;pintarLeccionEn();};
+  var sy=$("cdlSay");if(sy)sy.onclick=function(){speak(q.q+". "+q.o.join(". "));};
+  $("cdlCard").querySelectorAll(".opt").forEach(function(b){b.onclick=function(){
+    if(CDL.ans.length)return;var v=+b.dataset.k;CDL.ans=[v];cmark(cqid(x.m.id,l.id,CDL.qi),v===q.a);pintarLeccion();
+  };});
+  var nx=$("cdlNextQ");if(nx)nx.onclick=function(){if(CDL.qi===l.q.length-1){CDL.view="home";pintarCdl();}else{CDL.qi++;CDL.ans=[];pintarLeccion();}};
+}
+function pintarLeccionEn(){var box=$("cdlCard");var y=box.scrollTop;pintarLeccion();box.scrollTop=y;}
+function cenq(mid,lid,i){var e=cen();if(!e)return null;var ms=(e.modulesList||[]);for(var a=0;a<ms.length;a++){if(ms[a].id===mid){for(var b=0;b<ms[a].lessons.length;b++){if(ms[a].lessons[b].id===lid)return ms[a].lessons[b].q[i];}}}return null;}
+
+// Simulacro (práctica)
+function abrirMock(){CDL.view="mock";CDL.qi=0;CDL.ans=[];CDL.res=null;CDL.pool=cshuffle(cPracticePool()).slice(0,20);pintarCdl();}
+function pintarMock(){
+  var c=cc(),item=CDL.pool[CDL.qi];if(!item){CDL.view="home";return pintarCdl();}
+  var q=item.q,h='<div class="row" style="justify-content:space-between"><button class="btn ghost" id="cdlBack" type="button">← '+esc(c.back)+"</button><span class=\"pill\">"+num(CDL.qi+1)+" / "+num(CDL.pool.length)+"</span></div>";
+  h+='<div class="qtext">'+esc(q.q)+"</div><div class=\"opts\">"+q.o.map(function(o,k){var cls="opt";if(CDL.ans.length){if(k===q.a)cls+=" right";else if(k===CDL.ans[0])cls+=" wrong";}return '<button type="button" class="'+cls+'" data-k="'+k+'"'+(CDL.ans.length?" disabled":"")+">"+esc(o)+"</button>";}).join("")+"</div>";
+  if(CDL.ans.length)h+='<div class="explain"><div class="bubble">'+esc(q.e)+"</div></div>"+'<div class="row" style="margin-top:10px"><button class="btn" id="cdlNextQ" type="button">'+esc(CDL.qi===CDL.pool.length-1?"Finish":c.next)+"</button></div>";
+  $("cdlCard").innerHTML=h;
+  $("cdlBack").onclick=function(){CDL.view="home";pintarCdl();};
+  $("cdlCard").querySelectorAll(".opt").forEach(function(b){b.onclick=function(){if(CDL.ans.length)return;CDL.ans=[+b.dataset.k];CDL.pool[CDL.qi].chosen=+b.dataset.k;cmark(cqid(item.m,item.l,item.i),+b.dataset.k===q.a);pintarMock();};});
+  var nx=$("cdlNextQ");if(nx)nx.onclick=function(){if(CDL.qi===CDL.pool.length-1)mockEnd();else{CDL.qi++;CDL.ans=[];pintarMock();}};
+}
+function mockEnd(){
+  var c=cc(),right=0;
+  CDL.pool.forEach(function(it){if(it.chosen===it.q.a)right++;});
+  var pct=Math.round(right/CDL.pool.length*100),pass=pct>=80;
+  var h='<h3>'+esc(pass?c.pass:c.fail)+"</h3><p class=\"result-big\">"+pct+"%</p><p>"+num(right)+"/"+num(CDL.pool.length)+" "+esc(c.correct)+"</p>";
+  h+='<p class="small muted">'+esc(c.practiceLead)+"</p>";
+  h+='<div class="row"><button class="btn" id="cdlAgain" type="button">'+esc(t("again"))+"</button>"+'<button class="btn ghost" id="cdlBackHome" type="button">'+esc(c.back)+"</button></div>";
+  $("cdlCard").innerHTML=h;
+  $("cdlAgain").onclick=function(){abrirMock();};$("cdlBackHome").onclick=function(){CDL.view="home";pintarCdl();};
+}
+
+// Repaso espaciado
+function abrirRepaso(){CDL.view="review";CDL.qi=0;CDL.ans=[];CDL.pool=[];
+  var pool=cPracticePool(),p=cprog(),now=Date.now();
+  var due=pool.filter(function(it){var r=p[cqid(it.m,it.l,it.i)];return r&&r.d&&r.d<=now;});
+  if(!due.length)due=pool.slice().sort(function(a,b){var ra=p[cqid(a.m,a.l,a.i)]||{b:0},rb=p[cqid(b.m,b.l,b.i)]||{b:0};return (ra.b||0)-(rb.b||0);});
+  CDL.pool=cshuffle(due).slice(0,10);pintarCdl();}
+
+// Glosario
+function abrirGlosario(){CDL.view="gloss";pintarCdl();}
+function pintarGlosario(){
+  var c=cc();
+  var h='<div class="row" style="justify-content:space-between"><button class="btn ghost" id="cdlBack" type="button">← '+esc(c.back)+"</button><b>"+esc(c.glossaryTitle)+"</b></div>";
+  h+='<div class="grid g2" style="margin-top:12px">'+c.glossary.map(function(g,i){return '<div class="card"><h3>'+esc(g.t)+"</h3><p class=\"small muted\">EN: "+esc(g.en)+"</p><p class=\"small\">"+esc(g.d)+"</p>"+(hasVoice()?'<button class="btn ghost" type="button" data-say="'+i+'">🔊 '+esc(c.listenEn)+"</button>":"")+"</div>";}).join("")+"</div>";
+  $("cdlCard").innerHTML=h;
+  $("cdlBack").onclick=function(){CDL.view="home";pintarCdl();};
+  $("cdlCard").querySelectorAll("[data-say]").forEach(function(b){b.onclick=function(){var g=c.glossary[+b.dataset.say];speakEn(g.en+". "+g.en);};});
+}
+function speakEn(txt){if(!window.speechSynthesis)return;var T=window.speechSynthesis;T.cancel();var u=new SpeechSynthesisUtterance(txt);u.lang="en-US";u.rate=.92;T.speak(u);}
+
+function cdlTruckSvg(){
+  var pt=function(x,y,id,label){return '<g data-part="'+id+'" style="cursor:pointer" transform="translate('+x+','+y+')">'+
+    '<circle r="15" fill="#0b6e4f" stroke="#fff" stroke-width="2"/><text y="5" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">'+label+"</text></g>";};
+  return '<svg viewBox="0 0 320 170" role="img" aria-label="Truck" style="max-width:420px;display:block;margin:0 auto">'+
+    '<rect x="150" y="38" width="150" height="58" rx="6" fill="#dfe6e1" stroke="#111" stroke-width="2"/>'+
+    '<rect x="60" y="52" width="88" height="42" rx="6" fill="#0b6e4f" stroke="#111" stroke-width="2"/>'+
+    '<rect x="66" y="58" width="34" height="20" rx="3" fill="#9fd8f0"/>'+
+    '<rect x="150" y="96" width="150" height="8" fill="#111"/>'+
+    '<circle cx="88" cy="118" r="15" fill="#111"/><circle cx="120" cy="118" r="15" fill="#111"/>'+
+    '<circle cx="190" cy="118" r="15" fill="#111"/><circle cx="240" cy="118" r="15" fill="#111"/><circle cx="285" cy="118" r="15" fill="#111"/>'+
+    pt(88,96,"tires","1")+pt(290,74,"lights","2")+pt(120,96,"brakes","3")+pt(160,74,"hoses","4")+pt(205,80,"fifth","5")+pt(232,80,"coupling","6")+
+    "</svg>";
+}
+
+// Juegos CDL
+function cdlGames(c){
+  if(!c.games)return "";
+  var g=c.games;
+  var items=[["pretrip",g.pretripTitle],["airorder",g.airorderTitle],["gauge",g.gaugeTitle],["class",g.classTitle],["coupling",g.couplingTitle]];
+  return '<h3 style="margin-top:18px">'+esc(c.gamesTitle||"Practice games")+"</h3><div class=\"chips\">"+items.map(function(x){return '<button class="chip" data-gmcdl="'+x[0]+'">'+esc(x[1])+"</button>";}).join("")+"</div>";
+}
+function cdlGamesBind(c){$("cdlCard").querySelectorAll("[data-gmcdl]").forEach(function(b){b.onclick=function(){CDL.view="game";CDL.game=b.dataset.gmcdl;CDL.step=0;CDL.order=[];pintarJuegoCdl();};});}
+function pintarJuegoCdl(){
+  var c=cc(),g=c.games,k=CDL.game;
+  var h='<div class="row" style="justify-content:space-between"><button class="btn ghost" id="cdlBack" type="button">← '+esc(c.back)+"</button><b>"+esc(g[k+"Title"])+"</b></div>";
+  h+='<p class="small">'+esc(g[k+"Lead"]||"")+"</p>";
+  if(k==="pretrip"){
+    h+=cdlTruckSvg();
+    h+='<p class="small muted" style="text-align:center">Tap a numbered part of the truck</p>';
+    h+='<div class="chips" style="justify-content:center">'+g.pretrip.parts.map(function(p,i){return '<button class="chip" data-part="'+p.id+'">'+num(i+1)+" · "+esc(p.name)+"</button>";}).join("")+"</div>";
+    h+='<div id="cdlFb"></div>';
+  } else if(k==="airorder"||k==="coupling"){
+    var steps=g[k].map(function(s,i){return {s:s,i:i};});
+    if(!CDL.shuf)CDL.shuf=cshuffle(steps);
+    h+='<div class="opts">'+CDL.shuf.map(function(x){return '<button class="opt" data-step="'+x.i+'">'+esc(x.s)+"</button>";}).join("")+"</div><div id=\"cdlFb\"></div>";
+  } else if(k==="gauge"){
+    var st=g.gauge[CDL.step%g.gauge.length];
+    h+='<p class="result-big">'+num(st.psi)+' psi</p><div class="qtext">'+esc(st.q)+"</div><div class=\"opts\">"+st.o.map(function(o,i){return '<button class="opt" data-g="'+i+'">'+esc(o)+"</button>";}).join("")+"</div><div id=\"cdlFb\"></div>";
+  } else if(k==="class"){
+    var it=g.classes[CDL.step%g.classes.length];
+    h+='<div class="qtext">'+esc(it.q)+"</div><div class=\"opts\">"+it.o.map(function(o,i){return '<button class="opt" data-c="'+i+'">'+esc(o)+"</button>";}).join("")+"</div><div id=\"cdlFb\"></div>";
+  }
+  $("cdlCard").innerHTML=h;
+  $("cdlBack").onclick=function(){CDL.view="home";CDL.shuf=null;pintarCdl();};
+  if(k==="pretrip"){$("cdlCard").querySelectorAll("[data-part]").forEach(function(b){b.onclick=function(){var p=g.pretrip.parts.filter(function(x){return x.id===b.dataset.part;})[0];var opts=cshuffle([p.ok].concat(p.bad));$("cdlFb").innerHTML='<div class="card"><b>'+esc(p.name)+"</b><div class=\"opts\">"+opts.map(function(o){return '<button class="opt" data-ok="'+(o===p.ok?1:0)+'">'+esc(o)+"</button>";}).join("")+"</div></div>";$("cdlFb").querySelectorAll("[data-ok]").forEach(function(x){x.onclick=function(){$("cdlFb").innerHTML+='<p class="small">'+(x.dataset.ok==="1"?"✓ "+esc(p.ok):"✗ "+esc(p.ok))+"</p>";};});};});}
+  if(k==="airorder"||k==="coupling"){$("cdlCard").querySelectorAll("[data-step]").forEach(function(b){b.onclick=function(){CDL.order.push(+b.dataset.step);b.disabled=true;var ok=CDL.order.every(function(v,i){return v===i;});if(!ok){$("cdlFb").innerHTML='<div class="explain"><div class="bubble">Order is not right yet. Start again.</div></div>';setTimeout(function(){CDL.order=[];CDL.shuf=null;pintarJuegoCdl();},1200);}else if(CDL.order.length===g[k].length){$("cdlFb").innerHTML='<div class="explain"><div class="bubble">✓ Correct order</div></div>';}};});}
+  if(k==="gauge"){$("cdlCard").querySelectorAll("[data-g]").forEach(function(b){b.onclick=function(){var st=g.gauge[CDL.step%g.gauge.length],ok=+b.dataset.g===st.a;$("cdlFb").innerHTML='<div class="explain"><div class="bubble">'+(ok?"✓ ":"✗ ")+esc(st.e)+"</div></div>"+'<button class="btn" id="cdlGNext" type="button">Next</button>';$("cdlGNext").onclick=function(){CDL.step++;pintarJuegoCdl();};};});}
+  if(k==="class"){$("cdlCard").querySelectorAll("[data-c]").forEach(function(b){b.onclick=function(){var it=g.classes[CDL.step%g.classes.length],ok=+b.dataset.c===it.a;$("cdlFb").innerHTML='<div class="explain"><div class="bubble">'+(ok?"✓ ":"✗ ")+esc(it.e)+"</div></div>"+'<button class="btn" id="cdlCNext" type="button">Next</button>';$("cdlCNext").onclick=function(){CDL.step++;pintarJuegoCdl();};};});}
+}
 // ---------- Road test ----------
 function pintarRoadtest(){
   $("rtSource").href=C.fuentes.R;

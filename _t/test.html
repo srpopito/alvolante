@@ -189,14 +189,64 @@ nysrcs=qa(d,"#manualList .chcard .head img").map(function(im){return im.src.spli
 T("NY chapter 9 (alcohol) still uses the alcohol photo",nysrcs[5]==="alcohol.webp",nysrcs[5]);
 }catch(e){T("question images",false,e.message);}
 
-group("6. CDL section");
+group("6. CDL course");
+try{
+win=await load("../index.html?state=ny&lang=en");d=await ready(win,9000);await go(win,"cdl");await sleep(300);
+try{win.localStorage.removeItem("alv_cdl_plan");win.localStorage.removeItem("alv_cdl_prog");}catch(e){}
+await go(win,"examen");await go(win,"cdl");await sleep(200);
+T("CDL setup asks what you want to drive",qa(d,"#cdlCard [data-v]").length===6,qa(d,"#cdlCard [data-v]").length+"");
+T("CDL notice is visible",/study guide|no es una app|政府/i.test(q(d,"#cdlCard .pill").textContent),q(d,"#cdlCard .pill").textContent.slice(0,50));
+var cdlLinks=qa(d,"#cdlCard a").map(function(a){return a.hostname;});
+T("CDL links to official .gov sources",cdlLinks.filter(function(h){return /\.gov$/.test(h);}).length>=3,cdlLinks.join(","));
+q(d,"#cdlMake").click();await sleep(400);
+T("CDL builds a personal plan",!!q(d,"#cdlGo"),"");
+T("CDL plan lists 11 lessons",qa(d,"#cdlCard [data-les]").length===11,qa(d,"#cdlCard [data-les]").length+"");
+T("CDL offers 5 practice games",qa(d,"[data-gmcdl]").length===5,qa(d,"[data-gmcdl]").length+"");
+q(d,"#cdlGo").click();await sleep(300);
+T("CDL lesson shows the key idea",!!q(d,"#cdlCard .card"),"");
+T("CDL lesson has 4 options",qa(d,"#cdlCard .opt").length===4,qa(d,"#cdlCard .opt").length+"");
+T("CDL lesson has the English toggle",!!q(d,"#cdlEn"),"");
+q(d,"#cdlEn").click();await sleep(200);
+T("English toggle shows the English text",/EN:/.test(q(d,"#cdlCard").textContent),"");
+q(d,"#cdlCard .opt").click();await sleep(250);
+T("CDL answer gives feedback",!!q(d,"#cdlCard .explain"),"");
+var prog=win.localStorage.getItem("alv_cdl_prog")||"";
+T("CDL progress is saved",/g1/.test(prog),prog.slice(0,40));
+q(d,"#cdlNextQ").click();await sleep(250);
+q(d,"#cdlBack").click();await sleep(300);
+var airLes=q(d,'#cdlCard [data-les="air|a1"]');
+if(airLes){airLes.click();await sleep(350);T("CDL air brake lesson teaches the real pressures",/1 3\/4|125|100|55/.test(q(d,"#cdlCard").textContent),"");q(d,"#cdlBack").click();await sleep(250);}else{T("CDL air brake lesson exists",false,"");}
+q(d,"#cdlMock").click();await sleep(300);
+T("CDL practice test has 20 questions",/1 \/ 20/.test(q(d,"#cdlCard .pill").textContent),q(d,"#cdlCard .pill").textContent);
+for(var ci=0;ci<20;ci++){var co=q(d,"#cdlCard .opt");if(!co)break;co.click();await sleep(25);var cn=q(d,"#cdlNextQ");if(cn)cn.click();await sleep(35);}
+T("CDL practice test gives a percentage",/%/.test(q(d,"#cdlCard .result-big").textContent),q(d,"#cdlCard .result-big").textContent);
+q(d,"#cdlBackHome").click();await sleep(300);
+for(var gi=0;gi<5;gi++){
+  var gb=qa(d,"[data-gmcdl]")[gi]; if(!gb){T("CDL game "+gi,false,"missing");continue;}
+  var gk=gb.getAttribute("data-gmcdl"); gb.click(); await sleep(300);
+  var okg=qa(d,"#cdlCard [data-part],#cdlCard [data-step],#cdlCard [data-g],#cdlCard [data-c]").length>0;
+  T("CDL game "+gk+" starts",okg,"");
+  var bb=q(d,"#cdlBack"); if(bb){bb.click();await sleep(250);}
+}
+}catch(e){T("CDL course",false,e.message);}
+
+group("6b. CDL numbers come from the sources");
+try{
+win=await load("../index.html?state=ny&lang=en");d=await ready(win,9000);await go(win,"cdl");await sleep(200);
+var course=win.CDLCOURSE&&win.CDLCOURSE.en;
+T("CDL course data is loaded",!!course,"");
+var txt=JSON.stringify(course);
+var nums=["125","100","55","20","45","2/32","4/32","26,001","10,000"];
+var missingNums=nums.filter(function(n){return txt.indexOf(n)<0;});
+T("air brake and class numbers are present",missingNums.length===0,missingNums.join(","));
+T("glossary keeps the English terms",course.glossary.every(function(g){return /^[A-Za-z0-9 \-]+$/.test(g.en);}),"");
+}catch(e){T("CDL numbers",false,e.message);}
+
+group("6c. CDL reference content");
 try{
 win=await load("../index.html?lang=en");d=await ready(win,9000);await go(win,"cdl");await sleep(300);
-T("CDL has three classes",qa(d,"#cdlCard .card").length>=9,qa(d,"#cdlCard .card").length+" cards");
-T("CDL has the air-brake restriction note",/restriction L|air brakes/i.test(q(d,"#cdlCard").textContent),"");
-T("CDL practice has 8 questions worth of options",qa(d,"#cdlCard .opt").length===4,qa(d,"#cdlCard .opt").length+"");
-T("CDL links the official state manual",/\.gov/.test((q(d,"#cdlCard a[target=_blank]")||{}).href||""),"");
-}catch(e){T("cdl",false,e.message);}
+T("CDL keeps the official manual link",/\.gov/.test(q(d,"#cdlCard a[target=_blank]").href),"");
+}catch(e){T("cdl reference",false,e.message);}
 group("7. Second state (New Jersey)");
 try{
 win=await load("../index.html?state=nj&lang=en");d=await ready(win,9000);

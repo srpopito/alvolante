@@ -53,12 +53,19 @@ Detalle completo en [`AUDITORIA.md`](AUDITORIA.md). Lo esencial:
 Fuentes y frases exactas: [`states/nj/FUENTES.md`](states/nj/FUENTES.md) y [`states/pa/FUENTES.md`](states/pa/FUENTES.md).
 - Catálogo completo de señales y sus fuentes: [`SENALES.md`](SENALES.md).
 
-### 3.2 Licencia comercial (CDL)
+### 3.2 Licencia comercial (CDL): curso práctico
 
-Pestaña nueva en los 6 idiomas con: qué es la CDL, clases A/B/C, los 5 pasos (CLP, certificado médico, ELDT, exámenes de conocimientos, examen práctico en 3 partes), los 6 endosos (H, N, P, S, T, X), la restricción de frenos de aire (L y Z), enlace al manual CDL del estado y **8 preguntas de práctica** con explicación.
+La pestaña dejó de ser una página de texto. Ahora es un curso corto que se adapta a lo que quieres manejar:
 
-Fuentes: manual CDL del MVC y FMCSA (`tpr.fmcsa.dot.gov`).
+- **Plan de 30 segundos**: qué quieres conducir (tráiler, rígido, autobús, autobús escolar, cisterna o hazmat), si tu vehículo lleva frenos de aire y si ya tienes el permiso. Con eso arma la lista de exámenes que necesitas y la guarda.
+- **11 lecciones de 3 a 5 minutos** en Conocimientos generales (inspección, control, visión, espacio, superficies resbaladizas), Frenos de aire (funcionamiento, frenos de resorte, las tres pruebas) y Vehículos combinados (vuelco, acoplar, desacoplar). Cada lección abre con una idea clave y termina con preguntas y su explicación.
+- **Repaso espaciado tipo Leitner**: lo que fallas vuelve pronto; lo que dominas se espacia. Botón «Repaso de hoy» con las preguntas más olvidadas.
+- **Simulacro en modo práctica**: 20 preguntas mezcladas y 80 % para aprobar, que es el mínimo federal (49 CFR 383.135). La app dice claramente que es práctica y **no** que sea igual al examen real, porque ni NY ni NJ publican cuántas preguntas tiene.
+- **Interruptor «ver en inglés»** en cada pregunta, **glosario de 16 términos** con el término inglés y **audio en inglés** (voz `en-US`), porque la inspección y los exámenes prácticos se hacen en inglés.
+- **Cinco juegos**: inspección previa al viaje sobre un dibujo del camión con piezas que se tocan, prueba de frenos de aire en orden, manómetro con las presiones reales, «¿qué clase necesito?» y acoplar en orden.
+- **Aviso y enlaces**: manual CDL del estado, FMCSA, registro ELDT (`tpr.fmcsa.dot.gov`) y Registro Nacional de Examinadores Médicos.
 
+Todos los números están en [`cdl/FUENTES.md`](cdl/FUENTES.md) con su frase: gobernador (corte ~125 psi, arranque ~100 psi), aviso de baja presión (<55 psi), frenos de resorte (20–45 psi), fugas (<2 psi/min simple, <3 combinación; con pedal >3 y >4 es exceso), distancia de seguimiento (1 s por cada 10 pies, +1 s por encima de 40 mph), partes de la frenada y pesos de cada clase.
 ### 3.3 Juegos
 
 | Juego | Qué hace |
@@ -118,6 +125,14 @@ Los otros estados de la lista (CT, MA, FL, CA, TX, IL) **no** se han hecho. La o
 | Práctica (NJ, chino) | Inicio (Nueva York, bengalí) |
 |---|---|
 | ![Práctica](docs/capturas/practice-zh-nj.png) | ![Inicio bn](docs/capturas/home-bn.png) |
+
+| Curso CDL (español) | Lección de frenos de aire (español) |
+|---|---|
+| ![Curso CDL](docs/capturas/cdl-course-es.png) | ![Lección CDL](docs/capturas/cdl-lesson-es.png) |
+
+| Curso CDL (inglés) |
+|---|
+| ![CDL course](docs/capturas/cdl-course-en.png) |
 
 | Portada de Pensilvania (español) | Examen de 18 preguntas (PA, inglés) |
 |---|---|

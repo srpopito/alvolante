@@ -1,5 +1,5 @@
 // Funciona sin conexión (por ejemplo, en la sala de espera del DMV). Sube VERSION cuando cambies archivos.
-var VERSION="alv-v13";
+var VERSION="alv-v14";
 var CORE=[
   "./","index.html","app.js","core.js",
   "config.js","manifest.json","privacy.html","states/registry.js",
@@ -12,7 +12,8 @@ var CORE=[
   "states/nj/core.js","states/nj/lang/en.js","states/nj/lang/es.js","states/nj/lang/zh.js",
   "states/nj/lang/ru.js","states/nj/lang/ko.js","states/nj/lang/bn.js",
   "states/pa/core.js","states/pa/lang/en.js","states/pa/lang/es.js","states/pa/lang/zh.js",
-  "states/pa/lang/ru.js","states/pa/lang/ko.js","states/pa/lang/bn.js","icons/icon-192.png",
+  "states/pa/lang/ru.js","states/pa/lang/ko.js","states/pa/lang/bn.js",
+  "cdl/course/bn.js","cdl/course/en.js","cdl/course/es.js","cdl/course/ko.js","cdl/course/ru.js","cdl/course/zh.js","icons/icon-192.png",
   "icons/icon-512.png","icons/icon-maskable-512.png","schools/ny.js"
 ];
 var OFFLINE=CORE.slice();
