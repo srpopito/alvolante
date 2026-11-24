@@ -120,6 +120,7 @@ function ir(){
   VISTAS.forEach(function(x){$(x).classList.toggle("on",x===v);});
   document.querySelectorAll("#tabs a").forEach(function(a){if(a.dataset.v===v)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");});
   if(v!=="juego"&&GM&&GM.timer) juegoFin();
+  if(v==="escuelas") pintarEscuelas();
   var hv=$("heroVid"); if(hv){ if(v==="inicio"){ if(!hv.src) hv.src="clips/portada.mp4"; var pr=hv.play(); if(pr&&pr.catch) pr.catch(function(){}); } else hv.pause(); }
   if(TTS) TTS.cancel();
   window.scrollTo(0,0);
@@ -413,7 +414,7 @@ function renderAll(){
   document.title="DriveReady: Permit & Road Test · "+P.name;
   document.querySelectorAll("[data-t]").forEach(function(el){var v=P.ui[el.dataset.t]; if(typeof v==="string") el.textContent=v;});
   $("langBtn").textContent="🌐 "+P.name; $("langBtn").setAttribute("aria-label",t("langLabel"));
-  pintarTabs(); pintarInicio(); pintarChips(); pintarManual(); pintarDominadas(); pintarRoadtest(); pintarEscuelas(); pintarManChips(); pintarMan(); pintarCultura(); pintarAds();
+  pintarTabs(); pintarInicio(); pintarChips(); pintarManual(); pintarDominadas(); pintarRoadtest(); if(vista()==="escuelas") pintarEscuelas(); pintarManChips(); pintarMan(); pintarCultura(); pintarAds();
   rehidratar(); if(EX){ if(EX.done) examenResultado(); else examenPintar(); } else examenIntro();
   if(PR.qs.length) practicaPintar(); else practicaNueva("all");
   if(!GM||!GM.timer) juegoIntro();
