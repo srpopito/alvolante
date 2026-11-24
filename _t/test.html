@@ -409,8 +409,8 @@ q(d,"#exStart").click();await sleep(400);
 T("CT exam has 25 questions",/25/.test(q(d,"#examCard .qhead .pill").textContent),q(d,"#examCard .qhead .pill").textContent);
 T("CT chapters are its own",qa(d,"#chapterProgress .chbar").length===6,qa(d,"#chapterProgress .chbar").length+"");
 await go(win,"practica");await sleep(300);
-T("CT practice pool counts 70 questions plus 14 signs",/84/.test(q(d,"#chapterChips .chip").textContent),q(d,"#chapterChips .chip").textContent);
-T("CT signs have a meaning in Spanish",win.CORE.signs.length===14&&win.CORE.signs.every(function(s){return !!win.LANGS.es.signs[s];}),"");
+T("CT practice pool counts 70 questions plus 17 signs",/87/.test(q(d,"#chapterChips .chip").textContent),q(d,"#chapterChips .chip").textContent);
+T("CT signs have a meaning in Spanish",win.CORE.signs.length===17&&win.CORE.signs.every(function(s){return !!win.LANGS.es.signs[s];}),"");
 await go(win,"roadtest");await sleep(350);
 T("CT road test sheet lists three checks",qa(d,"#rtList .rt-item").length===3,qa(d,"#rtList .rt-item").length+"");
 }catch(e){T("Connecticut",false,e.message);}
