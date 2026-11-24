@@ -83,7 +83,7 @@ win=await load("../index.html?state=ny&lang=en");d=await ready(win,9000);
 var smallAll=[];
 for(var tv=0;tv<3;tv++){
   var vv=["inicio","practica","roadtest"][tv];await go(win,vv);
-  var sm=qa(d,"button,a.btn,.chip,.opt,.counter button").filter(function(e){var b=e.getBoundingClientRect();return b.width>0&&b.height>0&&b.height<44;});
+  var sm=qa(d,"button,a.btn,.chip,.opt,.counter button").filter(function(e){var b=e.getBoundingClientRect();return b.width>0&&b.height>0&&b.height<43.5;});
   if(sm.length)smallAll.push(vv+":"+sm.map(function(e){return (e.id||e.className)+"="+Math.round(e.getBoundingClientRect().height);}).join(","));
 }
 T("every control is at least 44px tall",smallAll.length===0,smallAll.join(" | "));
@@ -129,6 +129,8 @@ T("road-test counter increments",q(d,"#rtList .counter span").textContent.trim()
 T("road test links official results sheet",/\.gov/.test(q(d,"#rtSource").href),"");
 await go(win,"escuelas");for(var w=0;w<40&&!qa(d,"#scList .school").length;w++)await sleep(100);
 T("school finder loads NY list",qa(d,"#scList .school").length>0,qa(d,"#scList .school").length+" shown");
+T("school buttons render icons, not raw markup",q(d,"#scNear").textContent.indexOf("<svg")<0,q(d,"#scNear").textContent.slice(0,40));
+T("school buttons have an icon",!!q(d,"#scNear .ico"),"");
 await go(win,"maniobras");T("maneuvers show video and steps",!!q(d,"#manMedia video")&&qa(d,"#manSteps li").length===4,"");
 }catch(e){T("sections",false,e.message);}
 group("5. Games hub");

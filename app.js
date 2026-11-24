@@ -363,7 +363,7 @@ function pintarInicio(){
   var st=store.get("stats",{n:0,p:0,b:0});
   $("stats").textContent=st.n?fmt(uis("statsLine"),{n:num(st.n),p:num(st.p),b:num(st.b),g:num(store.get("best",0))}):t("statsNone");
   var n=Object.keys(MISS).length, gm=$("goMistakes");
-  gm.hidden=!n; gm.textContent="↻ "+t("practiceTitle")+" · "+num(n);
+  gm.hidden=!n; gm.innerHTML=ic("repeat")+" "+esc(t("practiceTitle"))+" · "+num(n);
   gm.onclick=function(){location.hash="#practica"; practicaNueva("miss");};
   pintarProgresoCapitulos(); pintarListo(); pintarMas();
 }
@@ -945,7 +945,7 @@ function dist(a,b,c,d){var R=3958.8,r=Math.PI/180,x=(c-a)*r,y=(d-b)*r,h=Math.sin
 function listaEscuelas(){return window.SCHOOLS||window.SCHOOLS_NY||null;}
 function cargarEscuelas(cb){if(listaEscuelas()) return cb(); if(!ST.schools) return cb(); var s=document.createElement("script"); s.src=ST.schools; s.onload=cb; document.head.appendChild(s);}
 function pintarEscuelas(){
-  $("scTitle").textContent=st("title"); $("scLead").textContent=st("lead"); $("scNear").textContent=ic("pin")+" "+st("near"); $("scQ").placeholder=st("search"); $("scNote").textContent=st("note");
+  $("scTitle").textContent=st("title"); $("scLead").textContent=st("lead"); $("scNear").innerHTML=ic("pin")+" "+esc(st("near")); $("scQ").placeholder=st("search"); $("scNote").textContent=st("note");
   $("scOwn").textContent=st("own"); $("scOwn").href=CFG.sponsorEmail?"mailto:"+CFG.sponsorEmail+"?subject="+encodeURIComponent("DriveReady featured driving school"):"#";
   $("scOwn").hidden=!CFG.sponsorEmail;
   var list=listaEscuelas();
