@@ -159,6 +159,7 @@ T("day kit links the official page",/\.gov$/.test((q(d,"#kitBox a")||{}).hostnam
 win=await load("../index.html?state=ct&lang=es");d=await ready(win,9000);await go(win,"roadtest");await sleep(400);
 T("CT day kit has its own four items",qa(d,"#kitBox li").length===4,qa(d,"#kitBox li").length+"");
 T("CT day kit points at ct.gov",/portal\.ct\.gov$/.test((q(d,"#kitBox a")||{}).hostname||""),(q(d,"#kitBox a")||{}).href||"");
+T("CT road test tab links its official page",/portal\.ct\.gov/.test((q(d,"#rtSource")||{}).href||""),(q(d,"#rtSource")||{}).href||"");
 }catch(e){T("day kit",false,e.message);}
 
 group("1g. No misleading claims");
