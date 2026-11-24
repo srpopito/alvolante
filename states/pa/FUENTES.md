@@ -4,6 +4,8 @@ Manual oficial: **Pennsylvania Driver's Manual, PUB 95 (4-21)** —
 https://www.pa.gov/content/dam/copapwp-pagov/en/penndot/documents/public/dvspubsforms/bdl/bdl-manuals/pa-drivers-manual-non-commercial/english/pub%2095.pdf
 (104 páginas; descargado el 2026-11-24). Las páginas citadas son las **impresas**; el visor del PDF usa `#page=` con 4 páginas más (impresa + 4).
 
+| Kit del día: qué llevar al examen de manejo | PUB 95 — https://www.pa.gov/content/dam/copapwp-pagov/en/penndot/documents/public/dvspubsforms/bdl/bdl-manuals/pub%2095.pdf | «Your valid learner's permit. A signed parent or guardian certification form (DL-180C) for 65 hours … The valid registration card … Proof that the vehicle is currently insured. The valid driver's license of the person, who is at least 21 years of age…» |
+
 ## Permiso, licencia gradual y examen (capítulo 1)
 
 | Dato | Página | Frase del manual |

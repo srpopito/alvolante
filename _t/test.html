@@ -149,6 +149,15 @@ q(d,"#enBtn").click();await sleep(200);
 T("English text hides again",q(d,"#enText").hidden,"");
 }catch(e){T("supervisor/English",false,e.message);}
 
+group("1f. Road test day kit");
+try{
+win=await load("../index.html?state=ny&lang=en");d=await ready(win,9000);
+await go(win,"roadtest");await sleep(300);
+T("day kit is shown",!!q(d,"#kitBox h3"),q(d,"#kitBox h3")?q(d,"#kitBox h3").textContent:"");
+T("day kit lists what to bring",qa(d,"#kitBox li").length===5,qa(d,"#kitBox li").length+"");
+T("day kit links the official page",/\.gov$/.test((q(d,"#kitBox a")||{}).hostname||""),(q(d,"#kitBox a")||{}).href||"");
+}catch(e){T("day kit",false,e.message);}
+
 group("2. Language switch");
 try{
 win=await load("../index.html?lang=en");d=await ready(win,9000);

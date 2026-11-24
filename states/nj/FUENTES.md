@@ -3,6 +3,8 @@
 Manual oficial: **New Jersey Driver Manual 2026** — https://www.nj.gov/mvc/pdf/license/drivermanual.pdf (243 páginas, descargado el 2026-11-23).
 Cada dato de la app sale de una frase de ese PDF. Las páginas que se citan son las **impresas** en el manual; el visor del PDF usa `#page=` con 2 páginas más (impresa + 2).
 
+| Kit del día: qué llevar al examen de manejo | MVC de NJ — https://www.nj.gov/mvc/license/roadtest.htm | «What to bring to a road test: The same identification (6 Points of ID) … A valid examination permit. An accompanying New Jersey licensed driver who is at least age 21 and has had their New Jersey driver's license for at least three years. … Red, reflective decals … A registered vehicle with a current inspection sticker and an insurance card.» |
+
 ## Requisitos, permiso y licencia (capítulo 1)
 
 | Dato | Página | Frase del manual |

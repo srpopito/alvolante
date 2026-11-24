@@ -69,6 +69,10 @@ function loadGames(code){
   return loadScript("games/"+code+".js").then(function(){return window.GAMES[code];})
     .catch(function(){ return window.GAMES&&window.GAMES.en ? window.GAMES.en : null; });
 }
+function loadKit(code){
+  if(window.KIT&&window.KIT[code]) return Promise.resolve(window.KIT[code]);
+  return loadScript("kit/"+code+".js").then(function(){return window.KIT[code];}).catch(function(){return null;});
+}
 function loadCourse(code){
   if(window.CDLCOURSE&&window.CDLCOURSE[code]) return Promise.resolve(window.CDLCOURSE[code]);
   return loadScript("cdl/course/"+code+".js").then(function(){return window.CDLCOURSE[code];})
@@ -104,8 +108,8 @@ function pickerShow(){
   var first=$("lpList").querySelector("button"); if(first) first.focus();
 }
 function setLang(code){
-  return Promise.all([loadUi(code),loadLang(code),loadCdl(code),loadGames(code),loadCourse(code),loadCourse("en")]).then(function(r){
-    LANG=code; P=r[1]; P.ui=r[0]; P.cdl=r[2]; P.games=r[3]; P.course=r[4]; store.set("lang",code);
+  return Promise.all([loadUi(code),loadLang(code),loadCdl(code),loadGames(code),loadCourse(code),loadCourse("en"),loadKit(code)]).then(function(r){
+    LANG=code; P=r[1]; P.ui=r[0]; P.cdl=r[2]; P.games=r[3]; P.course=r[4]; P.kit=r[6]; store.set("lang",code);
     $("langPick").classList.remove("on");
     document.documentElement.lang=code; document.documentElement.dir=P.dir||"ltr";
     document.documentElement.style.setProperty("--body",P.font);
@@ -998,7 +1002,18 @@ function pintarSupervisor(){
   };
   b.querySelectorAll("[data-skill]").forEach(function(ch){ch.onclick=function(){stt.skills[ch.dataset.skill]=!stt.skills[ch.dataset.skill];store.set(stpre()+"sup",stt);pintarSupervisor();};});
 }
+function pintarKit(){
+  var b=$("kitBox"); if(!b) return;
+  var k=(window.KIT&&window.KIT[LANG])||P.kit; if(!k){b.innerHTML="";return;}
+  var code=(ST&&ST.code)||"ny", kk=k[code]||k.ny; if(!kk){b.innerHTML="";return;}
+  var h='<h3>'+esc(k.title)+'</h3><p class="small muted">'+esc(k.lead)+"</p><ul class=\"small\" style=\"margin:8px 0\">";
+  kk.items.forEach(function(it){h+="<li>"+esc(it)+"</li>";});
+  h+="</ul>";
+  h+='<a class="linkbtn" target="_blank" rel="noopener" href="'+esc(kk.link)+'">'+esc(t("official"))+" ↗</a>";
+  b.innerHTML=h;
+}
 function pintarRoadtest(){
+  pintarKit();
   pintarSupervisor();
   $("rtSource").href=C.fuentes.R;
   var h="";
