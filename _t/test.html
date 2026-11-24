@@ -77,6 +77,18 @@ for(i=0;i<LANGS.length;i++){
     T(t+": chapter progress bars render",qa(d,"#chapterProgress .chbar").length>=9,qa(d,"#chapterProgress .chbar").length+" bars");
   }catch(e){T(t+": boot",false,e.message);}
 }
+group("1b. Touch targets");
+try{
+win=await load("../index.html?state=ny&lang=en");d=await ready(win,9000);
+var smallAll=[];
+for(var tv=0;tv<3;tv++){
+  var vv=["inicio","practica","roadtest"][tv];await go(win,vv);
+  var sm=qa(d,"button,a.btn,.chip,.opt,.counter button").filter(function(e){var b=e.getBoundingClientRect();return b.width>0&&b.height>0&&b.height<44;});
+  if(sm.length)smallAll.push(vv+":"+sm.map(function(e){return (e.id||e.className)+"="+Math.round(e.getBoundingClientRect().height);}).join(","));
+}
+T("every control is at least 44px tall",smallAll.length===0,smallAll.join(" | "));
+}catch(e){T("touch targets",false,e.message);}
+
 group("2. Language switch");
 try{
 win=await load("../index.html?lang=en");d=await ready(win,9000);
@@ -275,6 +287,19 @@ T("PA sources are official .gov links",qa(d,"#manualList a[target=_blank]").ever
 await go(win,"escuelas");await sleep(300);
 T("PA schools tab points to the official state page",/pa\.gov/.test(q(d,"#scList").innerHTML),"");
 }catch(e){T("pennsylvania",false,e.message);}
+
+group("7c. Language and state never mix");
+try{
+win=await load("../index.html?state=ny&lang=es");d=await ready(win,9000);
+var selx=d.getElementById("estado");
+if(selx&&selx.options.length>2){selx.value="pa";selx.dispatchEvent(new win.Event("change"));await sleep(1800);}
+T("after switching state the UI stays in Spanish",/Estudiar/.test(q(d,"#homeActions").textContent)&&!/(Study|Take exam)/.test(q(d,"#homeActions").textContent),q(d,"#homeActions").textContent);
+T("PA content shows but the language is Spanish",/Pensilvania/.test(d.title),d.title);
+q(d,"#langBtn").click();await sleep(200);
+q(d,'#lpList button[data-c="ko"]').click();await sleep(1200);
+T("switching language keeps the PA content",/펜실베이니아/.test(d.title),d.title);
+T("no Spanish leftovers after switching to Korean",!/Estudiar|Inicio|Pensilvania/.test(d.body.innerText),"");
+}catch(e){T("language/state mixing",false,e.message);}
 
 group("8. Switching state without reload");
 try{

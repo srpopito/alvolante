@@ -4,6 +4,22 @@ Rama: **`minke-update`** · Base: `main` @ `3fd9013` · Fecha: 2026-11-23
 
 > **No se ha hecho `push` ni merge a `main`.** Todo está en la rama local `minke-update`, listo para que Cristian lo revise y publique.
 
+## Orden maestra — progreso por fases
+
+| Fase | Estado | Evidencia |
+|---|---|---|
+| 0. Base y foto del estado | ✅ | Árbol limpio; **22 capturas «antes»** en `docs/antes/` (11 pantallas × es/en a 360 px); **153/153** pruebas al empezar |
+| 1. QA a fondo | ✅ | Matriz 6 idiomas × 3 estados × 3 anchos × claro/oscuro: **0 errores de consola, 0 desbordes, 0 imágenes rotas**; **37 enlaces oficiales comprobados, 37 OK**; controles por debajo de 44 px corregidos y con prueba propia; **158/158** pruebas |
+| 2. Diseño | ✅ (con reserva) | Variables de diseño (tipografía 14/16/20/28, espaciado 4–32, radio 12, una sombra), **cero emojis** (sustituidos por 15 iconos SVG de línea), transiciones de 180 ms, vibración al fallar y todo bajo `prefers-reduced-motion`; **22 capturas «después»** en `docs/despues/`. Reserva: el origen de las fotos de `img/` no está documentado (ver `img/CREDITS.md` y `DUDAS.md`) |
+| 3–8 | ⏳ | Pendientes |
+
+### Capturas antes / después
+
+| Antes (es) | Después (es) |
+|---|---|
+| ![antes](docs/antes/es-inicio.png) | ![después](docs/despues/es-inicio.png) |
+
+Las 22 de cada carpeta están en `docs/antes/` y `docs/despues/`.
 ---
 
 ## 1. Resumen

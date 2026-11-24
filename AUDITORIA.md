@@ -165,3 +165,18 @@ Ver `PENDIENTES.md` (se mantiene al día con cada fase).
 | B5 | `hasVoice()` con lista vacía | ✅ Resuelto: devuelve `false` hasta que haya voz, y se repinta cuando llega |
 
 También se corrigió, ya fuera de la auditoría inicial, un error de contenido en el inicio: los textos compartidos decían «Nueva York» y «20 preguntas» también en New Jersey. Ahora se generan con el estado y el formato reales.
+---
+
+## 10. Orden maestra — Fase 1 (QA a fondo)
+
+| Comprobación | Resultado |
+|---|---|
+| Consola, 6 idiomas × 3 estados × 3 anchos × claro/oscuro | 0 errores |
+| Desbordes horizontales a 360, 768 y 1280 px | 0 |
+| Imágenes rotas | 0 |
+| Enlaces oficiales (core de NY, NJ y PA + registro + FMCSA + ELDT + médico) | **37 de 37 responden** |
+| Controles de menos de 44 px | Encontrados y corregidos: `#langBtn` 39 px, `.chip` 41 px, contadores del road test 40 px y `.linkbtn` 28 px. Hay prueba nueva |
+| Foco de teclado | `:focus-visible` con anillo visible; sin `tabindex` positivos |
+| Lectura en voz alta | Usa la voz del sistema por idioma; en el navegador sin voces el botón no se muestra (corregido antes) |
+
+Pruebas: **158/158** (se añadieron «todos los controles ≥44 px» y «idioma y estado no se mezclan»).
