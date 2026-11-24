@@ -408,6 +408,9 @@ T("CT intro gives the 25 and 20",/25/.test(ctLead)&&/20/.test(ctLead),ctLead.sli
 q(d,"#exStart").click();await sleep(400);
 T("CT exam has 25 questions",/25/.test(q(d,"#examCard .qhead .pill").textContent),q(d,"#examCard .qhead .pill").textContent);
 T("CT chapters are its own",qa(d,"#chapterProgress .chbar").length===6,qa(d,"#chapterProgress .chbar").length+"");
+await go(win,"practica");await sleep(300);
+T("CT practice pool counts 70 questions plus 8 signs",/78/.test(q(d,"#chapterChips .chip").textContent),q(d,"#chapterChips .chip").textContent);
+T("CT signs have a meaning in Spanish",win.CORE.signs.length===8&&win.CORE.signs.every(function(s){return !!win.LANGS.es.signs[s];}),"");
 }catch(e){T("Connecticut",false,e.message);}
 
 group("8. Switching state without reload");
