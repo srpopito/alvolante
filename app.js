@@ -465,9 +465,15 @@ function pintarMas(){
 // ---------- Simulacro (se guarda después de cada respuesta) ----------
 function guardarEx(){store.set(stpre()+"exam",EX?{ids:EX.qs.map(function(p){return p.id;}),ans:EX.ans,i:EX.i,done:EX.done}:null);}
 function rehidratar(){if(EX&&EX.ids){var o=EX; EX={qs:o.ids.map(preparar),ans:o.ans||[],i:o.i||0,done:o.done};}}
+function examLeadText(){
+  var e=examCfg();
+  var b=t("examPlan").replace("{t}",num(e.total)).replace("{p}",num(e.pass));
+  if(e.signs) b+=" "+t("examSigns").replace("{m}",num(e.signs)).replace("{n}",num(e.signsPass));
+  return b;
+}
 function examenIntro(){
   $("examAd").hidden=true;
-  $("examCard").innerHTML='<h2>'+esc(t("examIntro"))+'</h2><div class="guide" style="margin:10px 0"><img src="'+img(P.guide.img)+'" alt=""><div class="bubble">'+esc(P.examLead||t("examIntroLead"))+'</div></div><button class="btn" id="exStart" type="button">'+esc(t("start"))+'</button>';
+  $("examCard").innerHTML='<h2>'+esc(t("examIntro"))+'</h2><div class="guide" style="margin:10px 0"><img src="'+img(P.guide.img)+'" alt=""><div class="bubble">'+esc(P.examLead||examLeadText())+'</div></div><button class="btn" id="exStart" type="button">'+esc(t("start"))+'</button>';
   $("exStart").onclick=examenNuevo;
 }
 function examCfg(){return C.exam||{total:20,pass:14,signs:4,signsPass:2};}

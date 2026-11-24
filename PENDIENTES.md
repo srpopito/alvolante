@@ -45,3 +45,9 @@ Lo que **no** está en la app porque no se ha podido confirmar en una fuente ofi
 - [ ] **Juego de control básico del vehículo** (animaciones cenitales de marcha atrás recta, desplazada y en ángulo): no hecho en esta entrega.
 - [ ] **Calculadora de horas de servicio (HOS)**: no hecha; requiere confirmar todas las reglas de 49 CFR 395 y explicarlas sin errores.
 - [ ] Lecciones para los endosos P, S, N, T, H y X: hoy la app explica cuándo se necesitan y enlaza el manual, pero el curso solo tiene los tres exámenes base (general, frenos, combinados).
+
+## Play
+
+- [ ] Comprobar que `/.well-known/assetlinks.json` responde en el dominio real (no hay dominio en el repo; el archivo vive en otro repositorio).
+- [ ] Subir `store/nuevas/` a Play Console y marcar Data safety y Ads.
+- [ ] Las fuentes de Google (Google Fonts) se sustituyen por tipografía propia en la fase 7.

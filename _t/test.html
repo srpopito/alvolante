@@ -158,6 +158,18 @@ T("day kit lists what to bring",qa(d,"#kitBox li").length===5,qa(d,"#kitBox li")
 T("day kit links the official page",/\.gov$/.test((q(d,"#kitBox a")||{}).hostname||""),(q(d,"#kitBox a")||{}).href||"");
 }catch(e){T("day kit",false,e.message);}
 
+group("1g. No misleading claims");
+try{
+win=await load("../index.html?state=nj&lang=en");d=await ready(win,9000);await go(win,"examen");await sleep(300);
+var njLead=q(d,"#examCard .bubble").textContent;
+T("NJ exam intro gives the NJ numbers",/50/.test(njLead)&&/40/.test(njLead),njLead.slice(0,60));
+T("NJ exam intro does not compare with the real test",!/real (New Jersey )?test/i.test(njLead),njLead.slice(0,60));
+win=await load("../index.html?state=pa&lang=es");d=await ready(win,9000);await go(win,"examen");await sleep(300);
+var paLead=q(d,"#examCard .bubble").textContent;
+T("PA exam intro gives the PA numbers",/18/.test(paLead)&&/15/.test(paLead),paLead.slice(0,60));
+T("PA exam intro does not compare with the real exam",!/examen real/i.test(paLead),paLead.slice(0,60));
+}catch(e){T("claims",false,e.message);}
+
 group("2. Language switch");
 try{
 win=await load("../index.html?lang=en");d=await ready(win,9000);
