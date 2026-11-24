@@ -20,6 +20,10 @@ Página del examen: https://portal.ct.gov/dmv/licenses-permits-ids/take-knowledg
 | **Qué evalúa el road test** | «Ability to properly adjust seat, mirrors, steering wheel, and seat belts … Response to traffic control signs and signals, signaling, interaction with other motorists … Backing…» |
 | **Toque de queda para menores** | El manual lo menciona como recomendación a los padres («Enforce the state curfew»); **la hora exacta no aparece en el manual**, así que no se usará en preguntas hasta confirmarla en la ley. |
 
+| Kit del día: qué llevar al examen de manejo | CT DMV — https://portal.ct.gov/dmv/licenses-permits-ids/take-road-test | «Once you've held your learner's permit for the required amount of time, completed any required driver training… you may be eligible to take your on-the-road skills test.» |
+| Certificado CS-1 | manual | «…the school will issue you a course completion certificate (form CS-1).» |
+| Vehículo registrado y asegurado | manual | «A vehicle cannot be operated legally on any public highway without registration.» |
+
 ## Pendiente antes de publicar Connecticut
 
 - [ ] Banco de **70–90 preguntas originales** por capítulo y sus 6 idiomas (esto es lo que falta; el resto de la fase ya está investigado).
