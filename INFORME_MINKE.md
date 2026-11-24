@@ -175,7 +175,7 @@ docs/capturas/              capturas del informe
 ## 9. Lo que quedó pendiente (y por qué)
 
 1. **7 estados más.** Cada uno exige leer su manual, confirmar formato de examen y escribir 70–90 preguntas en 6 idiomas. Hacerlo a medias sería justo lo que la orden prohíbe, así que quedan en `PENDIENTES.md`.
-2. **Capturas de tienda** (`store/*.png`): pesan 500–750 KB. No afectan a la app, pero hay que recomprimirlas antes de volver a subirlas a Play Console.
+2. **Capturas de tienda**: recomprimidas de 17,4 MB a 5,8 MB (ninguna pasa de 239 KB), sin cambiar el diseño. Siguen mostrando solo Nueva York: faltan capturas nuevas con NJ, los juegos y la CDL antes del próximo envío a Play Console.
 3. **Ficha de Play** con los textos nuevos (estados, CDL): preparada en `store/ficha_google_play.md` en los 6 idiomas. **No se ha subido a Play Console.**
 4. **Prueba en un Android viejo real** (fuentes bengalí y china) y **prueba sin conexión en producción**: en local el service worker ya se registra, pero la prueba definitiva es en `https://srpopito.github.io/alvolante/`.
 5. **Revisión humana de las 78 preguntas de NJ** por Cristian antes de publicar. Están contrastadas con el manual página a página, pero una lectura suya vale más.
