@@ -126,6 +126,29 @@ await go(win,"acerca");
 T("settings offer to restart the setup",!!q(d,"#onbReset"),"");
 }catch(e){T("daily plan",false,e.message);}
 
+group("1e. Supervisor log and English toggle");
+try{
+win=await load("../index.html?state=ny&lang=en");d=await ready(win,9000);
+try{win.localStorage.removeItem("alv_sup");}catch(e){}
+await go(win,"roadtest");await sleep(300);
+T("supervisor card appears on the road test tab",!!q(d,"#supBox h3"),q(d,"#supBox h3")?q(d,"#supBox h3").textContent:"");
+T("supervisor shows the required hours",/50/.test(q(d,"#supBox").textContent),"");
+T("supervisor lists skills to practise",qa(d,"#supBox [data-skill]").length>=10,qa(d,"#supBox [data-skill]").length+"");
+q(d,"#supDay").value="45";q(d,"#supNight").value="15";q(d,"#supAdd").click();await sleep(300);
+var sup=JSON.parse(win.localStorage.getItem("alv_sup")||"{}");
+T("a drive is saved with day and night minutes",sup.rows&&sup.rows.length===1&&sup.rows[0].day===45&&sup.rows[0].night===15,JSON.stringify(sup).slice(0,60));
+q(d,"#supBox [data-skill]").click();await sleep(200);
+var sup2=JSON.parse(win.localStorage.getItem("alv_sup")||"{}");
+T("a practised skill can be ticked",Object.keys(sup2.skills||{}).length===1,"");
+await go(win,"practica");await sleep(200);
+var ch4=q(d,"#chapterChips .chip");if(ch4)ch4.click();await sleep(300);
+T("practice offers see in English",!!q(d,"#enBtn"),"");
+q(d,"#enBtn").click();await sleep(600);
+T("English text appears",q(d,"#enText")&&!q(d,"#enText").hidden&&/EN:/.test(q(d,"#enText").textContent),q(d,"#enText")?q(d,"#enText").textContent.slice(0,40):"");
+q(d,"#enBtn").click();await sleep(200);
+T("English text hides again",q(d,"#enText").hidden,"");
+}catch(e){T("supervisor/English",false,e.message);}
+
 group("2. Language switch");
 try{
 win=await load("../index.html?lang=en");d=await ready(win,9000);

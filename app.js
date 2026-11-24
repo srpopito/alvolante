@@ -324,7 +324,7 @@ function pintarSelectorEstado(){
 function setState(code){
   var st=stateByCode(code); if(!st||st.code===ST.code) return;
   store.set("state",code);
-  window.LANGS={}; window.__langState=null;
+  window.LANGS={}; window.__langState=null; ENPACK=null;
   loadScript(st.core).then(function(){
     if(!window.CORE) throw new Error("state core failed");
     C=window.CORE; ST=st; window.__coreState=st.code; cargarProgreso();
@@ -353,6 +353,24 @@ function pintarAds(){
       el.className="ad sponsor"; el.innerHTML='<div class="sp-k">'+esc(s.k)+'</div><div class="sp-t">'+esc(s.t)+'</div><div class="sp-b">'+esc(s.b)+'</div><a class="sp-c" href="mailto:'+esc(CFG.sponsorEmail)+'?subject='+encodeURIComponent("DriveReady sponsor")+'">'+esc(s.c)+'</a>';
     } else el.textContent=CFG.showAdDemo?t("ad"):"";
   });
+}
+
+var ENPACK=null;
+function loadEnPack(){ if(ENPACK) return Promise.resolve(ENPACK); return Promise.all([loadScript((ST.lang||"lang/")+"en.js"),loadScript("ui/en.js")]).then(function(){ENPACK=window.LANGS.en;return ENPACK;}).catch(function(){return null;}); }
+function englishQ(p){
+  if(!ENPACK) return null;
+  if(p.sign){var q=(window.UI&&window.UI.en)?window.UI.en.signQ:null;return (q?q+" ":"")+(ENPACK.signs[p.sign]||"");}
+  var n=+String(p.id).replace(/^[a-z]+/,"");
+  return ENPACK.q&&ENPACK.q[n]?ENPACK.q[n][0]:null;
+}
+function bindEn(p,root,btn){
+  var box=root.querySelector("#enText"); if(!box||!btn) return;
+  btn.onclick=function(){
+    if(!ENPACK){ btn.disabled=true; loadEnPack().then(function(){btn.disabled=false; btn.click();}); return; }
+    var en=englishQ(p); if(!en) return;
+    box.textContent="EN: "+en; box.hidden=!box.hidden;
+    btn.textContent=box.hidden?t("seeEn"):t("hideEn");
+  };
 }
 
 // ---------- Plan de hoy y racha ----------
@@ -459,9 +477,9 @@ function examenPintar(){
   $("examAd").hidden=true;
   var p=EX.qs[EX.i], n=EX.qs.length, sel=EX.ans[EX.i], ops=opciones(p);
   var h=cabezaImg(p)+'<div class="qhead"><span class="pill">'+esc(t("question"))+' '+num(EX.i+1)+' '+esc(t("of"))+' '+num(n)+'</span><div class="progress" aria-hidden="true"><span style="width:'+(EX.i/n*100)+'%"></span></div></div>';
-  h+='<div class="qtext">'+esc(textoPregunta(p))+'</div><div class="opts">'+ops.map(function(o,k){return '<button type="button" class="opt'+(sel===o.v?" sel":"")+'" data-k="'+k+'">'+esc(o.txt)+'</button>';}).join("")+'</div>'+toolsHtml(p.id);
+  h+='<div class="qtext">'+esc(textoPregunta(p))+'</div><p class="small muted" id="enText" hidden></p><div class="opts">'+ops.map(function(o,k){return '<button type="button" class="opt'+(sel===o.v?" sel":"")+'" data-k="'+k+'">'+esc(o.txt)+'</button>';}).join("")+'</div>'+toolsHtml(p.id)+'<div class="tools"><button type="button" class="linkbtn" id="enBtn">'+esc(t("seeEn"))+'</button></div>';
   h+='<div class="row" style="margin-top:14px"><button class="btn ghost" id="exPrev" type="button"'+(EX.i===0?" disabled":"")+'>'+esc(t("prev"))+'</button><button class="btn" id="exNext" type="button"'+(sel===undefined?" disabled":"")+'>'+esc(EX.i===n-1?t("finish"):t("next"))+'</button></div>';
-  var c=$("examCard"); c.innerHTML=h; bindSay(c,p);
+  var c=$("examCard"); c.innerHTML=h; bindSay(c,p); bindEn(p,c,$('enBtn'));
   c.querySelectorAll(".opt").forEach(function(b){b.onclick=function(){EX.ans[EX.i]=ops[+b.dataset.k].v; guardarEx(); examenPintar();};});
   $("exPrev").onclick=function(){EX.i--; guardarEx(); examenPintar();};
   $("exNext").onclick=function(){if(EX.i===n-1) examenResultado(); else {EX.i++; guardarEx(); examenPintar();}};
@@ -516,8 +534,8 @@ function practicaPintar(){
   if(PR.i>=PR.qs.length){c.innerHTML='<h3>'+esc(t("done"))+'</h3><p class="result-big">'+num(PR.ok)+'/'+num(PR.qs.length)+'</p><button class="btn" id="prAgain" type="button">'+esc(t("again"))+'</button>';$("prAgain").onclick=function(){practicaNueva(PR.ch==="miss"&&!Object.keys(MISS).length?"all":PR.ch);};pintarInicio();return;}
   var p=PR.qs[PR.i], ops=opciones(p), done=false; panelManual(p,false);
   var h=cabezaImg(p)+'<div class="qhead"><span class="pill">'+num(PR.i+1)+' / '+num(PR.qs.length)+'</span><span class="pill">'+esc(t("score"))+': '+num(PR.ok)+'</span></div>';
-  h+='<div class="qtext">'+esc(textoPregunta(p))+'</div><div class="opts">'+ops.map(function(o,k){return '<button type="button" class="opt" data-k="'+k+'">'+esc(o.txt)+'</button>';}).join("")+'</div>'+toolsHtml(p.id)+'<div id="prFb"></div>';
-  c.innerHTML=h; bindSay(c,p);
+  h+='<div class="qtext">'+esc(textoPregunta(p))+'</div><p class="small muted" id="enText" hidden></p><div class="opts">'+ops.map(function(o,k){return '<button type="button" class="opt" data-k="'+k+'">'+esc(o.txt)+'</button>';}).join("")+'</div>'+toolsHtml(p.id)+'<div class="tools"><button type="button" class="linkbtn" id="enBtn">'+esc(t("seeEn"))+'</button></div><div id="prFb"></div>';
+  c.innerHTML=h; bindSay(c,p); bindEn(p,c,$('enBtn'));
   c.querySelectorAll(".opt").forEach(function(b){b.onclick=function(){
     if(done)return; done=true; var v=ops[+b.dataset.k].v, bien=v===p.correct; if(bien)PR.ok++; else buzz(); marcar(p.id,bien);
     if(PR.ch==="daily"){var dly=dailyState();dly.i=PR.i+1;dly.ok=PR.ok;if(dly.i>=10){dly.done=true;bumpStreak();}store.set(stpre()+"daily",dly);} if(bien) MAST[p.id]=1; else delete MAST[p.id]; store.set(stpre()+"mast",MAST); pintarDominadas(); panelManual(p,true);
@@ -952,7 +970,34 @@ function pintarJuegoCdl(){
   if(k==="class"){$("cdlCard").querySelectorAll("[data-c]").forEach(function(b){b.onclick=function(){var it=g.classes[CDL.step%g.classes.length],ok=+b.dataset.c===it.a;$("cdlFb").innerHTML='<div class="explain"><div class="bubble">'+(ok?ic("check")+" ":ic("cross")+" ")+esc(it.e)+"</div></div>"+'<button class="btn" id="cdlCNext" type="button">Next</button>';$("cdlCNext").onclick=function(){CDL.step++;pintarJuegoCdl();};};});}
 }
 // ---------- Road test ----------
+function supState(){return store.get(stpre()+"sup",{rows:[],skills:{}});}
+function pintarSupervisor(){
+  var b=$("supBox"); if(!b) return;
+  if(!C.gdl){b.innerHTML="";return;}
+  var stt=supState(), g=C.gdl;
+  var day=0,night=0; stt.rows.forEach(function(r){day+=(r.day||0);night+=(r.night||0);});
+  var pct=g.hours?Math.min(100,Math.round((day/60)/g.hours*100)):0;
+  var h='<h3>'+esc(t("supTitle"))+'</h3><p class="small muted">'+esc(t("supLead"))+"</p>";
+  h+='<div class="row" style="justify-content:space-between"><span class="pill">'+esc(t("supTotals"))+": "+(day/60).toFixed(1)+' h</span><span class="pill">'+esc(t("supNeed"))+": "+num(g.hours)+' h</span></div>';
+  h+='<div class="progress" style="margin:8px 0"><span style="width:'+pct+'%"></span></div>';
+  h+='<p class="small muted">'+esc(t("supTotals"))+": "+(night/60).toFixed(1)+" h / "+num(g.night)+" h</p>";
+  h+='<div class="row"><label class="small">'+esc(t("supDay"))+' <input id="supDay" type="number" min="0" step="5" value="30" style="width:84px"></label>'+
+     '<label class="small">'+esc(t("supNight"))+' <input id="supNight" type="number" min="0" step="5" value="0" style="width:84px"></label></div>';
+  h+='<input id="supNote" type="text" placeholder="'+esc(t("supNote"))+'" style="width:100%;margin:8px 0;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink)">';
+  h+='<button class="btn" id="supAdd" type="button">'+esc(t("supAdd"))+"</button>";
+  h+='<p class="small muted" style="margin-top:12px">'+esc(t("supSkills"))+"</p><div class=\"chips\">";
+  P.rt.forEach(function(cat,ci){cat.items.forEach(function(it,ii){var id=ci+"-"+ii;h+='<button type="button" class="chip" data-skill="'+id+'" aria-pressed="'+(!!stt.skills[id])+'">'+esc(it)+"</button>";});});
+  h+="</div>";
+  b.innerHTML=h;
+  $("supAdd").onclick=function(){
+    var d=+($("supDay").value||0), n=+($("supNight").value||0);
+    stt.rows.push({d:todayKey(),day:d,night:n,note:($("supNote").value||"").slice(0,120)});
+    store.set(stpre()+"sup",stt); pintarSupervisor();
+  };
+  b.querySelectorAll("[data-skill]").forEach(function(ch){ch.onclick=function(){stt.skills[ch.dataset.skill]=!stt.skills[ch.dataset.skill];store.set(stpre()+"sup",stt);pintarSupervisor();};});
+}
 function pintarRoadtest(){
+  pintarSupervisor();
   $("rtSource").href=C.fuentes.R;
   var h="";
   P.rt.forEach(function(cat,ci){
@@ -1126,6 +1171,7 @@ function renderAll(){
     $("factSigns").textContent=ex.signs?num(ex.signsPass)+"/"+num(ex.signs):"—";
     $("factSignsWrap").hidden=!ex.signs; }
   pintarGov(); pintarSelectorEstado();
+  loadEnPack();
   $("langBtn").innerHTML=ic("globe")+" "+P.name; $("langBtn").setAttribute("aria-label",t("langLabel"));
   pintarTabs(); pintarInicio(); pintarChips(); pintarManual(); pintarDominadas(); pintarRoadtest(); if(vista()==="escuelas") pintarEscuelas(); pintarManChips(); pintarMan(); pintarCultura(); pintarAds();
   rehidratar(); if(EX){ if(EX.done) examenResultado(); else examenPintar(); } else examenIntro();
