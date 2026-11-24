@@ -107,6 +107,10 @@ Los otros estados de la lista (PA, CT, MA, FL, CA, TX, IL) **no** se han hecho. 
 |---|---|
 | ![Inicio en](docs/capturas/home-en.png) | ![CDL es](docs/capturas/cdl-es.png) |
 
+| Las 34 señales en el manual (español) |
+|---|
+| ![Señales](docs/capturas/senales-manual-es.png) |
+
 ---
 
 ## 6. Cómo probarlo
