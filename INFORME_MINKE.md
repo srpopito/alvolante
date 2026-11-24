@@ -138,6 +138,7 @@ Para probar sin conexión: abre la app, espera unos segundos (el service worker 
 | Documentos de NJ | 78 preguntas, 4 opciones, sin duplicados, respuesta correcta intacta en los 6 idiomas |
 | Secretos (`keystore`, `password`, `API_KEY`) | 0 resultados en el repo |
 | Peso de imágenes de la app | todas por debajo de 300 KB (la mayor: 87 KB) |
+| Peso de capturas de tienda | 17,4 MB → 5,8 MB; la mayor, 239 KB |
 | 360 px | sin scroll horizontal en las 11 vistas |
 
 ---
