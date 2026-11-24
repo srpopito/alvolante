@@ -53,4 +53,4 @@ Lo que **no** está en la app porque no se ha podido confirmar en una fuente ofi
 - [ ] Las fuentes de Google (Google Fonts) se sustituyen por tipografía propia en la fase 7.
 - [ ] Pasar Lighthouse en un equipo con npm (aquí no está instalado); el comando está en `docs/lighthouse/README.md`.
 
-- [ ] Connecticut: catálogo completo de señales (hay 17), las 4 maniobras y ampliar la hoja del road test a todas las categorías (el banco de 70 preguntas en 6 idiomas y el kit del día ya están).
+- [ ] Connecticut: catálogo completo de señales (hay 23), las 4 maniobras y ampliar la hoja del road test a todas las categorías (el banco de 70 preguntas en 6 idiomas y el kit del día ya están).
