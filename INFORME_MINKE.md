@@ -208,4 +208,4 @@ docs/capturas/              capturas del informe
 2. **Capturas de tienda**: recomprimidas de 17,4 MB a 5,8 MB (ninguna pasa de 239 KB), sin cambiar el diseño. Siguen mostrando solo Nueva York: faltan capturas nuevas con NJ, los juegos y la CDL antes del próximo envío a Play Console.
 3. **Ficha de Play** con los textos nuevos (estados, CDL): preparada en `store/ficha_google_play.md` en los 6 idiomas. **No se ha subido a Play Console.**
 4. **Prueba en un Android viejo real** (fuentes bengalí y china) y **prueba sin conexión en producción**: en local el service worker ya se registra, pero la prueba definitiva es en `https://srpopito.github.io/alvolante/`.
-5. **Revisión humana de las 78 preguntas de NJ** por Cristian antes de publicar. Están contrastadas con el manual página a página, pero una lectura suya vale más.
+5. **Revisión humana de las 78 preguntas de NJ y las 72 de PA** por Cristian antes de publicar. Están contrastadas con el manual página a página, pero una lectura suya vale más.

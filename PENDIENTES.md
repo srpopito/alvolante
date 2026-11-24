@@ -15,7 +15,7 @@ Lo que **no** está en la app porque no se ha podido confirmar en una fuente ofi
 
 - [ ] **6 estados más**: Connecticut (CT DMV), Massachusetts (RMV), Florida (FLHSMV), California (CA DMV), Texas (DPS), Illinois (SOS). Cada uno necesita su manual, formato de examen, requisitos de permiso y road test antes de escribir una sola pregunta.
 - [ ] **Listas oficiales de autoescuelas** de los estados nuevos: si el estado no publica una lista descargable, se enlaza su buscador oficial (como ya se hace con NJ).
-- [ ] **Revisión humana de las 78 preguntas de NJ** antes de publicar. Están contrastadas con el manual página a página, pero la lectura de Cristian vale más.
+- [ ] **Revisión humana de las 78 preguntas de NJ y las 72 de PA** antes de publicar. Están contrastadas con el manual página a página, pero la lectura de Cristian vale más.
 - [x] Séptima tarjeta cultural en inglés.
 
 ## Técnico
