@@ -245,3 +245,51 @@ docs/capturas/              capturas del informe
 3. **Ficha de Play** con los textos nuevos (estados, CDL): preparada en `store/ficha_google_play.md` en los 6 idiomas. **No se ha subido a Play Console.**
 4. **Prueba en un Android viejo real** (fuentes bengalí y china) y **prueba sin conexión en producción**: en local el service worker ya se registra, pero la prueba definitiva es en `https://srpopito.github.io/alvolante/`.
 5. **Revisión humana de las 78 preguntas de NJ y las 72 de PA** por Cristian antes de publicar. Están contrastadas con el manual página a página, pero una lectura suya vale más.
+---
+
+## 9. Entrega — orden maestra
+
+### Commits de la rama `minke-update`
+
+```
+7f682a3 Master order, phase 7: half the weight, our own fonts and alt text everywhere
+79bc7f2 Master order, phase 6: the Play checklist with evidence and honest store screenshots
+acc8838 Master order, phase 4 part 3: the road test day kit, per state and in six languages
+ae5e1e6 Collapse the skill list so the supervisor card fits one screen
+278eb67 Master order, phase 4 part 2: supervisor log and see-in-English
+fe332be Master order, phase 4 part 1: today's ten minutes, three actions and traffic lights per chapter
+53b8943 Master order, phase 3: write down the voice and remove the one overpromise
+2c2981b Fix icons printing as raw markup on the school finder
+49db632 Master order, phases 0-2: baseline, QA fixes and a real design system
+0c128f1 Turn the CDL tab into a short course with review, practice and five games
+217d054 Research and document every CDL number before writing content
+c7dbe36 Note the Pennsylvania questions in the human-review pending item
+c03bf0e Add Pennsylvania: 72 questions, the 18/15 exam and its sources
+f861eb0 Give each state its own chapter photos
+0c1cba8 Match every question image to its question
+ed8afd9 Add the sign catalogue screenshot to the report
+fd9f600 Expand the sign game to 34 signs, by category and in both directions
+f17f5ff Fix the stale store-screenshot note in the report
+73b6585 Reconcile the report with the compressed store assets
+2114117 Finish the audit: picker focus, voice detection, culture parity, lighter store images
+6efab82 Document the audit, the delivery report and the new Play listing
+f4110f3 Add New Jersey, a state selector, the CDL section and four games
+1992564 Audit the app and add the missing self-test suite
+```
+
+### Riesgos
+
+1. **Fase 5 sin empezar**: solo PA está hecha. Faltan CT, MA, FL, CA, TX e IL. Cada estado pide manual vigente, formato de examen, 70–90 preguntas originales, imágenes propias, autoescuelas, aviso y 6 idiomas; es trabajo de varias sesiones y no conviene dejarlo a medias.
+2. **Lighthouse no ejecutado**: no hay `npm` en este equipo. Las métricas manuales están en `docs/lighthouse/audit.json` (523 KB, 0 errores, contraste AA, 0 imágenes sin `alt`) y el comando exacto en el README.
+3. **Fotos de `img/`**: origen y licencia sin documentar (`img/CREDITS.md`). Antes de publicar hay que confirmarlas o sustituirlas.
+4. **`assetlinks.json`**: no se pudo comprobar que responde porque el dominio no está en el repositorio.
+5. **Revisión humana**: las 78 preguntas de NJ y las 72 de PA están esperando revisión de Cristian (anotado en `PENDIENTES.md`).
+6. **Preguntas del examen real**: ni NY ni NJ publican cuántas preguntas tiene cada examen; se mantiene el modo práctica y se dice así en la app.
+
+### Pendientes en `PENDIENTES.md`
+
+- Estados 5 (CT, MA, FL, CA, TX, IL).
+- Lighthouse en un equipo con npm.
+- Licencias de las fotos y `assetlinks`.
+- Endosos CDL como lecciones (hoy solo el enlace al manual).
+- Revisión humana de NJ y PA.
