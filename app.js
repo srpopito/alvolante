@@ -355,6 +355,37 @@ function pintarAds(){
   });
 }
 
+// ---------- Plan de hoy y racha ----------
+function todayKey(){var d=new Date();return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2);}
+function dailyState(){
+  var d=store.get(stpre()+"daily",null);
+  if(!d||d.date!==todayKey()){d={date:todayKey(),ids:[],i:0,ok:0,done:false};store.set(stpre()+"daily",d);}
+  return d;
+}
+function dailyBuild(){
+  var all=ALL_RULES.concat(ALL_SIGNS);
+  var miss=Object.keys(MISS).filter(function(id){return all.indexOf(id)>=0;});
+  var rest=all.filter(function(id){return !MAST[id]&&miss.indexOf(id)<0;});
+  var pick=shuffle(miss).concat(shuffle(rest));
+  if(pick.length<10)pick=pick.concat(shuffle(all));
+  return pick.slice(0,10);
+}
+function dailyStart(){
+  var d=dailyState();
+  if(d.done){location.hash="#practica";return practicaNueva("miss");}
+  if(!d.ids||!d.ids.length){d.ids=dailyBuild();store.set(stpre()+"daily",d);}
+  PR={ch:"daily",qs:d.ids.map(preparar),i:d.i||0,ok:d.ok||0};
+  location.hash="#practica";
+  pintarChips(); pintarDominadas(); practicaPintar();
+}
+function bumpStreak(){
+  var s=store.get(stpre()+"streak",{d:"",n:0}), t=todayKey();
+  if(s.d===t)return s;
+  var y=new Date();y.setDate(y.getDate()-1);
+  var ymd=y.getFullYear()+"-"+("0"+(y.getMonth()+1)).slice(-2)+"-"+("0"+y.getDate()).slice(-2);
+  s.n=(s.d===ymd)?(s.n||0)+1:1; s.d=t; store.set(stpre()+"streak",s); return s;
+}
+
 // ---------- Inicio ----------
 function pintarInicio(){
   $("guideImg").src=img(P.guide.img); $("guideImg2").src=img(P.guide.img);
@@ -365,7 +396,9 @@ function pintarInicio(){
   var n=Object.keys(MISS).length, gm=$("goMistakes");
   gm.hidden=!n; gm.innerHTML=ic("repeat")+" "+esc(t("practiceTitle"))+" · "+num(n);
   gm.onclick=function(){location.hash="#practica"; practicaNueva("miss");};
-  pintarProgresoCapitulos(); pintarListo(); pintarMas();
+  pintarProgresoCapitulos(); pintarListo(); pintarMas(); pintarDaily(); pintarAjustes();
+  var acts=$("homeActions")?$("homeActions").querySelectorAll("a"):[];
+  if(acts.length===3){acts[0].textContent=t("homePlan");acts[0].href="#practica";acts[0].onclick=function(ev){ev.preventDefault();dailyStart();};acts[1].textContent=t("homeExam");acts[2].textContent=t("homeRoad");}
 }
 // Barra por capítulo: cuántas preguntas de ese capítulo ya están dominadas.
 function pintarProgresoCapitulos(){
@@ -375,9 +408,10 @@ function pintarProgresoCapitulos(){
     var items=c==="S"?C.signs.map(function(k){return "s:"+k;}):ALL_RULES.filter(function(id){return String(C.rules[+id.slice(1)].ch)===c;});
     var done=items.filter(function(id){return MAST[id];}).length, pct=items.length?Math.round(done/items.length*100):0;
     var lab=c==="S"?P.chapters.S:manRef(c);
-    h+='<div class="chbar"><div class="lab"><span>' + esc(lab) + '</span><span>' + num(done) + "/" + num(items.length) + '</span></div><div class="bar"><span style="width:' + pct + '%"></span></div></div>';
+    var cls=pct>=80?"ok":pct>=40?"warn":"bad";
+    h+='<div class="chbar '+cls+'"><div class="lab"><span>' + esc(lab) + '</span><span>' + num(done) + "/" + num(items.length) + '</span></div><div class="bar"><span style="width:' + pct + '%"></span></div></div>';
   });
-  box.innerHTML=h;
+  box.innerHTML=h+'<p class="small muted" style="margin-top:8px">'+esc(t("readyRule"))+"</p>";
 }
 // «Listo para el examen»: tres simulacros seguidos aprobados.
 function pintarListo(){
@@ -386,6 +420,19 @@ function pintarListo(){
   var last=hist.slice(-3), ready=last.length===3&&last.every(function(x){return x.pass;});
   pill.hidden=!ready;
   if(ready){ pill.className="pill ok"; pill.innerHTML=ic("check")+" "+(P.ui.readyYes||"Ready for the exam"); }
+}
+function pintarDaily(){
+  var box=$("dailyCard"); if(!box) return;
+  var d=dailyState(), st=store.get(stpre()+"streak",{n:0}), p=Math.min(d.i||0,10);
+  box.innerHTML='<h3>'+esc(t("dailyTitle"))+'</h3><p class="small muted">'+esc(t("dailyLead"))+'</p>'+
+    '<div class="row" style="justify-content:space-between"><span class="pill">'+num(p)+'/10</span><span class="pill">'+esc(t("streak"))+": "+num(st.n||0)+"</span></div>"+
+    '<div class="row" style="margin-top:10px"><button class="btn" id="dailyBtn" type="button">'+esc(d.done?t("dailyDone"):t("dailyStart"))+"</button></div>";
+  var b=$("dailyBtn"); if(b){b.onclick=dailyStart; if(d.done)b.disabled=true;}
+}
+function pintarAjustes(){
+  var box=$("settingsBox"); if(!box) return;
+  box.innerHTML='<div class="card" style="margin-top:14px"><h3>'+esc(t("aboutTitle"))+'</h3><button class="btn ghost" id="onbReset" type="button">'+esc(t("resetOnb"))+"</button></div>";
+  $("onbReset").onclick=function(){store.set("onboard",false);location.reload();};
 }
 function pintarMas(){
   var box=$("homeMore"); if(!box) return;
@@ -472,7 +519,8 @@ function practicaPintar(){
   h+='<div class="qtext">'+esc(textoPregunta(p))+'</div><div class="opts">'+ops.map(function(o,k){return '<button type="button" class="opt" data-k="'+k+'">'+esc(o.txt)+'</button>';}).join("")+'</div>'+toolsHtml(p.id)+'<div id="prFb"></div>';
   c.innerHTML=h; bindSay(c,p);
   c.querySelectorAll(".opt").forEach(function(b){b.onclick=function(){
-    if(done)return; done=true; var v=ops[+b.dataset.k].v, bien=v===p.correct; if(bien)PR.ok++; else buzz(); marcar(p.id,bien); if(bien) MAST[p.id]=1; else delete MAST[p.id]; store.set(stpre()+"mast",MAST); pintarDominadas(); panelManual(p,true);
+    if(done)return; done=true; var v=ops[+b.dataset.k].v, bien=v===p.correct; if(bien)PR.ok++; else buzz(); marcar(p.id,bien);
+    if(PR.ch==="daily"){var dly=dailyState();dly.i=PR.i+1;dly.ok=PR.ok;if(dly.i>=10){dly.done=true;bumpStreak();}store.set(stpre()+"daily",dly);} if(bien) MAST[p.id]=1; else delete MAST[p.id]; store.set(stpre()+"mast",MAST); pintarDominadas(); panelManual(p,true);
     c.querySelectorAll(".opt").forEach(function(x){var xv=ops[+x.dataset.k].v; x.disabled=true; if(xv===p.correct)x.classList.add("right"); else if(x===b)x.classList.add("wrong");});
     $("prFb").innerHTML='<div class="explain guide"><img src="'+img(P.guide.img)+'" alt=""><div class="bubble"><b>'+esc(frase(bien?"right":"wrong"))+'</b>'+explicacion(p)+'</div></div><div class="row" style="margin-top:12px"><button class="btn" id="prNext" type="button">'+esc(t("next"))+'</button></div>';
     $("prNext").onclick=function(){PR.i++; practicaPintar();}; $("prNext").focus({preventScroll:true});

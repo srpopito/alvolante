@@ -60,6 +60,9 @@ main{padding:18px 0 40px}section.view{display:none}section.view.on{display:block
 .onb-grid button[aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
 .chbar{margin:6px 0}.chbar .lab{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted)}
 .chbar .bar{height:8px;background:var(--line);border-radius:999px;overflow:hidden}.chbar .bar span{display:block;height:100%;background:var(--accent)}
+.chbar.ok .bar span{background:var(--ok)}
+.chbar.warn .bar span{background:var(--warn)}
+.chbar.bad .bar span{background:var(--bad)}
 @media (prefers-reduced-motion:reduce){video{display:none}section.view.on{animation:none}.opt.right .ico{animation:none}}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .pill{display:inline-block;border-radius:999px;padding:2px 10px;font-size:13px;font-weight:600;border:1px solid var(--line)}
@@ -191,6 +194,7 @@ footer{border-top:1px solid var(--line);padding:16px 0 30px;color:var(--muted);f
   <section class="view" id="inicio">
     <div class="hero"><video id="heroVid" muted loop playsinline preload="none" poster="img/portada.webp"></video>
       <div class="cap"><h2 data-t="homeTitle"></h2><span class="free" data-t="freeLine"></span></div></div>
+    <div class="card" id="dailyCard" style="margin-bottom:14px"></div>
     <div class="grid g2">
       <div class="card">
         <div class="guide"><img id="guideImg" alt=""><div class="bubble"><b id="guideName"></b><span id="guideHello"></span></div></div>
@@ -259,7 +263,7 @@ footer{border-top:1px solid var(--line);padding:16px 0 30px;color:var(--muted);f
     <div class="card" style="margin-bottom:14px"><div class="guide"><img id="guideImg2" alt=""><div class="bubble"><b data-t="cultTitle"></b><span data-t="cultLead"></span></div></div></div>
     <div class="cult" id="cultList"></div><div class="ad" data-ad></div>
   </section>
-  <section class="view" id="acerca"><div class="card"><h2 data-t="aboutTitle"></h2><p data-t="about1"></p><p data-t="about2"></p><p data-t="privacy"></p><ul class="small" id="sourceList"></ul></div></section>
+  <section class="view" id="acerca"><div class="card"><h2 data-t="aboutTitle"></h2><p data-t="about1"></p><p data-t="about2"></p><p data-t="privacy"></p><ul class="small" id="sourceList"></ul></div><div id="settingsBox"></div></section>
 </main>
 <footer><div class="wrap"><span data-t="footer"></span> · <a href="privacy.html">Privacy</a></div></footer>
 <script src="config.js"></script>

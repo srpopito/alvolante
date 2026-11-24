@@ -103,6 +103,29 @@ var tooLong=Object.keys(uiEs).filter(function(k){var v=uiEs[k];return typeof v==
 T("no UI string over 60 words",tooLong.length===0,tooLong.join(","));
 }catch(e){T("style rules",false,e.message);}
 
+group("1d. Daily plan, readiness and settings");
+try{
+win=await load("../index.html?state=ny&lang=en");d=await ready(win,9000);
+try{win.localStorage.removeItem("alv_daily");win.localStorage.removeItem("alv_streak");}catch(e){}
+win.location.reload();await sleep(2200);d=win.document;
+T("home shows today's plan",!!q(d,"#dailyCard h3"),q(d,"#dailyCard h3")?q(d,"#dailyCard h3").textContent:"");
+var hb=qa(d,"#homeActions a").map(function(a){return a.textContent;});
+T("home has the three main actions",hb.length===3&&/plan/i.test(hb[0]),hb.join(" | "));
+var bars=qa(d,"#chapterProgress .chbar");
+T("chapter bars are colour coded",bars.length>=9&&bars.every(function(b){return /ok|warn|bad/.test(b.className);}),bars.map(function(b){return b.className;}).slice(0,3).join(","));
+T("readiness rule is explained",/80/.test(q(d,"#chapterProgress p").textContent),q(d,"#chapterProgress p").textContent.slice(0,50));
+q(d,"#dailyBtn").click();await sleep(400);
+var firstPill=(q(d,"#practiceCard .pill")||{}).textContent||"";
+T("daily plan starts ten questions",/1 \/ 10/.test(firstPill),firstPill);
+for(var de=0;de<10;de++){var od=q(d,"#practiceCard .opt");if(!od)break;od.click();await sleep(45);var nd=q(d,"#prNext");if(nd)nd.click();await sleep(60);}
+var stDaily=JSON.parse(win.localStorage.getItem("alv_daily")||"{}");
+T("daily plan records progress",stDaily.i>=10,JSON.stringify(stDaily).slice(0,60));
+var stStreak=JSON.parse(win.localStorage.getItem("alv_streak")||"{}");
+T("finishing the plan starts a streak",stStreak.n>=1,"n="+stStreak.n);
+await go(win,"acerca");
+T("settings offer to restart the setup",!!q(d,"#onbReset"),"");
+}catch(e){T("daily plan",false,e.message);}
+
 group("2. Language switch");
 try{
 win=await load("../index.html?lang=en");d=await ready(win,9000);
@@ -309,7 +332,7 @@ try{
 win=await load("../index.html?state=ny&lang=es");d=await ready(win,9000);
 var selx=d.getElementById("estado");
 if(selx&&selx.options.length>2){selx.value="pa";selx.dispatchEvent(new win.Event("change"));await sleep(1800);}
-T("after switching state the UI stays in Spanish",/Estudiar/.test(q(d,"#homeActions").textContent)&&!/(Study|Take exam)/.test(q(d,"#homeActions").textContent),q(d,"#homeActions").textContent);
+T("after switching state the UI stays in Spanish",/Seguir mi plan/.test(q(d,"#homeActions").textContent)&&!/(Study|Take exam)/.test(q(d,"#homeActions").textContent),q(d,"#homeActions").textContent);
 T("PA content shows but the language is Spanish",/Pensilvania/.test(d.title),d.title);
 q(d,"#langBtn").click();await sleep(200);
 q(d,'#lpList button[data-c="ko"]').click();await sleep(1200);
