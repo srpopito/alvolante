@@ -52,10 +52,24 @@ function loadLang(code){
   return loadScript((ST.lang||"lang/")+code+".js").then(function(){window.__langState=ST.code;return window.LANGS[code];})
     .catch(function(){ if(code!=="en") return loadLang("en"); throw new Error("language pack missing: "+code); });
 }
+// Accesibilidad del selector de idioma: foco atrapado y Escape para cerrar.
+var pickerReturn=null;
+function pickerTrap(e){
+  var box=$("langPick"); if(!box||!box.classList.contains("on")) return;
+  if(e.key==="Escape"){ e.preventDefault(); box.classList.remove("on"); if(pickerReturn&&pickerReturn.focus) try{pickerReturn.focus();}catch(x){} return; }
+  if(e.key!=="Tab") return;
+  var f=box.querySelectorAll("button"); if(!f.length) return;
+  var first=f[0], last=f[f.length-1];
+  if(e.shiftKey&&document.activeElement===first){ e.preventDefault(); last.focus(); }
+  else if(!e.shiftKey&&document.activeElement===last){ e.preventDefault(); first.focus(); }
+}
+document.addEventListener("keydown",pickerTrap);
 function pickerShow(){
   $("lpList").innerHTML=META.map(function(m){return '<button type="button" data-c="'+m.code+'" aria-current="'+(m.code===LANG)+'" lang="'+m.code+'"><img src="'+img("guia_"+m.code)+'" alt=""><b>'+esc(m.name)+'</b></button>';}).join("");
   $("lpList").querySelectorAll("button").forEach(function(b){b.onclick=function(){setLang(b.dataset.c);};});
+  pickerReturn=document.activeElement;
   $("langPick").classList.add("on");
+  var first=$("lpList").querySelector("button"); if(first) first.focus();
 }
 function setLang(code){
   return Promise.all([loadUi(code),loadLang(code),loadCdl(code),loadGames(code)]).then(function(r){
@@ -71,7 +85,7 @@ function setLang(code){
 var TTS=window.speechSynthesis||null;
 function ttsLang(){for(var i=0;i<META.length;i++) if(META[i].code===LANG) return META[i].tts; return "en-US";}
 function hasVoice(){
-  if(!TTS) return false; var v=TTS.getVoices(); if(!v.length) return true;
+  if(!TTS) return false; var v=TTS.getVoices(); if(!v.length) return false;
   var l=ttsLang().slice(0,2); return v.some(function(x){return (x.lang||"").toLowerCase().indexOf(l)===0;});
 }
 function speak(txt){
@@ -145,7 +159,7 @@ function frase(tipo){var a=P.guide[tipo];return a[Math.floor(Math.random()*a.len
 
 // ---------- Navegación ----------
 var VISTAS=["inicio","examen","practica","manual","juego","roadtest","escuelas","cdl","maniobras","cultura","acerca"];
-function pintarTabs(){var tb=t("tabs"); if(tb&&!tb.escuelas) tb.escuelas=(SCT[LANG]||SCT.en).tab;$("tabs").innerHTML=VISTAS.map(function(v){return '<a href="#'+v+'" data-v="'+v+'">'+esc(t("tabs")[v])+'</a>';}).join("");}
+function pintarTabs(){var tb=t("tabs"),lab={}; for(var k in tb) lab[k]=tb[k]; if(!lab.escuelas) lab.escuelas=(SCT[LANG]||SCT.en).tab;$("tabs").innerHTML=VISTAS.map(function(v){return '<a href="#'+v+'" data-v="'+v+'">'+esc(lab[v]||v)+'</a>';}).join("");}
 function vista(){var v=(location.hash||"#inicio").slice(1); return VISTAS.indexOf(v)<0?"inicio":v;}
 function ir(){
   var v=vista();
@@ -758,7 +772,10 @@ function renderAll(){
   ir();
 }
 $("langBtn").onclick=pickerShow;
-if(TTS&&TTS.addEventListener) TTS.addEventListener("voiceschanged",function(){});
+if(TTS&&TTS.addEventListener) TTS.addEventListener("voiceschanged",function(){
+  if(!P) return; if(EX&&EX.qs&&!EX.done) return; if(vista()==="juego") return;
+  renderAll();
+});
 
 // Instalar como app (Android/Chrome) y uso sin conexión
 var deferred=null;

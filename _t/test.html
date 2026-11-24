@@ -81,6 +81,12 @@ T("picker lists 6 languages",qa(d,"#lpList button").length===6,"");
 q(d,'#lpList button[data-c="es"]').click();await sleep(800);
 T("switch updates html lang",d.documentElement.lang==="es",d.documentElement.lang);
 T("switch translates tabs",/Inicio/.test(q(d,"#tabs").textContent),"");
+q(d,"#langBtn").click();await sleep(150);
+var opened=q(d,"#langPick").classList.contains("on");
+d.dispatchEvent(new win.KeyboardEvent("keydown",{key:"Escape",bubbles:true}));await sleep(150);
+T("Escape closes the language picker",opened&&!q(d,"#langPick").classList.contains("on"),"");
+await go(win,"cultura");
+T("culture has seven cards",qa(d,"#cultList .card").length===7,qa(d,"#cultList .card").length+" cards");
 }catch(e){T("language switch",false,e.message);}
 group("3. Practice exam (New York: 20 questions, 14 to pass)");
 try{

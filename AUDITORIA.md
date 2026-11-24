@@ -156,12 +156,12 @@ Ver `PENDIENTES.md` (se mantiene al día con cada fase).
 | A3 | Aviso de gobierno solo en el pie | ✅ Resuelto: barra fija visible, por estado y con enlaces `.gov` |
 | M1 | `sw.js` sin precachear idiomas | ✅ Resuelto: `alv-v9`, 43 archivos, verificado sin conexión |
 | M2 | 20 fijo en el resultado | ✅ Resuelto: usa el número real y el formato del estado |
-| M3 | Capturas de tienda pesadas | ⏳ Pendiente (no afecta a la app) |
-| M4 | Tarjetas culturales desiguales | ⏳ Pendiente |
-| B1 | Sin trampa de foco en el diálogo de idioma | ⏳ Pendiente |
-| B2 | Favicon 404 en `privacy.html` | ⏳ Pendiente |
+| M3 | Capturas de tienda pesadas | ✅ Resuelto: cuantizadas a PNG de 256 colores, 17,4 MB → 5,8 MB; la mayor queda en 239 KB |
+| M4 | Tarjetas culturales desiguales | ✅ Resuelto: inglés tiene ya las 7 tarjetas |
+| B1 | Sin trampa de foco en el diálogo de idioma | ✅ Resuelto: foco atrapado, Escape cierra y devuelve el foco |
+| B2 | Favicon 404 en `privacy.html` | ✅ Resuelto |
 | B3 | Vídeo de portada sin `prefers-reduced-motion` | ✅ Resuelto |
-| B4 | `pintarTabs()` mutaba el paquete de idioma | ⏳ Pendiente (sin efecto visible) |
-| B5 | `hasVoice()` con lista vacía | ⏳ Pendiente |
+| B4 | `pintarTabs()` mutaba el paquete de idioma | ✅ Resuelto: usa una copia |
+| B5 | `hasVoice()` con lista vacía | ✅ Resuelto: devuelve `false` hasta que haya voz, y se repinta cuando llega |
 
 También se corrigió, ya fuera de la auditoría inicial, un error de contenido en el inicio: los textos compartidos decían «Nueva York» y «20 preguntas» también en New Jersey. Ahora se generan con el estado y el formato reales.

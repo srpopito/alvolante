@@ -27,7 +27,7 @@ Rama: **`minke-update`** · Base: `main` @ `3fd9013` · Fecha: 2026-11-23
 
 Detalle completo en [`AUDITORIA.md`](AUDITORIA.md). Lo esencial:
 
-1. **No existía ninguna prueba.** La orden daba por hecho un `_t/test.html` con 21/21; la carpeta no estaba en el repo. Ahora hay una suite real de **99 comprobaciones** que carga la app en un iframe de 360 px y prueba los 6 idiomas, los 2 estados, el examen completo, la práctica, los juegos, la CDL, las autoescuelas y el cambio de estado.
+1. **No existía ninguna prueba.** La orden daba por hecho un `_t/test.html` con 21/21; la carpeta no estaba en el repo. Ahora hay una suite real de **101 comprobaciones** que carga la app en un iframe de 360 px y prueba los 6 idiomas, los 2 estados, el examen completo, la práctica, los juegos, la CDL, las autoescuelas y el cambio de estado.
 2. **Error de contenido corregido:** la tarjeta inglesa *«Under 18? You're a DJ»* decía que el **permiso** júnior no permite conducir en Nueva York. El manual dice que el permiso sí permite conducir en los cinco condados **de 5:00 a 21:00** con supervisión y doble mando; es la **licencia** júnior la que no permite conducir allí. Corregido y contrastado con el capítulo 1.
 3. **El resultado del examen** llevaba el 20 escrito a mano; ahora usa el número real de preguntas (y el formato de cada estado).
 4. **El service worker** no precacheaba los idiomas y seguía en `alv-v7`. Ahora es `alv-v9` y precarga **43 archivos** (interfaz, idiomas, estados, CDL y juegos).
@@ -120,7 +120,7 @@ Luego abre:
 - `http://localhost:8765/` — app (Nueva York por defecto)
 - `http://localhost:8765/?state=nj` — New Jersey
 - `http://localhost:8765/?state=nj&lang=zh` — NJ en chino
-- `http://localhost:8765/_t/test.html` — **99 comprobaciones** (deben salir todas en verde)
+- `http://localhost:8765/_t/test.html` — **101 comprobaciones** (deben salir todas en verde)
 
 Para probar sin conexión: abre la app, espera unos segundos (el service worker cachea 43 archivos), corta la red y recarga. Funciona en NY y en NJ.
 
@@ -130,7 +130,7 @@ Para probar sin conexión: abre la app, espera unos segundos (el service worker 
 
 | Comprobación | Resultado |
 |---|---|
-| Suite `_t/test.html` | **99 / 99** |
+| Suite `_t/test.html` | **101 / 101** |
 | Consola: 6 idiomas × 2 estados × 11 pestañas | **0 errores** (132 cargas de pestaña) |
 | Sin conexión (Chrome, red desactivada) | Carga NY y NJ con 43 archivos en caché |
 | Enlaces oficiales de NY | 10/10 responden 200 con el título correcto |
