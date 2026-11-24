@@ -27,7 +27,7 @@ Rama: **`minke-update`** · Base: `main` @ `3fd9013` · Fecha: 2026-11-23
 
 Detalle completo en [`AUDITORIA.md`](AUDITORIA.md). Lo esencial:
 
-1. **No existía ninguna prueba.** La orden daba por hecho un `_t/test.html` con 21/21; la carpeta no estaba en el repo. Ahora hay una suite real de **101 comprobaciones** que carga la app en un iframe de 360 px y prueba los 6 idiomas, los 2 estados, el examen completo, la práctica, los juegos, la CDL, las autoescuelas y el cambio de estado.
+1. **No existía ninguna prueba.** La orden daba por hecho un `_t/test.html` con 21/21; la carpeta no estaba en el repo. Ahora hay una suite real de **109 comprobaciones** que carga la app en un iframe de 360 px y prueba los 6 idiomas, los 2 estados, el examen completo, la práctica, los juegos, la CDL, las autoescuelas y el cambio de estado.
 2. **Error de contenido corregido:** la tarjeta inglesa *«Under 18? You're a DJ»* decía que el **permiso** júnior no permite conducir en Nueva York. El manual dice que el permiso sí permite conducir en los cinco condados **de 5:00 a 21:00** con supervisión y doble mando; es la **licencia** júnior la que no permite conducir allí. Corregido y contrastado con el capítulo 1.
 3. **El resultado del examen** llevaba el 20 escrito a mano; ahora usa el número real de preguntas (y el formato de cada estado).
 4. **El service worker** no precacheaba los idiomas y seguía en `alv-v7`. Ahora es `alv-v9` y precarga **43 archivos** (interfaz, idiomas, estados, CDL y juegos).
@@ -49,6 +49,7 @@ Detalle completo en [`AUDITORIA.md`](AUDITORIA.md). Lo esencial:
 - **Progreso separado por estado**: un usuario de NJ no pisa el progreso de NY.
 
 Fuentes y frases exactas: [`states/nj/FUENTES.md`](states/nj/FUENTES.md).
+- Catálogo completo de señales y sus fuentes: [`SENALES.md`](SENALES.md).
 
 ### 3.2 Licencia comercial (CDL)
 
@@ -63,7 +64,7 @@ Fuentes: manual CDL del MVC y FMCSA (`tpr.fmcsa.dot.gov`).
 | **¿Quién pasa primero?** | Cruce dibujado en SVG; el usuario toca el vehículo que tiene la preferencia. 6 escenas (4-way stop, giro a la izquierda, vehículo ya en el cruce, ceda el paso, peatón, ambulancia). |
 | **Números** | Preguntas cuya respuesta correcta es una cifra; 60 segundos. Se genera del banco de preguntas del estado, así que NJ usa las cifras de NJ. |
 | **Verdadero o falso** | 60 segundos; se muestra una respuesta y hay que decidir si es la correcta, con explicación. |
-| **Señales** (mejorado) | Niveles que suben cada 8 aciertos, racha con multiplicador, estrellas guardadas, explicación de la señal al fallar con enlace al manual, y modo «solo mis errores». |
+| **Señales** (mejorado) | **34 señales** (las 16 oficiales del DMV y las habituales de la vía), filtro por categoría (reglamentación, advertencia, ferrocarril, obras, servicios), preguntas en los dos sentidos (señal → significado y significado → señal), niveles cada 8 aciertos, racha con multiplicador, estrellas guardadas, explicación al fallar con enlace al manual y modo «solo mis errores». |
 
 Todos funcionan sin conexión y comparten los 6 idiomas.
 
@@ -120,7 +121,7 @@ Luego abre:
 - `http://localhost:8765/` — app (Nueva York por defecto)
 - `http://localhost:8765/?state=nj` — New Jersey
 - `http://localhost:8765/?state=nj&lang=zh` — NJ en chino
-- `http://localhost:8765/_t/test.html` — **101 comprobaciones** (deben salir todas en verde)
+- `http://localhost:8765/_t/test.html` — **109 comprobaciones** (deben salir todas en verde)
 
 Para probar sin conexión: abre la app, espera unos segundos (el service worker cachea 43 archivos), corta la red y recarga. Funciona en NY y en NJ.
 
@@ -130,7 +131,7 @@ Para probar sin conexión: abre la app, espera unos segundos (el service worker 
 
 | Comprobación | Resultado |
 |---|---|
-| Suite `_t/test.html` | **101 / 101** |
+| Suite `_t/test.html` | **109 / 109** |
 | Consola: 6 idiomas × 2 estados × 11 pestañas | **0 errores** (132 cargas de pestaña) |
 | Sin conexión (Chrome, red desactivada) | Carga NY y NJ con 43 archivos en caché |
 | Enlaces oficiales de NY | 10/10 responden 200 con el título correcto |
@@ -152,6 +153,7 @@ states/registry.js          registro de estados (nombre, agencia, manuales, ruta
 states/nj/core.js           reglas, señales, fuentes y formato de examen de NJ
 states/nj/lang/{en,es,zh,ru,ko,bn}.js   contenido de NJ por idioma
 states/nj/FUENTES.md        cada dato con su página y su frase
+SENALES.md                  catálogo de las 34 señales y su fuente `.gov`
 ui/{en,es,zh,ru,ko,bn}.js   textos de interfaz compartidos por todos los estados
 cdl/{en,es,zh,ru,ko,bn}.js  sección de licencia comercial
 games/{en,es,zh,ru,ko,bn}.js contenido de los juegos

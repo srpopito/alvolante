@@ -8,7 +8,7 @@ Lo que **no** está en la app porque no se ha podido confirmar en una fuente ofi
 - ✅ **CDL** en 6 idiomas con FMCSA y el manual CDL del estado.
 - ✅ **4 juegos** y modo «solo mis errores».
 - ✅ **Aviso «no es una app del gobierno»** visible en todas las pantallas, por estado.
-- ✅ **Tests**: `_t/test.html` con 101 comprobaciones.
+- ✅ **Tests**: `_t/test.html` con 109 comprobaciones.
 
 ## Contenido y fuentes
 

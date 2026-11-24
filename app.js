@@ -111,7 +111,7 @@ function svgSenal(k){
    case "yield": s+='<polygon points="10,25 190,25 100,180" fill="#c8102e"/><polygon points="40,42 160,42 100,146" fill="#fff"/>'+tx(100,80,24,"YIELD","#c8102e");break;
    case "donotenter": s+='<circle cx="100" cy="100" r="88" fill="#c8102e" stroke="#fff" stroke-width="6"/><rect x="35" y="88" width="130" height="24" fill="#fff"/>'+tx(100,70,20,"DO NOT","#fff")+tx(100,145,20,"ENTER","#fff");break;
    case "nouturn": s+='<rect x="20" y="20" width="160" height="160" rx="10" fill="#fff" stroke="#111" stroke-width="5"/><path d="M80 150 V85 a25 25 0 0 1 50 0 V115" fill="none" stroke="#111" stroke-width="14"/><polygon points="112,110 148,110 130,140" fill="#111"/><circle cx="100" cy="100" r="62" fill="none" stroke="#c8102e" stroke-width="12"/><line x1="56" y1="56" x2="144" y2="144" stroke="#c8102e" stroke-width="12"/>';break;
-   case "oneway": s+='<rect x="10" y="62" width="180" height="76" rx="6" fill="#111"/><polygon points="25,100 150,100 150,82 185,100 150,118 150,100" fill="#fff" stroke="#fff" stroke-width="10" stroke-linejoin="round"/>'+tx(85,108,22,"ONE WAY","#111");break;
+   case "oneway": s+='<rect x="10" y="52" width="180" height="96" rx="6" fill="#111"/>'+tx(100,90,24,"ONE WAY","#fff")+'<rect x="34" y="112" width="112" height="12" fill="#fff"/><polygon points="146,100 180,118 146,136" fill="#fff"/>';break;
    case "crossbuck": s+='<g transform="rotate(-35 100 100)"><rect x="8" y="82" width="184" height="36" fill="#fff" stroke="#111" stroke-width="4"/>'+tx(52,108,19,"CROSS","#111")+tx(152,108,19,"ING","#111")+'</g><g transform="rotate(35 100 100)"><rect x="8" y="82" width="184" height="36" fill="#fff" stroke="#111" stroke-width="4"/>'+tx(52,108,19,"RAIL","#111")+tx(150,108,19,"ROAD","#111")+'</g>';break;
    case "rradvance": s+='<circle cx="100" cy="100" r="88" fill="#f2c200" stroke="#111" stroke-width="5"/><line x1="45" y1="45" x2="155" y2="155" stroke="#111" stroke-width="12"/><line x1="155" y1="45" x2="45" y2="155" stroke="#111" stroke-width="12"/>'+tx(62,112,34,"R","#111")+tx(138,112,34,"R","#111");break;
    case "school": s+='<polygon points="100,12 185,80 185,188 15,188 15,80" fill="#c6d400" stroke="#111" stroke-width="5"/><circle cx="78" cy="88" r="10" fill="#111"/><path d="M78 100 v38 M78 112 l-16 14 M78 112 l14 14 M78 138 l-12 26 M78 138 l12 26" stroke="#111" stroke-width="8" stroke-linecap="round"/><circle cx="124" cy="96" r="9" fill="#111"/><path d="M124 106 v32 M124 116 l-13 12 M124 116 l12 12 M124 138 l-10 22 M124 138 l10 22" stroke="#111" stroke-width="7" stroke-linecap="round"/>';break;
@@ -121,7 +121,26 @@ function svgSenal(k){
    case "slowmoving": s+='<polygon points="100,20 185,170 15,170" fill="#c8102e"/><polygon points="100,52 158,152 42,152" fill="#ff7a00"/>';break;
    case "roadwork": s+=dia("#ff7a00")+tx(100,96,26,"ROAD","#111")+tx(100,126,26,"WORK","#111");break;
    case "speed55": s+='<rect x="35" y="15" width="130" height="170" rx="10" fill="#fff" stroke="#111" stroke-width="5"/>'+tx(100,55,24,"SPEED","#111")+tx(100,82,24,"LIMIT","#111")+tx(100,160,72,"55","#111");break;
-   case "hospital": s+='<rect x="25" y="25" width="150" height="150" rx="10" fill="#1d4f9a" stroke="#fff" stroke-width="5"/>'+tx(100,135,100,"H","#fff");break;
+   case "noleft": s+='<rect x="18" y="18" width="164" height="164" rx="10" fill="#fff" stroke="#111" stroke-width="5"/><path d="M142 100 H88" stroke="#111" stroke-width="16"/><polygon points="58,100 92,78 92,122" fill="#111"/><circle cx="100" cy="100" r="70" fill="none" stroke="#c8102e" stroke-width="12"/><line x1="50" y1="50" x2="150" y2="150" stroke="#c8102e" stroke-width="12"/>';break;
+   case "noright": s+='<rect x="18" y="18" width="164" height="164" rx="10" fill="#fff" stroke="#111" stroke-width="5"/><path d="M58 100 H112" stroke="#111" stroke-width="16"/><polygon points="142,100 108,78 108,122" fill="#111"/><circle cx="100" cy="100" r="70" fill="none" stroke="#c8102e" stroke-width="12"/><line x1="50" y1="50" x2="150" y2="150" stroke="#c8102e" stroke-width="12"/>';break;
+   case "noturnred": s+='<rect x="20" y="20" width="160" height="160" rx="10" fill="#fff" stroke="#111" stroke-width="5"/>'+tx(100,80,30,"NO","#c8102e")+tx(100,116,30,"TURN","#111")+tx(100,150,24,"ON RED","#111");break;
+   case "nopass": s+='<rect x="20" y="52" width="160" height="96" rx="8" fill="#fff" stroke="#111" stroke-width="5"/>'+tx(100,88,26,"DO NOT","#111")+tx(100,124,26,"PASS","#111");break;
+   case "keepright": s+='<rect x="18" y="18" width="164" height="164" rx="10" fill="#fff" stroke="#111" stroke-width="5"/><path d="M68 62 L116 118" stroke="#111" stroke-width="16"/><polygon points="132,136 92,124 120,92" fill="#111"/>';break;
+   case "merge": s+=dia("#f2c200")+'<path d="M74 162 V50" stroke="#111" stroke-width="9"/><path d="M126 162 V112 Q126 80 88 62" stroke="#111" stroke-width="9" fill="none"/><polygon points="82,52 104,66 80,78" fill="#111"/>';break;
+   case "hill": s+=dia("#f2c200")+'<path d="M58 150 L142 64" stroke="#111" stroke-width="10"/>'+tx(80,140,19,"8%","#111");break;
+   case "dividedends": s+=dia("#f2c200")+'<path d="M82 168 V104 Q82 76 100 62" stroke="#111" stroke-width="9" fill="none"/><path d="M118 168 V104 Q118 76 100 62" stroke="#111" stroke-width="9" fill="none"/>';break;
+   case "twoway": s+=dia("#f2c200")+'<path d="M74 62 V138" stroke="#111" stroke-width="10"/><polygon points="74,44 58,74 90,74" fill="#111"/><path d="M126 138 V62" stroke="#111" stroke-width="10"/><polygon points="126,156 110,126 142,126" fill="#111"/>';break;
+   case "slippery": s+=dia("#f2c200")+'<rect x="68" y="82" width="64" height="26" rx="9" fill="#111"/><circle cx="82" cy="112" r="7" fill="#111"/><circle cx="118" cy="112" r="7" fill="#111"/><path d="M58 132 q10 -9 20 0 q10 9 20 0 q10 -9 20 0 q10 9 20 0" stroke="#111" stroke-width="5" fill="none"/><path d="M58 148 q10 -9 20 0 q10 9 20 0" stroke="#111" stroke-width="4" fill="none"/>';break;
+   case "narrowbridge": s+=dia("#f2c200")+'<path d="M52 78 H78 L88 100 H112 L122 78 H148" stroke="#111" stroke-width="8" fill="none"/><path d="M52 126 H78 L88 100 H112 L122 126 H148" stroke="#111" stroke-width="8" fill="none"/>';break;
+   case "winding": s+=dia("#f2c200")+'<path d="M100 162 Q58 132 100 102 Q142 72 100 46" stroke="#111" stroke-width="12" fill="none"/><polygon points="100,34 82,60 118,60" fill="#111"/>';break;
+   case "pedcross": s+=dia("#f2c200")+'<circle cx="100" cy="60" r="10" fill="#111"/><path d="M100 72 v34 M100 82 l-17 16 M100 82 l17 16 M100 106 l-14 32 M100 106 l14 32" stroke="#111" stroke-width="8" stroke-linecap="round" fill="none"/>';break;
+   case "crossroad": s+=dia("#f2c200")+'<path d="M100 46 V154 M46 100 H154" stroke="#111" stroke-width="14"/>';break;
+   case "deer": s+=dia("#f2c200")+'<ellipse cx="98" cy="106" rx="30" ry="15" fill="#111"/><path d="M122 96 l14 -18" stroke="#111" stroke-width="9"/><circle cx="140" cy="72" r="9" fill="#111"/><path d="M140 62 l-7 -14 M140 62 l9 -13" stroke="#111" stroke-width="5"/><path d="M78 118 v28 M94 120 v26 M112 120 v26 M126 118 v28" stroke="#111" stroke-width="7"/>';break;
+   case "flagger": s+=dia("#ff7a00")+'<circle cx="90" cy="62" r="10" fill="#111"/><path d="M90 74 v40 M90 84 l-16 14 M90 84 l18 -6 M90 114 l-12 30 M90 114 l12 30" stroke="#111" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M110 78 V44" stroke="#111" stroke-width="6"/><rect x="110" y="44" width="28" height="20" fill="#111"/>';break;
+   case "construction": s+=dia("#ff7a00")+'<circle cx="92" cy="58" r="9" fill="#111"/><path d="M92 68 v42 M92 78 l-16 12 M92 78 l16 10 M92 110 l-14 32 M92 110 l14 32" stroke="#111" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M120 74 l20 54" stroke="#111" stroke-width="6"/><path d="M112 74 h16 l-4 14 h-16 z" fill="#111"/>';break;
+   case "gas": s+='<rect x="18" y="18" width="164" height="164" rx="12" fill="#1d4f9a" stroke="#fff" stroke-width="4"/><rect x="72" y="58" width="46" height="84" rx="4" fill="#fff"/><rect x="80" y="66" width="30" height="22" fill="#1d4f9a"/><path d="M118 82 h12 q6 0 6 8 v34 q0 8 8 8" stroke="#fff" stroke-width="6" fill="none"/><rect x="66" y="142" width="58" height="8" fill="#fff"/>';break;
+   case "hospital": s+='<rect x="25" y="25" width="150" height="150" rx="10" fill="#1d4f9a" stroke="#fff" stroke-width="5"/>'+tx(100,138,104,"H","#fff");break;
+   case "restarea": s+='<rect x="18" y="18" width="164" height="164" rx="12" fill="#1d4f9a" stroke="#fff" stroke-width="4"/>'+tx(100,120,86,"P","#fff")+tx(100,158,22,"REST","#fff");break;
   }
   return s+'</svg>';
 }
@@ -403,7 +422,7 @@ function juegoIntro(){
 }
 function startGame(mode){
   gmStop();
-  if(mode==="signs") return startSigns();
+  if(mode==="signs") return signsSetup();
   if(mode==="numbers") return startNumbers();
   if(mode==="tf") return startTF();
   if(mode==="who") return startWho();
@@ -415,39 +434,70 @@ function gameLayout(g,body,extra){
   $("gameCard").innerHTML=h+(extra||"");
   var back=$("gmBack"); if(back) back.onclick=juegoIntro;
 }
-// --- Señales: niveles, rachas, estrellas, solo mis errores ---
-function startSigns(onlyMiss){
+// --- Señales: categorías, dos sentidos de pregunta, niveles, rachas y estrellas ---
+var SIGCAT="all", SIGMISS=false;
+function signPool(cat,onlyMiss){
+  var list=C.signs.filter(function(k){return (cat==="all"||(C.signcat&&C.signcat[k])===cat)&&(!onlyMiss||MISS["s:"+k]);});
+  return list.length?list:C.signs.slice();
+}
+function signsSetup(){
+  var g=gp(); gmStop(); GM=null;
+  var cats=[["all",g.labels.all],["reg",g.labels.reg],["warn",g.labels.warn],["rail",g.labels.rail],["work",g.labels.work],["guide",g.labels.guide]];
+  var h='<div class="row" style="justify-content:space-between"><button class="btn ghost" id="gmBack" type="button">← '+esc(g.labels.back)+"</button></div>";
+  h+="<h2>"+esc(g.g4.name)+"</h2><p>"+esc(g.g4.desc)+"</p>";
+  h+='<div class="chips">'+cats.map(function(c){var n=signPool(c[0],false).length;return '<button type="button" class="chip" data-cat="'+c[0]+'" aria-pressed="'+(SIGCAT===c[0])+'">'+esc(c[1])+" · "+num(n)+"</button>";}).join("")+"</div>";
+  var miss=Object.keys(MISS).filter(function(k){return k.indexOf("s:")===0;}).length;
+  h+='<div class="chips" style="margin-top:10px"><button type="button" class="chip" id="gmMiss" aria-pressed="'+SIGMISS+'"'+(miss?"":" disabled")+">"+esc(g.labels.mistakes)+" · "+num(miss)+"</button></div>";
+  h+='<div class="row" style="margin-top:14px"><button class="btn" id="gmStart" type="button">'+esc(g.labels.start)+"</button></div>";
+  $("gameCard").innerHTML=h;
+  $("gmBack").onclick=juegoIntro;
+  $("gameCard").querySelectorAll("[data-cat]").forEach(function(b){b.onclick=function(){SIGCAT=b.dataset.cat;signsSetup();};});
+  $("gmMiss").onclick=function(){if(miss){SIGMISS=!SIGMISS;signsSetup();}};
+  $("gmStart").onclick=function(){startSigns(SIGCAT,SIGMISS);};
+}
+function startSigns(cat,onlyMiss){
   var g=gp();
-  var pool=C.signs.filter(function(k){return !onlyMiss||MISS["s:"+k];});
-  if(!pool.length) pool=C.signs.slice();
-  GM={mode:"signs",t:60,pts:0,streak:0,right:0,level:1,pool:pool,last:null};
-  GM.timer=setInterval(function(){GM.t--; var e=$("gmTime"); if(e)e.textContent=num(GM.t); if(GM.t<=0)signsEnd();},1000);
+  var pool=signPool(cat||"all",!!onlyMiss);
+  GM={mode:"signs",t:60,pts:0,streak:0,right:0,level:1,pool:pool,last:null,cat:cat||"all",miss:!!onlyMiss};
+  GM.timer=setInterval(function(){GM.t--;var e=$("gmTime");if(e)e.textContent=num(GM.t);if(GM.t<=0)signsEnd();},1000);
   signsRound();
 }
 function signsRound(){
-  var g=gp(), pool=GM.pool, k; do{k=pool[Math.floor(Math.random()*pool.length)];}while(k===GM.last&&pool.length>1);
-  GM.last=k; var p=preparar("s:"+k), ops=opciones(p);
+  var g=gp(),pool=GM.pool,k;
+  do{k=pool[Math.floor(Math.random()*pool.length)];}while(k===GM.last&&pool.length>1);
+  GM.last=k;
+  var dir=Math.random()<0.5?"sm":"ms";
+  var opts=shuffle([k].concat(shuffle(pool.filter(function(x){return x!==k;})).slice(0,3)));
+  var correctAt=opts.indexOf(k);
   var h='<div class="qhead"><span class="pill">'+esc(g.labels.level)+" "+num(GM.level)+'</span><span class="pill">×'+num(1+Math.floor(GM.streak/3))+"</span></div>";
-  h+='<div class="signbox">'+svgSenal(k)+"</div><div class=\"opts\">"+ops.map(function(o,i){return '<button type="button" class="opt" data-k="'+i+'">'+esc(o.txt)+"</button>";}).join("")+"</div><div id=\"gmFb\"></div>";
+  if(dir==="sm"){
+    h+='<div class="signbox">'+svgSenal(k)+"</div>";
+    h+='<div class="opts">'+opts.map(function(key,i){return '<button type="button" class="opt" data-k="'+i+'">'+esc(P.signs[key])+"</button>";}).join("")+"</div>";
+  } else {
+    h+='<div class="qtext">'+esc(P.signs[k])+"</div>";
+    h+='<div class="signopts">'+opts.map(function(key,i){return '<button type="button" class="signopt" data-k="'+i+'" aria-label="'+esc(P.signs[key])+'">'+svgSenal(key)+"</button>";}).join("")+"</div>";
+  }
+  h+='<div id="gmFb"></div>';
   gameLayout(g,h);
-  document.querySelectorAll("#gameCard .opt").forEach(function(b){
+  document.querySelectorAll("#gameCard .opt, #gameCard .signopt").forEach(function(b){
     b.onclick=function(){
-      var v=ops[+b.dataset.k].v, bien=v===p.correct;
-      if(bien){GM.streak++; GM.right++; GM.pts+=1+Math.floor((GM.streak-1)/3)+(GM.level-1); if(GM.right%8===0) GM.level++;}
-      else {GM.streak=0;}
-      document.querySelectorAll("#gameCard .opt").forEach(function(x){x.disabled=true; var xv=ops[+x.dataset.k].v; if(xv===p.correct)x.classList.add("right"); else if(x===b)x.classList.add("wrong");});
-      if(!bien){ $("gmFb").innerHTML='<div class="explain"><div class="bubble">'+esc(P.signs[p.correct])+' · <a href="'+C.fuentes.S+'" target="_blank" rel="noopener">'+esc(t("signsChart"))+"</a></div></div>"; }
-      setTimeout(function(){if(GM&&GM.timer)signsRound();},bien?260:1200);
+      var chosen=opts[+b.dataset.k],bien=chosen===k,all=document.querySelectorAll("#gameCard .opt, #gameCard .signopt");
+      if(bien){GM.streak++;GM.right++;GM.pts+=1+Math.floor((GM.streak-1)/3)+(GM.level-1);if(GM.right%8===0)GM.level++;}
+      else {GM.streak=0;MISS["s:"+k]=1;store.set(stpre()+"miss",MISS);}
+      all.forEach(function(x){x.disabled=true;var i=+x.dataset.k;if(i===correctAt)x.classList.add("right");else if(x===b)x.classList.add("wrong");});
+      $("gmFb").innerHTML='<div class="explain"><div class="bubble">'+esc(P.signs[k])+' · <a href="'+C.fuentes.S+'" target="_blank" rel="noopener">'+esc(t("signsChart"))+"</a></div></div>";
+      setTimeout(function(){if(GM&&GM.timer)signsRound();},bien?320:1500);
     };
   });
 }
 function signsEnd(){
   var g=gp(); gmStop();
-  var stars=starsFor(GM.pts,15,30,50), rec=gsave("signs",GM.pts,stars);
+  var stars=starsFor(GM.pts,15,30,50),rec=gsave("signs",GM.pts,stars);
   var h='<h2>'+esc(g.labels.finish)+"</h2><p class=\"result-big\">"+num(GM.pts)+"</p><p>"+starsHtml(stars)+(rec?' <span class="pill ok">'+esc(g.labels.best)+"</span>":"")+"</p>";
   h+='<div class="row"><button class="btn" id="gmAgain" type="button">'+esc(g.labels.again)+"</button></div>";
   $("gameCard").innerHTML=h;
-  $("gmAgain").onclick=function(){startSigns();};
+  var cat=GM.cat,miss=GM.miss;
+  $("gmAgain").onclick=function(){startSigns(cat,miss);};
   pintarInicio();
 }
 // --- Números: la respuesta correcta es una cifra ---
@@ -801,4 +851,7 @@ function arrancar(){
   });
 }
 arrancar().catch(function(e){try{console.error(e);}catch(x){}});
+
+// Gancho para las pruebas automáticas y para depurar: no lo usa la interfaz.
+window.DR={svg:svgSenal,signs:function(){return C.signs.slice();},signcat:function(){return C.signcat;},meanings:function(){return P.signs;}};
 })();

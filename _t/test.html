@@ -49,7 +49,12 @@ function qa(d,s){return Array.prototype.slice.call(d.querySelectorAll(s));}
 function go(win,v){win.location.hash="#"+v;return sleep(150);}
 function T(name,pass,detail){rec2(name,pass,detail);}
 async function main(){
-try{window.localStorage.setItem("alv_onboard","true");}catch(e){}
+try{
+  window.localStorage.setItem("alv_onboard","true");
+  var ls=window.localStorage, ks=[];
+  for(var ki=0;ki<ls.length;ki++) ks.push(ls.key(ki));
+  ks.filter(function(k){return k.indexOf("alv_")===0&&k!=="alv_onboard";}).forEach(function(k){ls.removeItem(k);});
+}catch(e){}
 var win,d,i,t;
 group("1. Boot in all six languages (New York)");
 for(i=0;i<LANGS.length;i++){
@@ -90,7 +95,7 @@ T("culture has seven cards",qa(d,"#cultList .card").length===7,qa(d,"#cultList .
 }catch(e){T("language switch",false,e.message);}
 group("3. Practice exam (New York: 20 questions, 14 to pass)");
 try{
-win=await load("../index.html?lang=en");d=await ready(win,9000);await go(win,"examen");
+win=await load("../index.html?state=ny&lang=en");d=await ready(win,9000);await go(win,"examen");
 T("exam intro explains the format",/20/.test(q(d,"#examCard").textContent),"");
 q(d,"#exStart").click();await sleep(250);
 T("question 1 of 20",/1/.test((q(d,"#examCard .pill")||{}).textContent||""),(q(d,"#examCard .pill")||{}).textContent);
@@ -121,12 +126,40 @@ T("hub lists 4 games",qa(d,"#gameCard [data-gm]").length===4,qa(d,"#gameCard [da
 for(var g=0;g<4;g++){
   await go(win,"juego");
   var card=qa(d,"#gameCard [data-gm]")[g]; if(!card){T("game "+g+" card",false,"missing");continue;}
-  var mode=card.getAttribute("data-gm"); card.click(); await sleep(500);
-  var ok=!!q(d,"#gmTime")&&!!q(d,"#gmBack")&&(qa(d,"#gameCard .opt").length>0||qa(d,"#gameCard .gcar").length>0||!!q(d,"#tfT"));
+  var mode=card.getAttribute("data-gm"); card.click(); await sleep(400);
+  if(mode==="signs"){
+    T("sign game offers categories",qa(d,"#gameCard [data-cat]").length===6,qa(d,"#gameCard [data-cat]").length+" chips");
+    var st=q(d,"#gmStart"); if(st){st.click();await sleep(400);}
+  }
+  var ok=!!q(d,"#gmTime")&&!!q(d,"#gmBack")&&(qa(d,"#gameCard .opt").length>0||qa(d,"#gameCard .signopt").length>0||qa(d,"#gameCard .gcar").length>0||!!q(d,"#tfT"));
   T("game \""+mode+"\" starts a round",ok,"");
   var back=q(d,"#gmBack"); if(back){back.click();await sleep(250);}
 }
 }catch(e){T("games",false,e.message);}
+group("5b. Sign catalogue");
+try{
+win=await load("../index.html?lang=en");d=await ready(win,9000);
+var cat=await win.DR.signs();
+T("34 signs in the catalogue",cat.length===34,cat.length+"");
+var official=["laneends","yield","merge","stop","crossbuck","signal","school","keepright","slippery","noleft","dividedends","oneway","donotenter","twoway","hill","nouturn","hospital"];
+var missingOfficial=official.filter(function(k){return cat.indexOf(k)<0;});
+T("all 16 official DMV signs are present",missingOfficial.length===0,missingOfficial.join(","));
+var broken=cat.filter(function(k){var v=win.DR.svg(k);return !v||v.length<120;});
+T("every sign draws a real SVG",broken.length===0,broken.join(","));
+var noText=cat.filter(function(k){var m=win.DR.meanings();return !m[k]||!m[k].trim();});
+T("every sign has a meaning in this language",noText.length===0,noText.join(","));
+var cats=win.DR.signcat();
+T("categories cover reg/warn/rail/work/guide",["reg","warn","rail","work","guide"].every(function(c){return Object.keys(cats).some(function(k){return cats[k]===c;});}),JSON.stringify(cats));
+await go(win,"juego");q(d,'[data-gm="signs"]').click();await sleep(300);
+q(d,'[data-cat="reg"]').click();await sleep(250);
+var regCount=qa(d,"#gameCard [data-cat]").filter(function(b){return b.getAttribute("aria-pressed")==="true";});
+T("category filter selects one category",regCount.length===1,regCount.length+" selected");
+q(d,"#gmStart").click();await sleep(450);
+var firstSvg=!!q(d,"#gameCard svg");
+for(var r2=0;r2<6;r2++){var pick=q(d,"#gameCard .opt")||q(d,"#gameCard .signopt");if(!pick)break;pick.click();await sleep(700);firstSvg=firstSvg||!!q(d,"#gameCard svg");}
+T("sign rounds show a sign drawing",firstSvg,"");
+}catch(e){T("sign catalogue",false,e.message);}
+
 group("6. CDL section");
 try{
 win=await load("../index.html?lang=en");d=await ready(win,9000);await go(win,"cdl");await sleep(300);
