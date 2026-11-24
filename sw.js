@@ -1,5 +1,5 @@
 // Funciona sin conexión (por ejemplo, en la sala de espera del DMV). Sube VERSION cuando cambies archivos.
-var VERSION="alv-v16";
+var VERSION="alv-v17";
 var CORE=[
   "./","index.html","app.js","core.js",
   "config.js","manifest.json","privacy.html","states/registry.js",
@@ -13,7 +13,7 @@ var CORE=[
   "states/nj/lang/ru.js","states/nj/lang/ko.js","states/nj/lang/bn.js",
   "states/pa/core.js","states/pa/lang/en.js","states/pa/lang/es.js","states/pa/lang/zh.js",
   "states/pa/lang/ru.js","states/pa/lang/ko.js","states/pa/lang/bn.js",
-  "cdl/course/bn.js","cdl/course/en.js","cdl/course/es.js","cdl/course/ko.js","cdl/course/ru.js","cdl/course/zh.js","kit/en.js","kit/es.js","kit/zh.js","kit/ru.js","kit/ko.js","kit/bn.js","icons/icon-192.png",
+  "cdl/course/bn.js","cdl/course/en.js","cdl/course/es.js","cdl/course/ko.js","cdl/course/ru.js","cdl/course/zh.js","fonts/Barlow-400.woff2","fonts/Barlow-500.woff2","fonts/Barlow-600.woff2","fonts/BarlowCondensed-600.woff2","fonts/BarlowCondensed-700.woff2","kit/en.js","kit/es.js","kit/zh.js","kit/ru.js","kit/ko.js","kit/bn.js","icons/icon-192.png",
   "icons/icon-512.png","icons/icon-maskable-512.png","schools/ny.js"
 ];
 var OFFLINE=CORE.slice();

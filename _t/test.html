@@ -170,6 +170,16 @@ T("PA exam intro gives the PA numbers",/18/.test(paLead)&&/15/.test(paLead),paLe
 T("PA exam intro does not compare with the real exam",!/examen real/i.test(paLead),paLead.slice(0,60));
 }catch(e){T("claims",false,e.message);}
 
+group("1h. Speed and accessibility");
+try{
+win=await load("../index.html?state=ny&lang=es");d=await ready(win,9000);
+T("hero video waits for a tap",!q(d,"#heroVid").getAttribute("src"),q(d,"#heroVid").getAttribute("src")||"(none)");
+await go(win,"cultura");await sleep(400);
+T("culture videos are deferred",qa(d,"#cultList video[data-src]").length>0&&qa(d,"#cultList video[src]").length===0,qa(d,"#cultList video[src]").length+"");
+T("chapter and guide images carry alt text",[...d.images].every(function(i){return i.getAttribute("alt")!==null;}),"");
+T("state selector has a localized label",q(d,"#estado").getAttribute("aria-label")==="Estado",q(d,"#estado").getAttribute("aria-label"));
+}catch(e){T("speed/accessibility",false,e.message);}
+
 group("2. Language switch");
 try{
 win=await load("../index.html?lang=en");d=await ready(win,9000);

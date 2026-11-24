@@ -101,7 +101,7 @@ function pickerTrap(e){
 }
 document.addEventListener("keydown",pickerTrap);
 function pickerShow(){
-  $("lpList").innerHTML=META.map(function(m){return '<button type="button" data-c="'+m.code+'" aria-current="'+(m.code===LANG)+'" lang="'+m.code+'"><img src="'+img("guia_"+m.code)+'" alt=""><b>'+esc(m.name)+'</b></button>';}).join("");
+  $("lpList").innerHTML=META.map(function(m){return '<button type="button" data-c="'+m.code+'" aria-current="'+(m.code===LANG)+'" lang="'+m.code+'"><img src="'+img("guia_"+m.code)+'" alt="'+esc(m.name)+'"><b>'+esc(m.name)+'</b></button>';}).join("");
   $("lpList").querySelectorAll("button").forEach(function(b){b.onclick=function(){setLang(b.dataset.c);};});
   pickerReturn=document.activeElement;
   $("langPick").classList.add("on");
@@ -254,7 +254,7 @@ function cabezaImg(p){
   if(p.sign) return '<div class="signbox">'+svgSenal(p.sign)+"</div>";
   var k=C.qimg&&C.qimg[p.i];
   if(!k) return "";
-  if(k.indexOf("p:")===0) return '<div class="qimg"><img src="'+img(k.slice(2))+'" alt="" loading="lazy"></div>';
+  if(k.indexOf("p:")===0) return '<div class="qimg"><img src="'+img(k.slice(2))+'" alt="'+esc(P.signs[k.slice(2)]||"")+'" loading="lazy"></div>';
   var art=k.indexOf("s:")===0?svgSenal(k.slice(2)):svgIlust(k);
   return '<div class="qart">'+art+"</div>";
 }
@@ -285,7 +285,7 @@ function ir(){
   if(v==="escuelas") pintarEscuelas();
   if(v==="cdl") pintarCdl();
   var hv=$("heroVid"), calm=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if(hv){ if(v==="inicio"&&!calm){ if(!hv.src) hv.src="clips/portada.mp4"; var pr=hv.play(); if(pr&&pr.catch) pr.catch(function(){}); } else hv.pause(); }
+  if(hv){ if(v==="inicio"&&!calm){ if(!hv.dataset.armed){ hv.dataset.armed="1"; var armVid=function(){ if(!hv.getAttribute("src")) hv.setAttribute("src","clips/portada.mp4"); var p=hv.play(); if(p&&p.catch)p.catch(function(){}); window.removeEventListener("pointerdown",armVid); window.removeEventListener("keydown",armVid); }; window.addEventListener("pointerdown",armVid); window.addEventListener("keydown",armVid); window.addEventListener("scroll",armVid); } } else hv.pause(); }
   if(TTS) TTS.cancel();
   window.scrollTo(0,0);
 }
@@ -473,7 +473,7 @@ function examLeadText(){
 }
 function examenIntro(){
   $("examAd").hidden=true;
-  $("examCard").innerHTML='<h2>'+esc(t("examIntro"))+'</h2><div class="guide" style="margin:10px 0"><img src="'+img(P.guide.img)+'" alt=""><div class="bubble">'+esc(P.examLead||examLeadText())+'</div></div><button class="btn" id="exStart" type="button">'+esc(t("start"))+'</button>';
+  $("examCard").innerHTML='<h2>'+esc(t("examIntro"))+'</h2><div class="guide" style="margin:10px 0"><img src="'+img(P.guide.img)+'" alt="'+esc(P.guide.name)+'"><div class="bubble">'+esc(P.examLead||examLeadText())+'</div></div><button class="btn" id="exStart" type="button">'+esc(t("start"))+'</button>';
   $("exStart").onclick=examenNuevo;
 }
 function examCfg(){return C.exam||{total:20,pass:14,signs:4,signsPass:2};}
@@ -502,7 +502,7 @@ function examenResultado(){
     var st=store.get("stats",{n:0,p:0,b:0}); st.n++; if(aprobado)st.p++; st.b=Math.max(st.b,ok); store.set("stats",st);
     var hist=store.get(stpre()+"hist",[]); hist.push({ok:ok,total:EX.qs.length,pass:aprobado}); store.set(stpre()+"hist",hist.slice(-10)); guardarEx();}
   var h='<div class="row"><span class="result-big">'+num(ok)+'/'+num(EX.qs.length)+'</span><span class="pill '+(aprobado?"ok":"bad")+'">'+esc(aprobado?t("passed"):t("failed"))+'</span></div>';
-  h+='<div class="guide" style="margin:10px 0"><img src="'+img(P.guide.img)+'" alt=""><div class="bubble">'+esc(frase(aprobado?"right":"wrong"))+' '+num(ok)+' '+esc(t("correct"))+' · '+num(sig)+'/'+num(sigT)+' '+esc(t("signsOk"))+'</div></div>';
+  h+='<div class="guide" style="margin:10px 0"><img src="'+img(P.guide.img)+'" alt="'+esc(P.guide.name)+'"><div class="bubble">'+esc(frase(aprobado?"right":"wrong"))+' '+num(ok)+' '+esc(t("correct"))+' · '+num(sig)+'/'+num(sigT)+' '+esc(t("signsOk"))+'</div></div>';
   if(ok>=e.pass&&e.signs&&sig<e.signsPass) h+='<p class="pill warn">'+esc(t("failSigns"))+'</p>';
   h+='<div class="row"><button class="btn" id="exAgain" type="button">'+esc(t("again"))+'</button></div><h3 style="margin-top:14px">'+esc(t("reviewTitle"))+'</h3><div class="review">';
   EX.qs.forEach(function(p,i){var b=EX.ans[i]===p.correct;
@@ -550,7 +550,7 @@ function practicaPintar(){
     if(done)return; done=true; var v=ops[+b.dataset.k].v, bien=v===p.correct; if(bien)PR.ok++; else buzz(); marcar(p.id,bien);
     if(PR.ch==="daily"){var dly=dailyState();dly.i=PR.i+1;dly.ok=PR.ok;if(dly.i>=10){dly.done=true;bumpStreak();}store.set(stpre()+"daily",dly);} if(bien) MAST[p.id]=1; else delete MAST[p.id]; store.set(stpre()+"mast",MAST); pintarDominadas(); panelManual(p,true);
     c.querySelectorAll(".opt").forEach(function(x){var xv=ops[+x.dataset.k].v; x.disabled=true; if(xv===p.correct)x.classList.add("right"); else if(x===b)x.classList.add("wrong");});
-    $("prFb").innerHTML='<div class="explain guide"><img src="'+img(P.guide.img)+'" alt=""><div class="bubble"><b>'+esc(frase(bien?"right":"wrong"))+'</b>'+explicacion(p)+'</div></div><div class="row" style="margin-top:12px"><button class="btn" id="prNext" type="button">'+esc(t("next"))+'</button></div>';
+    $("prFb").innerHTML='<div class="explain guide"><img src="'+img(P.guide.img)+'" alt="'+esc(P.guide.name)+'"><div class="bubble"><b>'+esc(frase(bien?"right":"wrong"))+'</b>'+explicacion(p)+'</div></div><div class="row" style="margin-top:12px"><button class="btn" id="prNext" type="button">'+esc(t("next"))+'</button></div>';
     $("prNext").onclick=function(){PR.i++; practicaPintar();}; $("prNext").focus({preventScroll:true});
   };});
 }
@@ -564,7 +564,7 @@ function pintarManual(){
   $("manualList").innerHTML=chs.filter(function(c){return MANCH==="all"||MANCH===c;}).map(function(c){
     var lista=hechos(c), titulo=c==="S"?P.chapters.S:manRef(c)+" · "+P.chapters[c];
     var cuerpo=c==="S"?'<div class="signgrid">'+lista.map(function(x){return '<div>'+svgSenal(x.sign)+esc(x.txt)+'</div>';}).join("")+'</div>':'<ul class="facts-list" style="font-size:15px">'+lista.map(function(x){return '<li style="color:var(--ink)">'+esc(x.txt)+'</li>';}).join("")+'</ul>';
-    return '<div class="card chcard"><div class="head"><img src="'+chImg(c)+'" alt="" loading="lazy"></div><h3>'+esc(titulo)+'</h3>'+cuerpo+
+    return '<div class="card chcard"><div class="head"><img src="'+chImg(c)+'" alt="'+esc(P.chapters[c]||"")+'" loading="lazy"></div><h3>'+esc(titulo)+'</h3>'+cuerpo+
       '<div class="row" style="margin-top:12px"><button class="btn" type="button" data-pr="'+c+'">'+esc(t("practiceCh"))+'</button>'+(hasVoice()?'<button class="btn ghost" type="button" data-say-ch="'+c+'">'+ic("speaker")+' '+esc(t("readCh"))+'</button>':'')+'<a class="small" href="'+C.fuentes[c]+'" target="_blank" rel="noopener">'+esc(t("official"))+' ↗</a></div></div>';
   }).join("");
   $("manualList").querySelectorAll("[data-pr]").forEach(function(b){b.onclick=function(){location.hash="#practica"; practicaNueva(b.dataset.pr);};});
@@ -1061,7 +1061,7 @@ function dist(a,b,c,d){var R=3958.8,r=Math.PI/180,x=(c-a)*r,y=(d-b)*r,h=Math.sin
 function listaEscuelas(){return window.SCHOOLS||window.SCHOOLS_NY||null;}
 function cargarEscuelas(cb){if(listaEscuelas()) return cb(); if(!ST.schools) return cb(); var s=document.createElement("script"); s.src=ST.schools; s.onload=cb; document.head.appendChild(s);}
 function pintarEscuelas(){
-  $("scTitle").textContent=st("title"); $("scLead").textContent=st("lead"); $("scNear").innerHTML=ic("pin")+" "+esc(st("near")); $("scQ").placeholder=st("search"); $("scNote").textContent=st("note");
+  $("scTitle").textContent=st("title"); $("scLead").textContent=st("lead"); $("scNear").innerHTML=ic("pin")+" "+esc(st("near")); $("scNear").setAttribute("aria-label",st("near")); $("scQ").placeholder=st("search"); $("scNote").textContent=st("note");
   $("scOwn").textContent=st("own"); $("scOwn").href=CFG.sponsorEmail?"mailto:"+CFG.sponsorEmail+"?subject="+encodeURIComponent("DriveReady featured driving school"):"#";
   $("scOwn").hidden=!CFG.sponsorEmail;
   var list=listaEscuelas();
@@ -1090,7 +1090,7 @@ function pintarEscuelas(){
       '<a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query='+mq+'">'+ic("starOn")+' '+esc(st("rev"))+'</a>'+
       (x.sp&&x.sp.url?'<a target="_blank" rel="noopener sponsored" href="'+esc(x.sp.url)+'">'+ic("globe")+' Web</a>':'')+'</div></div>';};
   $("scList").innerHTML=spon.slice(0,3).map(card).join("")+rest.slice(0,SC.lim).map(card).join("");
-  $("scMore").hidden=rest.length<=SC.lim; $("scMore").textContent=st("more");
+  $("scMore").hidden=rest.length<=SC.lim; $("scMore").textContent=st("more"); $("scMore").setAttribute("aria-label",st("more"));
 }
 $("scNear").onclick=function(){ if(!navigator.geolocation){ $("scMsg").textContent=st("locErr"); return; }
   navigator.geolocation.getCurrentPosition(function(p){SC.pos=[p.coords.latitude,p.coords.longitude]; SC.lim=20; $("scMsg").textContent=""; pintarEscuelas();},function(){ $("scMsg").textContent=st("locErr"); },{timeout:10000,maximumAge:600000}); };
@@ -1143,7 +1143,9 @@ $("manPrev").onclick=function(){irPaso(Math.max(0,MS.i-1));};
 // ---------- Cultura y fuentes ----------
 function pintarCultura(){
   var VID={interseccion:1,autopista:1,lluvia:1,glorieta:1,portada:1};
-  $("cultList").innerHTML=P.culture.map(function(c){var m=VID[c.img]?'<video src="clips/'+c.img+'.mp4" poster="'+img(c.img)+'" muted loop playsinline autoplay preload="none" style="aspect-ratio:16/9;object-fit:cover;width:100%"></video>':'<img src="'+img(c.img)+'" alt="" loading="lazy">';return '<div class="card">'+m+'<div class="txt"><h3>'+esc(c.title)+'</h3><p class="small">'+esc(c.text)+'</p></div></div>';}).join("");
+  var __cult=function(){ $("cultList").querySelectorAll("video[data-src]").forEach(function(v){v.addEventListener("click",function(){if(!v.getAttribute("src"))v.setAttribute("src",v.dataset.src);var p=v.play();if(p&&p.catch)p.catch(function(){});});}); };
+$("cultList").innerHTML=P.culture.map(function(c){var m=VID[c.img]?'<video data-src="clips/'+c.img+'.mp4" poster="'+img(c.img)+'" muted loop playsinline preload="none" aria-label="'+esc(c.title)+'" style="aspect-ratio:16/9;object-fit:cover;width:100%;cursor:pointer"></video>':'<img src="'+img(c.img)+'" alt="'+esc(c.title)+'" loading="lazy">';return '<div class="card">'+m+'<div class="txt"><h3>'+esc(c.title)+'</h3><p class="small">'+esc(c.text)+'</p></div></div>';}).join("");
+  __cult();
   var l=Object.keys(P.chapters).filter(function(c){return c!=="S";}).map(function(c){return '<li><a href="'+C.fuentes[c]+'" target="_blank" rel="noopener">'+esc(manRef(c))+' · '+esc(P.chapters[c])+'</a></li>';}).join("");
   $("sourceList").innerHTML=l+'<li><a href="'+C.fuentes.S+'" target="_blank" rel="noopener">'+esc(P.chapters.S)+'</a></li><li><a href="'+C.fuentes.R+'" target="_blank" rel="noopener">'+esc(t("rtSourceLink"))+'</a></li>';
 }
@@ -1194,6 +1196,11 @@ function renderAll(){
     $("factSigns").textContent=ex.signs?num(ex.signsPass)+"/"+num(ex.signs):"—";
     $("factSignsWrap").hidden=!ex.signs; }
   pintarGov(); pintarSelectorEstado();
+  if($("estado"))$("estado").setAttribute("aria-label",t("state"));
+  var navTabs=document.querySelector("nav.tabs"); if(navTabs)navTabs.setAttribute("aria-label",t("tabs").home||t("state"));
+  if($("guideImg")&&P.guide)$("guideImg").alt=P.guide.name;
+  if($("guideImg2")&&P.guide)$("guideImg2").alt=P.guide.name;
+  if($("rtImg"))$("rtImg").alt=t("rtTitle")||"Road test";
   loadEnPack();
   $("langBtn").innerHTML=ic("globe")+" "+P.name; $("langBtn").setAttribute("aria-label",t("langLabel"));
   pintarTabs(); pintarInicio(); pintarChips(); pintarManual(); pintarDominadas(); pintarRoadtest(); if(vista()==="escuelas") pintarEscuelas(); pintarManChips(); pintarMan(); pintarCultura(); pintarAds();

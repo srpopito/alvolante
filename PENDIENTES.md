@@ -51,3 +51,4 @@ Lo que **no** está en la app porque no se ha podido confirmar en una fuente ofi
 - [ ] Comprobar que `/.well-known/assetlinks.json` responde en el dominio real (no hay dominio en el repo; el archivo vive en otro repositorio).
 - [ ] Subir `store/nuevas/` a Play Console y marcar Data safety y Ads.
 - [ ] Las fuentes de Google (Google Fonts) se sustituyen por tipografía propia en la fase 7.
+- [ ] Pasar Lighthouse en un equipo con npm (aquí no está instalado); el comando está en `docs/lighthouse/README.md`.
