@@ -30,7 +30,7 @@ function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(M
 function manRef(ch){return t("manual")+" "+ch+t("manualEnd");}
 var CH_IMG={"4":"senales_calle","5":"interseccion","6":"autopista","7":"cuesta","8":"espejo","9":"alcohol","10":"nieve","11":"peatones","S":"senales_calle"};
 function img(k){return "img/"+k+".webp";}
-function chImg(ch){return img(CH_IMG[ch]||"portada");}
+function chImg(ch){var m=(C.chimg&&C.chimg[ch])||CH_IMG[ch]||"portada";return img(m);}
 
 // ---------- Carga de idioma ----------
 function loadUi(code){

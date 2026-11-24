@@ -179,6 +179,14 @@ var qn=win.DR.qimg();
 T("New Jersey also maps question images",Object.keys(qn).length>=10,Object.keys(qn).length+"");
 T("NJ solid-lines question shows double solid lines",/lines-double-solid/.test(win.DR.head(28)),"");
 T("NJ hand-signal question shows the arm",/hand-right/.test(win.DR.head(73)),"");
+await go(win,"manual");
+var srcs=qa(d,"#manualList .chcard .head img").map(function(im){return im.src.split("/").pop();});
+T("NJ chapter 6 (alcohol) uses the alcohol photo",srcs[5]==="alcohol.webp",srcs[5]);
+T("NJ chapter 9 (vehicle) does not use the alcohol photo",srcs[8]!=="alcohol.webp",srcs[8]);
+var nysrcs=null;
+win=await load("../index.html?state=ny&lang=en");d=await ready(win,9000);await go(win,"manual");
+nysrcs=qa(d,"#manualList .chcard .head img").map(function(im){return im.src.split("/").pop();});
+T("NY chapter 9 (alcohol) still uses the alcohol photo",nysrcs[5]==="alcohol.webp",nysrcs[5]);
 }catch(e){T("question images",false,e.message);}
 
 group("6. CDL section");

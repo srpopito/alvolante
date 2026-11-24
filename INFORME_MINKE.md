@@ -86,6 +86,7 @@ Antes cada pregunta mostraba la foto genérica de su capítulo, y eso hacía que
 - **Señales de mano**: giro a la derecha y alto.
 - **Otros**: autobús escolar, peatón ciego con bastón y glorieta.
 - **Fotos temáticas solo cuando encajan sin ambigüedad**: alcohol (BAC y drogas), bordillo (estacionar) y nieve (hielo en invierno).
+- **Fotos de capítulo por estado**: el mapa de fotos era el de Nueva York, así que en Nueva Jersey el capítulo 6 (alcohol) salía con una autopista y el 9 (vehículo) con bebidas. Ahora cada estado tiene su propio mapa y los capítulos 1, 2, 3 y 7 de NJ ya no salen con la portada.
 
 En total, **44 de las 73 preguntas de Nueva York** y **23 de las 78 de Nueva Jersey** llevan imagen propia; el resto son preguntas de edades, multas, puntos o plazos, donde una foto solo distraía, así que se quedan sin imagen. La suite comprueba que la pregunta de la flecha roja dibuje una flecha roja y que ninguna pregunta vuelva a la foto genérica.
 ---
