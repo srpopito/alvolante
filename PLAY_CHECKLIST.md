@@ -36,8 +36,8 @@ Motivo del rechazo anterior: **Misleading Claims** (información de gobierno sin
 
 ## 6. Capturas para la tienda
 
-- [x] **36 capturas** en `store/nuevas/`: 6 por idioma (en, es, zh, ru, ko, bn) a **1080 × 1920**, todas de la app real.
-- [x] Incluyen NJ (inicio en Nueva Jersey) y la sección CDL, además de inicio, simulacro, road test y autoescuelas.
+- [x] **42 capturas** en `store/nuevas/`: 7 por idioma (en, es, zh, ru, ko, bn) a **1080 × 1920**, todas de la app real.
+- [x] Incluyen NJ (inicio en Nueva Jersey), CT (inicio en Connecticut) y la sección CDL, además de inicio, simulacro, road test y autoescuelas.
 - [x] Sin pantallas inventadas y sin texto superpuesto, para no prometer nada que la app no haga.
 - [ ] No se han subido a Play; eso lo hace Cristian.
 
