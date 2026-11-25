@@ -53,4 +53,4 @@ Lo que **no** está en la app porque no se ha podido confirmar en una fuente ofi
 - [ ] Las fuentes de Google (Google Fonts) se sustituyen por tipografía propia en la fase 7.
 - [ ] Subir rendimiento móvil de 84 a 85 (Lighthouse); el informe está en `docs/lighthouse/`.
 
-- [ ] Connecticut: catálogo completo de señales (están las 34), las 4 maniobras y ampliar la hoja del road test a todas las categorías (el banco de 70 preguntas en 6 idiomas y el kit del día ya están).
+- [ ] Connecticut: catálogo completo de señales (están las 34), las 4 maniobras y ampliar la hoja del road test a todas las categorías (el banco de 72 preguntas en 6 idiomas y el kit del día ya están).
