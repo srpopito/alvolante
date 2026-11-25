@@ -14,6 +14,10 @@ Guía oficial del primer conductor: https://www.mass.gov/guides/first-time-drive
 | Clase de autoescuela con horas en coche y observación | «…behind-the-wheel training; and six hours of in-car experience observing other student drivers.» |
 | Manos libres obligatorio | «Massachusetts law prohibits operators of motor vehicles from using any electronic device, including mobile telephones, unless the device is used in hands-free mode.» |
 
+| Kit del día (4 elementos) | manual | «1. Have a completed road test application… 2. Have your printed learner's permit. 3. Bring a qualified sponsor… 4. Provide an acceptable, properly equipped, legally registered vehicle (with the registration certificate)…» |
+| Hoja del road test (3 puntos) | manual | Los mismos requisitos de la página 22: solicitud, permiso, acompañante, vehículo registrado y, para menores, historial limpio de seis meses. |
+| Espera tras fallar: 14 días; máximo 6 intentos en 12 meses | manual | «If you fail a road test or do not appear… you must wait at least 14 days… you are not allowed to attempt more than six road tests in a 12-month period.» |
+
 ## Pendiente antes de publicar Massachusetts
 
 - [ ] Edad exacta del permiso (16) con su frase: el manual lo menciona para visitantes, pero falta la frase del permiso de MA.
