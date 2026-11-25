@@ -959,7 +959,7 @@ function pintarJuegoCdl(){
   h+='<p class="small">'+esc(g[k+"Lead"]||"")+"</p>";
   if(k==="pretrip"){
     h+=cdlTruckSvg();
-    h+='<p class="small muted" style="text-align:center">Tap a numbered part of the truck</p>';
+    h+='<p class="small muted" style="text-align:center">'+esc(c.tapPart||"")+"</p>";
     h+='<div class="chips" style="justify-content:center">'+g.pretrip.parts.map(function(p,i){return '<button class="chip" data-part="'+p.id+'">'+num(i+1)+" · "+esc(p.name)+"</button>";}).join("")+"</div>";
     h+='<div id="cdlFb"></div>';
   } else if(k==="airorder"||k==="coupling"){
