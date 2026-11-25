@@ -411,6 +411,7 @@ function bumpStreak(){
 // ---------- Inicio ----------
 function pintarInicio(){
   $("guideImg").src=img(P.guide.img); $("guideImg2").src=img(P.guide.img);
+  var bd=document.querySelector(".brand h1 span"); if(bd){bd.textContent=(ST&&(ST.short||ST.code||"")).toUpperCase()||"NY";}
   $("guideName").textContent=P.guide.name+(P.guide.role?" · "+P.guide.role:""); $("guideHello").textContent=P.guide.hello;
   $("howList").innerHTML=P.ui.how.map(function(x){return "<li>"+esc(x)+"</li>";}).join("");
   var st=store.get("stats",{n:0,p:0,b:0});
