@@ -415,6 +415,18 @@ await go(win,"roadtest");await sleep(350);
 T("CT road test sheet lists three checks",qa(d,"#rtList .rt-item").length===3,qa(d,"#rtList .rt-item").length+"");
 }catch(e){T("Connecticut",false,e.message);}
 
+group("7e. Massachusetts");
+try{
+win=await load("../index.html?state=ma&lang=es");d=await ready(win,9000);
+T("MA loads with its own title",/Massachusetts/.test(d.title),d.title);
+await go(win,"examen");await sleep(300);
+var maLead=q(d,"#examCard .bubble").textContent;
+T("MA intro gives 25 and 18",/25/.test(maLead)&&/18/.test(maLead),maLead.slice(0,60));
+q(d,"#exStart").click();await sleep(400);
+T("MA exam has 25 questions",/25/.test(q(d,"#examCard .qhead .pill").textContent),q(d,"#examCard .qhead .pill").textContent);
+T("MA chapters are its own",qa(d,"#chapterProgress .chbar").length===6,qa(d,"#chapterProgress .chbar").length+"");
+}catch(e){T("Massachusetts",false,e.message);}
+
 group("8. Switching state without reload");
 try{
 win=await load("../index.html?state=ny&lang=en");d=await ready(win,9000);
