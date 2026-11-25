@@ -4,7 +4,7 @@ Medición con **Lighthouse 12** (instalado con npm desde el registro y ejecutado
 
 | Categoría | Móvil | Escritorio | Objetivo |
 |---|---|---|---|
-| Rendimiento | **83** | **89** | ≥ 85 |
+| Rendimiento | **84** | **89** | ≥ 85 |
 | Accesibilidad | **100** | **100** | ≥ 95 |
 | Buenas prácticas | **100** | **100** | ≥ 95 |
 | SEO | **100** | **100** | ≥ 90 |
@@ -15,7 +15,7 @@ Informes completos: `mobile.report.html`, `desktop.report.html`, con su JSON al 
 
 - **Peso inicial 1,58 MB → 523 KB**: fuentes propias y vídeos diferidos.
 - **Accesibilidad 93 → 100**: `aria-label` en el diálogo de inicio, contraste del enlace del aviso (era 1,42:1) y altura reservada de la barra.
-- **LCP 4,0 s → 2,0 s**: la portada es una imagen con `fetchpriority=high` precargada, visible desde el HTML; el vídeo sigue cargándose al primer toque.
+- **LCP 4,0 s → 2,0 s** (portada con `fetchpriority` alto, `srcset` de 480/960 y scripts con `defer`); el curso CDL ya no se carga al abrir la app, solo al entrar en su pestaña: la portada es una imagen con `fetchpriority=high` precargada, visible desde el HTML; el vídeo sigue cargándose al primer toque.
 - **CLS**: se reservaron las alturas de cabecera, pestañas, aviso y tarjeta del plan, y se corrigió `#onb[hidden]` (el CSS anulaba el atributo `hidden`).
 
 ## Nota sobre el CLS

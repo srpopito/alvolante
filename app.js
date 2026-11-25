@@ -108,8 +108,8 @@ function pickerShow(){
   var first=$("lpList").querySelector("button"); if(first) first.focus();
 }
 function setLang(code){
-  return Promise.all([loadUi(code),loadLang(code),loadCdl(code),loadGames(code),loadCourse(code),loadCourse("en"),loadKit(code)]).then(function(r){
-    LANG=code; P=r[1]; P.ui=r[0]; P.cdl=r[2]; P.games=r[3]; P.course=r[4]; P.kit=r[6]; store.set("lang",code);
+  return Promise.all([loadUi(code),loadLang(code),loadCdl(code),loadGames(code),loadKit(code)]).then(function(r){
+    LANG=code; P=r[1]; P.ui=r[0]; P.cdl=r[2]; P.games=r[3]; P.kit=r[4]; store.set("lang",code);
     $("langPick").classList.remove("on");
     document.documentElement.lang=code; document.documentElement.dir=P.dir||"ltr";
     document.documentElement.style.setProperty("--body",P.font);
@@ -283,7 +283,7 @@ function ir(){
   document.querySelectorAll("#tabs a").forEach(function(a){if(a.dataset.v===v)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");});
   if(v!=="juego"&&GM&&GM.timer) gmStop();
   if(v==="escuelas") pintarEscuelas();
-  if(v==="cdl") pintarCdl();
+  if(v==="cdl"){ if(!P.course){ Promise.all([loadCourse(LANG),loadCourse("en")]).then(function(r){P.course=r[0];pintarCdl();}).catch(function(){pintarCdl();}); } else pintarCdl(); }
   var hv=$("heroVid"), calm=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if(hv){ if(v==="inicio"&&!calm){ if(!hv.dataset.armed){ hv.dataset.armed="1"; var armVid=function(){ if(!hv.getAttribute("src")) hv.setAttribute("src","clips/portada.mp4"); hv.hidden=false; if($("heroImg"))$("heroImg").hidden=true; var p=hv.play(); if(p&&p.catch)p.catch(function(){}); window.removeEventListener("pointerdown",armVid); window.removeEventListener("keydown",armVid); }; window.addEventListener("pointerdown",armVid); window.addEventListener("keydown",armVid); window.addEventListener("scroll",armVid); } } else hv.pause(); }
   if(TTS) TTS.cancel();
