@@ -13,7 +13,7 @@ Rama: **`minke-update`** · Base: `main` @ `3fd9013` · Fecha: 2026-11-23
 | 2. Diseño | ✅ (con reserva) | Variables de diseño (tipografía 14/16/20/28, espaciado 4–32, radio 12, una sombra), **cero emojis** (sustituidos por 15 iconos SVG de línea), transiciones de 180 ms, vibración al fallar y todo bajo `prefers-reduced-motion`; **22 capturas «después»** en `docs/despues/`. Reserva: el origen de las fotos de `img/` no está documentado (ver `img/CREDITS.md` y `DUDAS.md`) |
 | 3. Textos humanos | ✅ | `ESTILO.md` con reglas y registro por idioma; barrido de palabras de marketing en los 6 idiomas (0 hallazgos reales); retirada la promesa «igual de exigente»; lista de inicio de 4 a 3 pasos; `CAMBIOS_ESTILO.md` con antes/después; **164/164** pruebas, con cuatro nuevas de estilo |
 | 4. Aprendizaje | 🟡 Parcial | Hechos: **plan de hoy de 10 minutos** (fallos primero, luego lo no tocado, con racha de días), **tres botones grandes** en el inicio («Seguir mi plan», «Hacer examen», «Road test»), **semáforo por capítulo** (verde ≥80 %, amarillo ≥40 %, rojo por debajo) con la regla explicada, y **ajustes** para repetir el asistente inicial. Hechos también: **modo supervisor** (registro de salidas con minutos de día y de noche contra las horas que pide cada estado, y checklist de destrezas) y **«ver en inglés»** en las preguntas normales y en el examen. Hecho también el **kit del día del road test** en los 6 idiomas y por estado (NY, NJ y PA), con los documentos confirmados en el DMV/MVC/PUB 95 y su enlace; `FUENTES.md` de NY creado. Pendiente único de la fase: pulido fino de los juegos |
-| 5. Más estados | 🟡 | **Connecticut** añadido: 70 preguntas en 6 idiomas, examen 25/20, requisitos y esperas del manual, enlace a autoescuelas y al manual. Kit del día incluido en 6 idiomas. Le faltan señales propias, maniobras y hoja del road test. Faltan MA, FL, CA, TX e IL |
+| 5. Más estados | 🟡 | **NY, NJ, PA, CT, MA y FL** en la app, cada uno con examen propio, seis idiomas, señales donde aplica, kit y hoja del road test. CA documentada (manual localizado; el DMV no publica el número de preguntas, iría en modo práctica). Faltan TX e IL |
 | 6. Play | ✅ | `PLAY_CHECKLIST.md` con los 7 puntos y su evidencia; 36 capturas nuevas en `store/nuevas/` (1080 × 1920, 6 por idioma, con NJ y CDL); texto del simulacro sin compararse con el examen real |
 | 7. Rendimiento y accesibilidad | ✅ (Lighthouse pendiente) | Peso inicial **523 KB** (antes 1,58 MB), fuentes propias, vídeos diferidos, 0 imágenes sin `alt`, contraste 15,4:1 y 7,25:1, `alv-v17` y sin conexión con 67 archivos. **Lighthouse ejecutado** con npm descargado del registro: móvil 84 / escritorio 89 / accesibilidad 100 / buenas prácticas 100 / SEO 100. El objetivo de 85 en móvil queda a un punto; el CLS que mide Lighthouse (0,31) no se reproduce en la app (0,000 con PerformanceObserver) |
 | 8. Entrega | 🟡 | Informe y capturas al día; falta el cierre final cuando se decida qué estados entran |
@@ -304,3 +304,21 @@ f4110f3 Add New Jersey, a state selector, the CDL section and four games
 - 42 capturas de tienda (7 por idioma), 22 de «antes» y 22 de «después».
 - Rama `minke-update`, sin push ni merge a `main`.
 - Pendiente principal: señales, maniobras y hoja del road test de CT; después MA, FL, CA, TX e IL. Lighthouse sigue sin poder ejecutarse (no hay npm en el equipo).
+---
+
+## 11. Cierre de la sesión larga
+
+| Métrica | Valor |
+|---|---|
+| Estados en la app | **6** (NY, NJ, PA, CT, MA, FL) |
+| Preguntas por estado | 73, 78, 72, 70, 76, 70 |
+| Señales | 34 en NY, CT, MA y FL |
+| Idiomas | 6 en todos los estados |
+| Pruebas | **212/212** |
+| Capturas de tienda | 54 (9 por idioma) |
+| Lighthouse móvil | 84 rendimiento · 100 accesibilidad · 100 buenas prácticas · 100 SEO |
+| Peso inicial | 523 KB |
+| Service worker | `alv-v26` |
+| Rama | `minke-update`, **sin push ni merge** |
+
+Pendiente: California (formato sin confirmar), Texas e Illinois; revisar duplicados en NY, NJ y PA; ampliar señales en NJ y PA.
