@@ -441,6 +441,8 @@ T("FL exam has 50 questions",/50/.test(q(d,"#examCard .qhead .pill").textContent
 T("FL chapters are its own",qa(d,"#chapterProgress .chbar").length===6,qa(d,"#chapterProgress .chbar").length+"");
 await go(win,"practica");await sleep(300);
 T("FL practice counts 70 questions plus 34 signs",/104/.test(q(d,"#chapterChips .chip").textContent),q(d,"#chapterChips .chip").textContent);
+await go(win,"roadtest");await sleep(350);
+T("FL road test tab has its kit and sheet",qa(d,"#kitBox li").length===4&&qa(d,"#rtList .rt-item").length===3,qa(d,"#kitBox li").length+"/"+qa(d,"#rtList .rt-item").length);
 }catch(e){T("Florida",false,e.message);}
 
 group("8. Switching state without reload");
