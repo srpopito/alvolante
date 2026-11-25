@@ -425,6 +425,8 @@ T("MA intro gives 25 and 18",/25/.test(maLead)&&/18/.test(maLead),maLead.slice(0
 q(d,"#exStart").click();await sleep(400);
 T("MA exam has 25 questions",/25/.test(q(d,"#examCard .qhead .pill").textContent),q(d,"#examCard .qhead .pill").textContent);
 T("MA chapters are its own",qa(d,"#chapterProgress .chbar").length===6,qa(d,"#chapterProgress .chbar").length+"");
+await go(win,"practica");await sleep(300);
+T("MA practice counts 76 questions plus 34 signs",/110/.test(q(d,"#chapterChips .chip").textContent),q(d,"#chapterChips .chip").textContent);
 }catch(e){T("Massachusetts",false,e.message);}
 
 group("8. Switching state without reload");
