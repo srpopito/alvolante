@@ -1,8 +1,8 @@
 // Funciona sin conexión (por ejemplo, en la sala de espera del DMV). Sube VERSION cuando cambies archivos.
-var VERSION="alv-v21";
+var VERSION="alv-v22";
 var CORE=[
   "./","index.html","app.js","core.js",
-  "config.js","manifest.json","privacy.html","states/registry.js",
+  "config.js","manifest.json","img/portada.webp","img/portada-480.webp","privacy.html","states/registry.js",
   "ui/en.js","ui/es.js","ui/zh.js","ui/ru.js",
   "ui/ko.js","ui/bn.js","lang/en.js","lang/es.js",
   "lang/zh.js","lang/ru.js","lang/ko.js","lang/bn.js",
