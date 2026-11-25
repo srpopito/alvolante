@@ -429,6 +429,20 @@ await go(win,"practica");await sleep(300);
 T("MA practice counts 76 questions plus 34 signs",/110/.test(q(d,"#chapterChips .chip").textContent),q(d,"#chapterChips .chip").textContent);
 }catch(e){T("Massachusetts",false,e.message);}
 
+group("7f. Florida");
+try{
+win=await load("../index.html?state=fl&lang=es");d=await ready(win,9000);
+T("FL loads with its own title",/Florida/.test(d.title),d.title);
+await go(win,"examen");await sleep(300);
+var flLead=q(d,"#examCard .bubble").textContent;
+T("FL intro gives 50 and 40",/50/.test(flLead)&&/40/.test(flLead),flLead.slice(0,60));
+q(d,"#exStart").click();await sleep(400);
+T("FL exam has 50 questions",/50/.test(q(d,"#examCard .qhead .pill").textContent),q(d,"#examCard .qhead .pill").textContent);
+T("FL chapters are its own",qa(d,"#chapterProgress .chbar").length===6,qa(d,"#chapterProgress .chbar").length+"");
+await go(win,"practica");await sleep(300);
+T("FL practice counts 70 questions plus 34 signs",/104/.test(q(d,"#chapterChips .chip").textContent),q(d,"#chapterChips .chip").textContent);
+}catch(e){T("Florida",false,e.message);}
+
 group("8. Switching state without reload");
 try{
 win=await load("../index.html?state=ny&lang=en");d=await ready(win,9000);
