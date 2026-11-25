@@ -1,0 +1,14 @@
+name: validate
+on:
+  push:
+  pull_request:
+jobs:
+  data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Validate states, languages and packs
+        run: node _t/validate.mjs .

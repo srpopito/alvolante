@@ -8,6 +8,7 @@ Guía para Cristian y Claude. Nada de esto se ha ejecutado: la rama `minke-updat
 2. Revisar el diff y leer `INFORME_MINKE.md`, `PLAY_CHECKLIST.md`, `PENDIENTES.md` y `DUDAS.md`.
 3. Probar la web publicada desde la rama: https://srpopito.github.io/alvolante/ (6 estados, 6 idiomas).
 4. Comprobar las pruebas: `_t/test.html` debe dar **212/212**.
+5. Ejecutar `node _t/validate.mjs .` → **0 errores**. También corre solo en GitHub Actions.
 
 ## 2. Publicar la web (GitHub Pages)
 
