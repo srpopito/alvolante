@@ -168,7 +168,7 @@ footer{border-top:1px solid var(--line);padding:16px 0 30px;color:var(--muted);f
 .govbar b{font-weight:700}
 @media (max-width:440px){.brand small{display:none}.qtext{font-size:17px}.facts{grid-template-columns:1fr 1fr 1fr}.fact b{font-size:22px}}
 </style>
-<link rel="preload" as="image" href="img/portada.webp" fetchpriority="high">
+<link rel="preload" as="image" href="img/portada-480.webp" imagesrcset="img/portada-480.webp 480w, img/portada.webp 960w" imagesizes="(max-width: 480px) 100vw, 50vw" fetchpriority="high">
 </head>
 <body>
 <div id="onb" role="dialog" aria-modal="true" aria-label="DriveReady setup" hidden>
@@ -197,7 +197,7 @@ footer{border-top:1px solid var(--line);padding:16px 0 30px;color:var(--muted);f
 </div></div>
 <main class="wrap">
   <section class="view on" id="inicio">
-    <div class="hero"><img id="heroImg" src="img/portada.webp" alt="" width="640" height="360" fetchpriority="high"><video id="heroVid" muted loop playsinline preload="none" poster="img/portada.webp" hidden></video>
+    <div class="hero"><img id="heroImg" src="img/portada.webp" srcset="img/portada-480.webp 480w, img/portada.webp 960w" sizes="(max-width: 480px) 100vw, 50vw" alt="" width="960" height="528" fetchpriority="high"><video id="heroVid" muted loop playsinline preload="none" poster="img/portada.webp" hidden></video>
       <div class="cap"><h2 data-t="homeTitle"></h2><span class="free" data-t="freeLine"></span></div></div>
     <div class="card" id="dailyCard" style="margin-bottom:14px"></div>
     <div class="grid g2">
