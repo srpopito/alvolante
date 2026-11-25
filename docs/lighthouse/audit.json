@@ -1,0 +1,26 @@
+{
+  "date": "2026-11-24",
+  "url": "http://127.0.0.1:8765/index.html?state=ny&lang=es",
+  "lang": "es",
+  "titleLength": 53,
+  "headingLevel1": 1,
+  "metaDescription": true,
+  "viewport": true,
+  "imagesWithoutAlt": 0,
+  "buttonsWithoutName": 2,
+  "domNodes": 1186,
+  "initialTransferBytes": 535348,
+  "initialTransferKB": 523,
+  "consoleErrors": 0,
+  "contrast": {
+    "body": "15.40:1",
+    "muted": "7.25:1",
+    "thresholdAA": "4.5:1"
+  },
+  "videos": {
+    "hero": "loads on first tap",
+    "culture": "loads on click"
+  },
+  "fonts": "self-hosted (5 files, 109 KB)",
+  "lighthouse": "not run: npm and lighthouse are not installed on this machine"
+}

@@ -1,7 +1,7 @@
 {
   "name": "DriveReady: Permit & Road Test",
   "short_name": "DriveReady",
-  "description": "Free DMV permit test and road test practice in 6 languages: English, Español, 中文, Русский, 한국어, বাংলা. New York now, more states coming.",
+  "description": "Free DMV permit test and road test practice in 6 languages: English, Español, 中文, Русский, 한국어, বাংলা. New York, New Jersey, Pennsylvania, Connecticut, Massachusetts and Florida.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

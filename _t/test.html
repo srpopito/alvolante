@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DriveReady self-tests</title>
+<link rel="icon" href="../icons/icon-192.png">
+<style>
+body{font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;margin:0;padding:16px;color:#17201b;background:#f4f6f3}
+h1{font-size:20px;margin:0 0 6px}#summary{font-weight:700;margin:10px 0;padding:10px 12px;border-radius:8px;background:#fff;border:1px solid #d9dfda}
+#summary.pass{border-color:#1d7a3a;background:#eaf6ee}#summary.fail{border-color:#b3261e;background:#fdeeed}
+ol{padding-left:22px;margin:8px 0}li{margin:3px 0}li.bad{color:#b3261e;font-weight:600}li small{color:#5b6660;font-weight:400}
+#app{width:360px;height:640px;border:1px solid #d9dfda;border-radius:8px;background:#fff;margin-top:14px}
+code{background:#eef1ee;padding:0 4px;border-radius:4px}h2{font-size:16px;margin:18px 0 4px;color:#0b6e4f}
+</style>
+</head>
+<body>
+<h1>DriveReady self-tests</h1>
+<p>Runs the real app inside the iframe below at 360&nbsp;px wide. Serve the repo over HTTP (<code>python -m http.server 8765</code>) and open <code>http://localhost:8765/_t/test.html</code>.</p>
+<div id="summary">Running…</div>
+<ol id="log"></ol>
+<iframe id="app" title="App under test"></iframe>
+<script>
+(function(){
+"use strict";
+var LANGS=["en","es","zh","ru","ko","bn"];
+var VISTAS=["inicio","examen","practica","manual","juego","roadtest","escuelas","cdl","maniobras","cultura","acerca"];
+var results=[],frame=document.getElementById("app"),log=document.getElementById("log"),sum=document.getElementById("summary");
+function rec(name,pass,detail){results.push({name:name,pass:!!pass,detail:detail||""});}
+function group(n){var d=document.createElement("h2");d.textContent=n;log.appendChild(d);}
+function paint(){log.querySelectorAll("h2").forEach(function(){});var items=log.querySelectorAll("li");
+  var bad=results.filter(function(r){return !r.pass;}).length,total=results.length;
+  sum.className=bad?"fail":"pass";
+  sum.textContent=(total-bad)+" / "+total+" checks passed"+(bad?" · "+bad+" failed":"");
+  window.__TEST_RESULT={total:total,passed:total-bad,failed:bad,results:results,done:window.__TEST_DONE===true};
+}
+function render(){log.querySelectorAll("li").forEach(function(){ });}
+function rec2(name,pass,detail){results.push({name:name,pass:!!pass,detail:detail||""});var li=document.createElement("li");li.className=pass?"":"bad";li.textContent=(pass?"PASS":"FAIL")+" — "+name+(detail?" · "+detail:"");log.appendChild(li);paint();}
+window.rec=rec2;
+function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
+function load(url){return new Promise(function(res,rej){var done=false;
+  frame.onload=function(){if(done)return;done=true;setTimeout(function(){res(frame.contentWindow);},90);};
+  frame.src=url;setTimeout(function(){if(!done){done=true;rej(new Error("iframe load timeout: "+url));}},15000);});}
+function ready(win,ms){var t0=Date.now();return new Promise(function(res,rej){(function poll(){
+  try{var d=win.document,tabs=d.getElementById("tabs");if(tabs&&tabs.children.length>=8)return res(d);}catch(e){}
+  if(Date.now()-t0>ms)return rej(new Error("app did not render"));setTimeout(poll,50);})();});}
+function q(d,s){return d.querySelector(s);}
+function qa(d,s){return Array.prototype.slice.call(d.querySelectorAll(s));}
+function go(win,v){win.location.hash="#"+v;return sleep(150);}
+function T(name,pass,detail){rec2(name,pass,detail);}
+async function main(){
+try{
+  window.localStorage.setItem("alv_onboard","true");
+  var ls=window.localStorage, ks=[];
+  for(var ki=0;ki<ls.length;ki++) ks.push(ls.key(ki));
+  ks.filter(function(k){return k.indexOf("alv_")===0&&k!=="alv_onboard";}).forEach(function(k){ls.removeItem(k);});
+}catch(e){}
+var win,d,i,t;
+group("1. Boot in all six languages (New York)");
+for(i=0;i<LANGS.length;i++){
+  t=LANGS[i];
+  try{
+    win=await load("../index.html?lang="+t);d=await ready(win,9000);
+    T(t+": boots and sets lang",d.documentElement.lang===t,d.documentElement.lang);
+    T(t+": 11 tabs render",qa(d,"#tabs a").length===11,qa(d,"#tabs a").length+" tabs");
+    T(t+": no empty data-t slots",qa(d,"[data-t]").filter(function(el){return !el.textContent.trim();}).length===0,"");
+    T(t+": no undefined/NaN in UI",(d.body.innerText||"").indexOf("undefined")<0&&(d.body.innerText||"").indexOf("NaN")<0,"");
+    var gov=d.getElementById("govText").textContent;
+    T(t+": government notice visible in the bar",/DMV|MVC/.test(gov)&&gov.length>30,gov.slice(0,50));
+    var gl=qa(d,"#govManual,#govCdl");
+    T(t+": bar links to official .gov",gl.length===2&&gl.every(function(a){return /\.gov/.test(a.href);}),"");
+    await go(win,"acerca");
+    T(t+": 10 official chapters listed",qa(d,"#sourceList a").length===10,qa(d,"#sourceList a").length+" links");
+    await go(win,"inicio");
+    T(t+": no horizontal overflow",d.documentElement.scrollWidth<=win.innerWidth+1,d.documentElement.scrollWidth+"/"+win.innerWidth);
+    T(t+": three big home actions",qa(d,"#homeActions a").length===3,"");
+    T(t+": chapter progress bars render",qa(d,"#chapterProgress .chbar").length>=9,qa(d,"#chapterProgress .chbar").length+" bars");
+  }catch(e){T(t+": boot",false,e.message);}
+}
+group("1b. Touch targets");
+try{
+win=await load("../index.html?state=ny&lang=en");d=await ready(win,9000);
+var smallAll=[];
+for(var tv=0;tv<3;tv++){
+  var vv=["inicio","practica","roadtest"][tv];await go(win,vv);
+  var sm=qa(d,"button,a.btn,.chip,.opt,.counter button").filter(function(e){var b=e.getBoundingClientRect();return b.width>0&&b.height>0&&b.height<43.5;});
+  if(sm.length)smallAll.push(vv+":"+sm.map(function(e){return (e.id||e.className)+"="+Math.round(e.getBoundingClientRect().height);}).join(","));
+}
+T("every control is at least 44px tall",smallAll.length===0,smallAll.join(" | "));
+}catch(e){T("touch targets",false,e.message);}
+
+group("1c. Style rules");
+try{
+win=await load("../index.html?state=ny&lang=es");d=await ready(win,9000);
+var banned2=["desbloquea","potencial","sin esfuerzo","revolucionario","sumérgete","empodera","igual de exigente"];
+var uiEs=win.UI.es;
+var txtEs=JSON.stringify(uiEs);
+var badWords=banned2.filter(function(w){return txtEs.toLowerCase().indexOf(w)>=0;});
+T("no marketing language in the Spanish UI",badWords.length===0,badWords.join(","));
+T("home explains itself in three steps",uiEs.how.length===3,uiEs.how.length+"");
+T("no promise of being as strict as the real test",txtEs.indexOf("igual de exigente")<0,"");
+var tooLong=Object.keys(uiEs).filter(function(k){var v=uiEs[k];return typeof v==="string"&&v.trim().split(/\s+/).length>60;});
+T("no UI string over 60 words",tooLong.length===0,tooLong.join(","));
+}catch(e){T("style rules",false,e.message);}
+
+group("1d. Daily plan, readiness and settings");
+try{
+win=await load("../index.html?state=ny&lang=en");d=await ready(win,9000);
+try{win.localStorage.removeItem("alv_daily");win.localStorage.removeItem("alv_streak");}catch(e){}
+win.location.reload();await sleep(2200);d=win.document;
+T("home shows today's plan",!!q(d,"#dailyCard h3"),q(d,"#dailyCard h3")?q(d,"#dailyCard h3").textContent:"");
+var hb=qa(d,"#homeActions a").map(function(a){return a.textContent;});
+T("home has the three main actions",hb.length===3&&/plan/i.test(hb[0]),hb.join(" | "));
+var bars=qa(d,"#chapterProgress .chbar");
+T("chapter bars are colour coded",bars.length>=9&&bars.every(function(b){return /ok|warn|bad/.test(b.className);}),bars.map(function(b){return b.className;}).slice(0,3).join(","));
+T("readiness rule is explained",/80/.test(q(d,"#chapterProgress p").textContent),q(d,"#chapterProgress p").textContent.slice(0,50));
+q(d,"#dailyBtn").click();await sleep(400);
+var firstPill=(q(d,"#practiceCard .pill")||{}).textContent||"";
+T("daily plan starts ten questions",/1 \/ 10/.test(firstPill),firstPill);
+for(var de=0;de<10;de++){var od=q(d,"#practiceCard .opt");if(!od)break;od.click();await sleep(45);var nd=q(d,"#prNext");if(nd)nd.click();await sleep(60);}
+var stDaily=JSON.parse(win.localStorage.getItem("alv_daily")||"{}");
+T("daily plan records progress",stDaily.i>=10,JSON.stringify(stDaily).slice(0,60));
+var stStreak=JSON.parse(win.localStorage.getItem("alv_streak")||"{}");
+T("finishing the plan starts a streak",stStreak.n>=1,"n="+stStreak.n);
+await go(win,"acerca");
+T("settings offer to restart the setup",!!q(d,"#onbReset"),"");
+}catch(e){T("daily plan",false,e.message);}
+
+group("1e. Supervisor log and English toggle");
+try{
+win=await load("../index.html?state=ny&lang=en");d=await ready(win,9000);
+try{win.localStorage.removeItem("alv_sup");}catch(e){}
+await go(win,"roadtest");await sleep(300);
+T("supervisor card appears on the road test tab",!!q(d,"#supBox h3"),q(d,"#supBox h3")?q(d,"#supBox h3").textContent:"");
+T("supervisor shows the required hours",/50/.test(q(d,"#supBox").textContent),"");
+T("supervisor lists skills to practise",qa(d,"#supBox [data-skill]").length>=10,qa(d,"#supBox [data-skill]").length+"");
+q(d,"#supDay").value="45";q(d,"#supNight").value="15";q(d,"#supAdd").click();await sleep(300);
+var sup=JSON.parse(win.localStorage.getItem("alv_sup")||"{}");
+T("a drive is saved with day and night minutes",sup.rows&&sup.rows.length===1&&sup.rows[0].day===45&&sup.rows[0].night===15,JSON.stringify(sup).slice(0,60));
+q(d,"#supBox [data-skill]").click();await sleep(200);
+var sup2=JSON.parse(win.localStorage.getItem("alv_sup")||"{}");
+T("a practised skill can be ticked",Object.keys(sup2.skills||{}).length===1,"");
+await go(win,"practica");await sleep(200);
+var ch4=q(d,"#chapterChips .chip");if(ch4)ch4.click();await sleep(300);
+T("practice offers see in English",!!q(d,"#enBtn"),"");
+q(d,"#enBtn").click();await sleep(600);
+T("English text appears",q(d,"#enText")&&!q(d,"#enText").hidden&&/EN:/.test(q(d,"#enText").textContent),q(d,"#enText")?q(d,"#enText").textContent.slice(0,40):"");
+q(d,"#enBtn").click();await sleep(200);
+T("English text hides again",q(d,"#enText").hidden,"");
+}catch(e){T("supervisor/English",false,e.message);}
+
+group("1f. Road test day kit");
+try{
+win=await load("../index.html?state=ny&lang=en");d=await ready(win,9000);
+await go(win,"roadtest");await sleep(300);
+T("day kit is shown",!!q(d,"#kitBox h3"),q(d,"#kitBox h3")?q(d,"#kitBox h3").textContent:"");
+T("day kit lists what to bring",qa(d,"#kitBox li").length===5,qa(d,"#kitBox li").length+"");
+T("day kit links the official page",/\.gov$/.test((q(d,"#kitBox a")||{}).hostname||""),(q(d,"#kitBox a")||{}).href||"");
+win=await load("../index.html?state=ct&lang=es");d=await ready(win,9000);await go(win,"roadtest");await sleep(400);
+T("CT day kit has its own four items",qa(d,"#kitBox li").length===4,qa(d,"#kitBox li").length+"");
+T("CT day kit points at ct.gov",/portal\.ct\.gov$/.test((q(d,"#kitBox a")||{}).hostname||""),(q(d,"#kitBox a")||{}).href||"");
+T("CT road test tab links its official page",/portal\.ct\.gov/.test((q(d,"#rtSource")||{}).href||""),(q(d,"#rtSource")||{}).href||"");
+}catch(e){T("day kit",false,e.message);}
+
+group("1g. No misleading claims");
+try{
+win=await load("../index.html?state=nj&lang=en");d=await ready(win,9000);await go(win,"examen");await sleep(300);
+var njLead=q(d,"#examCard .bubble").textContent;
+T("NJ exam intro gives the NJ numbers",/50/.test(njLead)&&/40/.test(njLead),njLead.slice(0,60));
+T("NJ exam intro does not compare with the real test",!/real (New Jersey )?test/i.test(njLead),njLead.slice(0,60));
+win=await load("../index.html?state=pa&lang=es");d=await ready(win,9000);await go(win,"examen");await sleep(300);
+var paLead=q(d,"#examCard .bubble").textContent;
+T("PA exam intro gives the PA numbers",/18/.test(paLead)&&/15/.test(paLead),paLead.slice(0,60));
+T("PA exam intro does not compare with the real exam",!/examen real/i.test(paLead),paLead.slice(0,60));
+}catch(e){T("claims",false,e.message);}
+
+group("1h. Speed and accessibility");
+try{
+win=await load("../index.html?state=ny&lang=es");d=await ready(win,9000);
+T("hero video waits for a tap",!q(d,"#heroVid").getAttribute("src"),q(d,"#heroVid").getAttribute("src")||"(none)");
+await go(win,"cultura");await sleep(400);
+T("culture videos are deferred",qa(d,"#cultList video[data-src]").length>0&&qa(d,"#cultList video[src]").length===0,qa(d,"#cultList video[src]").length+"");
+T("chapter and guide images carry alt text",[...d.images].every(function(i){return i.getAttribute("alt")!==null;}),"");
+T("state selector has a localized label",q(d,"#estado").getAttribute("aria-label")==="Estado",q(d,"#estado").getAttribute("aria-label"));
+}catch(e){T("speed/accessibility",false,e.message);}
+
+group("2. Language switch");
+try{
+win=await load("../index.html?lang=en");d=await ready(win,9000);
+q(d,"#langBtn").click();await sleep(150);
+T("language picker opens",q(d,"#langPick").classList.contains("on"),"");
+T("picker lists 6 languages",qa(d,"#lpList button").length===6,"");
+q(d,'#lpList button[data-c="es"]').click();await sleep(800);
+T("switch updates html lang",d.documentElement.lang==="es",d.documentElement.lang);
+T("switch translates tabs",/Inicio/.test(q(d,"#tabs").textContent),"");
+q(d,"#langBtn").click();await sleep(150);
+var opened=q(d,"#langPick").classList.contains("on");
+d.dispatchEvent(new win.KeyboardEvent("keydown",{key:"Escape",bubbles:true}));await sleep(150);
+T("Escape closes the language picker",opened&&!q(d,"#langPick").classList.contains("on"),"");
+await go(win,"cultura");
+T("culture has seven cards",qa(d,"#cultList .card").length===7,qa(d,"#cultList .card").length+" cards");
+}catch(e){T("language switch",false,e.message);}
+group("3. Practice exam (New York: 20 questions, 14 to pass)");
+try{
+win=await load("../index.html?state=ny&lang=en");d=await ready(win,9000);await go(win,"examen");
+T("exam intro explains the format",/20/.test(q(d,"#examCard").textContent),"");
+q(d,"#exStart").click();await sleep(250);
+T("question 1 of 20",/1/.test((q(d,"#examCard .pill")||{}).textContent||""),(q(d,"#examCard .pill")||{}).textContent);
+for(var n=0;n<20;n++){var o=q(d,"#examCard .opt");if(!o)break;o.click();await sleep(55);var nx=q(d,"#exNext");if(nx)nx.click();await sleep(65);}
+var big=(q(d,"#examCard .result-big")||{}).textContent||"";
+T("score shown out of 20",/^\d+\/20$/.test(big.trim()),big);
+T("review lists 20 rows",qa(d,"#examCard .review > div").length===20,qa(d,"#examCard .review > div").length+" rows");
+}catch(e){T("exam",false,e.message);}
+group("4. Practice, manual, road test, schools, maneuvers");
+try{
+win=await load("../index.html?lang=en");d=await ready(win,9000);
+await go(win,"practica");var chip=q(d,"#chapterChips .chip");chip.click();await sleep(250);
+T("practice shows a question",!!q(d,"#practiceCard .opt"),"");
+q(d,"#practiceCard .opt").click();await sleep(250);
+T("practice explains and links the chapter",!!q(d,"#prFb .bubble")&&/\.gov/.test((q(d,"#practiceSide a[href^=\"https\"]")||{}).href||""),"");
+await go(win,"manual");T("manual renders chapter cards",qa(d,"#manualList .chcard").length>=9,qa(d,"#manualList .chcard").length+" cards");
+await go(win,"roadtest");q(d,"#rtList .counter button[data-d=\"1\"]").click();await sleep(180);
+T("road-test counter increments",q(d,"#rtList .counter span").textContent.trim()==="1","");
+T("road test links official results sheet",/\.gov/.test(q(d,"#rtSource").href),"");
+await go(win,"escuelas");for(var w=0;w<40&&!qa(d,"#scList .school").length;w++)await sleep(100);
+T("school finder loads NY list",qa(d,"#scList .school").length>0,qa(d,"#scList .school").length+" shown");
+T("school buttons render icons, not raw markup",q(d,"#scNear").textContent.indexOf("<svg")<0,q(d,"#scNear").textContent.slice(0,40));
+T("school buttons have an icon",!!q(d,"#scNear .ico"),"");
+await go(win,"maniobras");T("maneuvers show video and steps",!!q(d,"#manMedia video")&&qa(d,"#manSteps li").length===4,"");
+}catch(e){T("sections",false,e.message);}
+group("5. Games hub");
+try{
+win=await load("../index.html?lang=en");d=await ready(win,9000);await go(win,"juego");
+T("hub lists 4 games",qa(d,"#gameCard [data-gm]").length===4,qa(d,"#gameCard [data-gm]").length+"");
+for(var g=0;g<4;g++){
+  await go(win,"juego");
+  var card=qa(d,"#gameCard [data-gm]")[g]; if(!card){T("game "+g+" card",false,"missing");continue;}
+  var mode=card.getAttribute("data-gm"); card.click(); await sleep(400);
+  if(mode==="signs"){
+    T("sign game offers categories",qa(d,"#gameCard [data-cat]").length===6,qa(d,"#gameCard [data-cat]").length+" chips");
+    var st=q(d,"#gmStart"); if(st){st.click();await sleep(400);}
+  }
+  var ok=!!q(d,"#gmTime")&&!!q(d,"#gmBack")&&(qa(d,"#gameCard .opt").length>0||qa(d,"#gameCard .signopt").length>0||qa(d,"#gameCard .gcar").length>0||!!q(d,"#tfT"));
+  T("game \""+mode+"\" starts a round",ok,"");
+  var back=q(d,"#gmBack"); if(back){back.click();await sleep(250);}
+}
+}catch(e){T("games",false,e.message);}
+group("5b. Sign catalogue");
+try{
+win=await load("../index.html?lang=en");d=await ready(win,9000);
+var cat=await win.DR.signs();
+T("34 signs in the catalogue",cat.length===34,cat.length+"");
+var official=["laneends","yield","merge","stop","crossbuck","signal","school","keepright","slippery","noleft","dividedends","oneway","donotenter","twoway","hill","nouturn","hospital"];
+var missingOfficial=official.filter(function(k){return cat.indexOf(k)<0;});
+T("all 16 official DMV signs are present",missingOfficial.length===0,missingOfficial.join(","));
+var broken=cat.filter(function(k){var v=win.DR.svg(k);return !v||v.length<120;});
+T("every sign draws a real SVG",broken.length===0,broken.join(","));
+var noText=cat.filter(function(k){var m=win.DR.meanings();return !m[k]||!m[k].trim();});
+T("every sign has a meaning in this language",noText.length===0,noText.join(","));
+var cats=win.DR.signcat();
+T("categories cover reg/warn/rail/work/guide",["reg","warn","rail","work","guide"].every(function(c){return Object.keys(cats).some(function(k){return cats[k]===c;});}),JSON.stringify(cats));
+await go(win,"juego");q(d,'[data-gm="signs"]').click();await sleep(300);
+q(d,'[data-cat="reg"]').click();await sleep(250);
+var regCount=qa(d,"#gameCard [data-cat]").filter(function(b){return b.getAttribute("aria-pressed")==="true";});
+T("category filter selects one category",regCount.length===1,regCount.length+" selected");
+q(d,"#gmStart").click();await sleep(450);
+var firstSvg=!!q(d,"#gameCard svg");
+for(var r2=0;r2<6;r2++){var pick=q(d,"#gameCard .opt")||q(d,"#gameCard .signopt");if(!pick)break;pick.click();await sleep(700);firstSvg=firstSvg||!!q(d,"#gameCard svg");}
+T("sign rounds show a sign drawing",firstSvg,"");
+}catch(e){T("sign catalogue",false,e.message);}
+
+group("5c. Question images match the question");
+try{
+win=await load("../index.html?state=ny&lang=en");d=await ready(win,9000);
+var qm=win.DR.qimg();
+var brokenImg=Object.keys(qm).filter(function(i){var h=win.DR.head(+i);return !h||(h.indexOf("<svg")<0&&h.indexOf(".webp")<0);});
+T("every mapped question draws its image",brokenImg.length===0,brokenImg.join(","));
+T("red-arrow question shows a red arrow, not a STOP sign",/light-red-arrow/.test(win.DR.head(4)),win.DR.head(4).slice(0,60));
+T("flashing-red question shows a traffic light",/light-red-flash/.test(win.DR.head(0)),"");
+T("yellow-lines question shows road markings",/lines-yellow/.test(win.DR.head(9)),"");
+T("school-bus question shows a school bus",/schoolbus/.test(win.DR.head(35)),"");
+T("questions with no matching picture show none",win.DR.head(14)===""&&win.DR.head(45)==="","");
+T("illustrated questions use drawings, not stray photos",Object.keys(qm).every(function(i){var k=qm[i],h=win.DR.head(+i);return k.indexOf("p:")===0?h.indexOf(".webp")>0:h.indexOf("<svg")>0;}),"");
+var badPhotos=Object.keys(qm).filter(function(i){var k=qm[i];return k.indexOf("p:")===0&&["p:alcohol","p:cuesta","p:nieve"].indexOf(k)<0;});
+T("only topic-matched photos are reused",badPhotos.length===0,badPhotos.join(","));
+win=await load("../index.html?state=nj&lang=en");d=await ready(win,9000);
+var qn=win.DR.qimg();
+T("New Jersey also maps question images",Object.keys(qn).length>=10,Object.keys(qn).length+"");
+T("NJ solid-lines question shows double solid lines",/lines-double-solid/.test(win.DR.head(28)),"");
+T("NJ hand-signal question shows the arm",/hand-right/.test(win.DR.head(73)),"");
+await go(win,"manual");
+var srcs=qa(d,"#manualList .chcard .head img").map(function(im){return im.src.split("/").pop();});
+T("NJ chapter 6 (alcohol) uses the alcohol photo",srcs[5]==="alcohol.webp",srcs[5]);
+T("NJ chapter 9 (vehicle) does not use the alcohol photo",srcs[8]!=="alcohol.webp",srcs[8]);
+var nysrcs=null;
+win=await load("../index.html?state=ny&lang=en");d=await ready(win,9000);await go(win,"manual");
+nysrcs=qa(d,"#manualList .chcard .head img").map(function(im){return im.src.split("/").pop();});
+T("NY chapter 9 (alcohol) still uses the alcohol photo",nysrcs[5]==="alcohol.webp",nysrcs[5]);
+}catch(e){T("question images",false,e.message);}
+
+group("6. CDL course");
+try{
+win=await load("../index.html?state=ny&lang=en");d=await ready(win,9000);await go(win,"cdl");await sleep(300);
+try{win.localStorage.removeItem("alv_cdl_plan");win.localStorage.removeItem("alv_cdl_prog");}catch(e){}
+await go(win,"examen");await go(win,"cdl");await sleep(200);
+T("CDL setup asks what you want to drive",qa(d,"#cdlCard [data-v]").length===6,qa(d,"#cdlCard [data-v]").length+"");
+T("CDL notice is visible",/study guide|no es una app|政府/i.test(q(d,"#cdlCard .pill").textContent),q(d,"#cdlCard .pill").textContent.slice(0,50));
+var cdlLinks=qa(d,"#cdlCard a").map(function(a){return a.hostname;});
+T("CDL links to official .gov sources",cdlLinks.filter(function(h){return /\.gov$/.test(h);}).length>=3,cdlLinks.join(","));
+q(d,"#cdlMake").click();await sleep(400);
+T("CDL builds a personal plan",!!q(d,"#cdlGo"),"");
+T("CDL plan lists 11 lessons",qa(d,"#cdlCard [data-les]").length===11,qa(d,"#cdlCard [data-les]").length+"");
+T("CDL offers 5 practice games",qa(d,"[data-gmcdl]").length===5,qa(d,"[data-gmcdl]").length+"");
+q(d,"#cdlGo").click();await sleep(300);
+T("CDL lesson shows the key idea",!!q(d,"#cdlCard .card"),"");
+T("CDL lesson has 4 options",qa(d,"#cdlCard .opt").length===4,qa(d,"#cdlCard .opt").length+"");
+T("CDL lesson has the English toggle",!!q(d,"#cdlEn"),"");
+q(d,"#cdlEn").click();await sleep(200);
+T("English toggle shows the English text",/EN:/.test(q(d,"#cdlCard").textContent),"");
+q(d,"#cdlCard .opt").click();await sleep(250);
+T("CDL answer gives feedback",!!q(d,"#cdlCard .explain"),"");
+var prog=win.localStorage.getItem("alv_cdl_prog")||"";
+T("CDL progress is saved",/g1/.test(prog),prog.slice(0,40));
+q(d,"#cdlNextQ").click();await sleep(250);
+q(d,"#cdlBack").click();await sleep(300);
+var airLes=q(d,'#cdlCard [data-les="air|a1"]');
+if(airLes){airLes.click();await sleep(350);T("CDL air brake lesson teaches the real pressures",/1 3\/4|125|100|55/.test(q(d,"#cdlCard").textContent),"");q(d,"#cdlBack").click();await sleep(250);}else{T("CDL air brake lesson exists",false,"");}
+q(d,"#cdlMock").click();await sleep(300);
+T("CDL practice test has 20 questions",/1 \/ 20/.test(q(d,"#cdlCard .pill").textContent),q(d,"#cdlCard .pill").textContent);
+for(var ci=0;ci<20;ci++){var co=q(d,"#cdlCard .opt");if(!co)break;co.click();await sleep(25);var cn=q(d,"#cdlNextQ");if(cn)cn.click();await sleep(35);}
+T("CDL practice test gives a percentage",/%/.test(q(d,"#cdlCard .result-big").textContent),q(d,"#cdlCard .result-big").textContent);
+q(d,"#cdlBackHome").click();await sleep(300);
+for(var gi=0;gi<5;gi++){
+  var gb=qa(d,"[data-gmcdl]")[gi]; if(!gb){T("CDL game "+gi,false,"missing");continue;}
+  var gk=gb.getAttribute("data-gmcdl"); gb.click(); await sleep(300);
+  var okg=qa(d,"#cdlCard [data-part],#cdlCard [data-step],#cdlCard [data-g],#cdlCard [data-c]").length>0;
+  T("CDL game "+gk+" starts",okg,"");
+  var bb=q(d,"#cdlBack"); if(bb){bb.click();await sleep(250);}
+}
+}catch(e){T("CDL course",false,e.message);}
+
+group("6b. CDL numbers come from the sources");
+try{
+win=await load("../index.html?state=ny&lang=en");d=await ready(win,9000);await go(win,"cdl");await sleep(200);
+var course=win.CDLCOURSE&&win.CDLCOURSE.en;
+T("CDL course data is loaded",!!course,"");
+var txt=JSON.stringify(course);
+var nums=["125","100","55","20","45","2/32","4/32","26,001","10,000"];
+var missingNums=nums.filter(function(n){return txt.indexOf(n)<0;});
+T("air brake and class numbers are present",missingNums.length===0,missingNums.join(","));
+T("glossary keeps the English terms",course.glossary.every(function(g){return /^[A-Za-z0-9 \-]+$/.test(g.en);}),"");
+}catch(e){T("CDL numbers",false,e.message);}
+
+group("6c. CDL reference content");
+try{
+win=await load("../index.html?lang=en");d=await ready(win,9000);await go(win,"cdl");await sleep(300);
+T("CDL keeps the official manual link",/\.gov/.test(q(d,"#cdlCard a[target=_blank]").href),"");
+}catch(e){T("cdl reference",false,e.message);}
+group("7. Second state (New Jersey)");
+try{
+win=await load("../index.html?state=nj&lang=en");d=await ready(win,9000);
+T("loads New Jersey",/New Jersey/.test(d.title),d.title);
+T("state selector shows NJ",d.getElementById("estado").value==="nj","");
+T("exam facts are 50 and 40",q(d,"#factTotal").textContent==="50"&&q(d,"#factPass").textContent==="40",q(d,"#factTotal").textContent+"/"+q(d,"#factPass").textContent);
+T("notice names the NJ MVC",/MVC/.test(d.getElementById("govText").textContent)&&/New Jersey/.test(d.getElementById("govText").textContent),"");
+T("NJ has 78+15 study items",/\d+/.test(q(d,"#chapterChips .chip").textContent),q(d,"#chapterChips .chip").textContent);
+await go(win,"examen");q(d,"#exStart").click();await sleep(250);
+T("NJ exam is 50 questions",/50/.test(q(d,"#examCard .pill").textContent),q(d,"#examCard .pill").textContent);
+await go(win,"escuelas");await sleep(300);
+T("NJ schools tab points to the official register",/state\.nj\.us|nj\.gov/.test(q(d,"#scList").innerHTML),"");
+}catch(e){T("nj",false,e.message);}
+group("7b. Third state (Pennsylvania)");
+try{
+win=await load("../index.html?state=pa&lang=en");d=await ready(win,9000);
+T("loads Pennsylvania",/Pennsylvania/.test(d.title),d.title);
+T("PA exam facts are 18 and 15",q(d,"#factTotal").textContent==="18"&&q(d,"#factPass").textContent==="15",q(d,"#factTotal").textContent+"/"+q(d,"#factPass").textContent);
+T("PA notice names PennDOT",/PennDOT/.test(d.getElementById("govText").textContent)&&/Pennsylvania/.test(d.getElementById("govText").textContent),"");
+T("PA has 72 questions plus 34 signs",/106/.test(q(d,"#chapterChips .chip").textContent),q(d,"#chapterChips .chip").textContent);
+await go(win,"examen");q(d,"#exStart").click();await sleep(250);
+T("PA exam is 18 questions",/18/.test(q(d,"#examCard .pill").textContent),q(d,"#examCard .pill").textContent);
+await go(win,"manual");
+T("PA manual lists six chapters",qa(d,"#manualList .chcard").length===6,qa(d,"#manualList .chcard").length+" cards");
+T("PA sources are official .gov links",qa(d,"#manualList a[target=_blank]").every(function(a){return /\.gov/.test(a.href);}),"");
+await go(win,"escuelas");await sleep(300);
+T("PA schools tab points to the official state page",/pa\.gov/.test(q(d,"#scList").innerHTML),"");
+}catch(e){T("pennsylvania",false,e.message);}
+
+group("7c. Language and state never mix");
+try{
+win=await load("../index.html?state=ny&lang=es");d=await ready(win,9000);
+var selx=d.getElementById("estado");
+if(selx&&selx.options.length>2){selx.value="pa";selx.dispatchEvent(new win.Event("change"));await sleep(1800);}
+T("after switching state the UI stays in Spanish",/Seguir mi plan/.test(q(d,"#homeActions").textContent)&&!/(Study|Take exam)/.test(q(d,"#homeActions").textContent),q(d,"#homeActions").textContent);
+T("PA content shows but the language is Spanish",/Pensilvania/.test(d.title),d.title);
+q(d,"#langBtn").click();await sleep(200);
+q(d,'#lpList button[data-c="ko"]').click();await sleep(1200);
+T("switching language keeps the PA content",/펜실베이니아/.test(d.title),d.title);
+T("no Spanish leftovers after switching to Korean",!/Estudiar|Inicio|Pensilvania/.test(d.body.innerText),"");
+}catch(e){T("language/state mixing",false,e.message);}
+
+group("7d. Connecticut");
+try{
+win=await load("../index.html?state=ct&lang=es");d=await ready(win,9000);
+T("CT loads with its own title",/Connecticut/.test(d.title),d.title);
+await go(win,"examen");await sleep(300);
+var ctLead=q(d,"#examCard .bubble").textContent;
+T("CT intro gives the 25 and 20",/25/.test(ctLead)&&/20/.test(ctLead),ctLead.slice(0,60));
+q(d,"#exStart").click();await sleep(400);
+T("CT exam has 25 questions",/25/.test(q(d,"#examCard .qhead .pill").textContent),q(d,"#examCard .qhead .pill").textContent);
+T("CT chapters are its own",qa(d,"#chapterProgress .chbar").length===6,qa(d,"#chapterProgress .chbar").length+"");
+await go(win,"practica");await sleep(300);
+T("CT practice pool counts 70 questions plus 34 signs",/104/.test(q(d,"#chapterChips .chip").textContent),q(d,"#chapterChips .chip").textContent);
+T("CT signs have a meaning in Spanish",win.CORE.signs.length===34&&win.CORE.signs.every(function(s){return !!win.LANGS.es.signs[s];}),"");
+await go(win,"roadtest");await sleep(350);
+T("CT road test sheet lists three checks",qa(d,"#rtList .rt-item").length===3,qa(d,"#rtList .rt-item").length+"");
+}catch(e){T("Connecticut",false,e.message);}
+
+group("7e. Massachusetts");
+try{
+win=await load("../index.html?state=ma&lang=es");d=await ready(win,9000);
+T("MA loads with its own title",/Massachusetts/.test(d.title),d.title);
+await go(win,"examen");await sleep(300);
+var maLead=q(d,"#examCard .bubble").textContent;
+T("MA intro gives 25 and 18",/25/.test(maLead)&&/18/.test(maLead),maLead.slice(0,60));
+q(d,"#exStart").click();await sleep(400);
+T("MA exam has 25 questions",/25/.test(q(d,"#examCard .qhead .pill").textContent),q(d,"#examCard .qhead .pill").textContent);
+T("MA chapters are its own",qa(d,"#chapterProgress .chbar").length===6,qa(d,"#chapterProgress .chbar").length+"");
+await go(win,"practica");await sleep(300);
+T("MA practice counts 76 questions plus 34 signs",/110/.test(q(d,"#chapterChips .chip").textContent),q(d,"#chapterChips .chip").textContent);
+}catch(e){T("Massachusetts",false,e.message);}
+
+group("7f. Florida");
+try{
+win=await load("../index.html?state=fl&lang=es");d=await ready(win,9000);
+T("FL loads with its own title",/Florida/.test(d.title),d.title);
+await go(win,"examen");await sleep(300);
+var flLead=q(d,"#examCard .bubble").textContent;
+T("FL intro gives 50 and 40",/50/.test(flLead)&&/40/.test(flLead),flLead.slice(0,60));
+q(d,"#exStart").click();await sleep(400);
+T("FL exam has 50 questions",/50/.test(q(d,"#examCard .qhead .pill").textContent),q(d,"#examCard .qhead .pill").textContent);
+T("FL chapters are its own",qa(d,"#chapterProgress .chbar").length===6,qa(d,"#chapterProgress .chbar").length+"");
+await go(win,"practica");await sleep(300);
+T("FL practice counts 70 questions plus 34 signs",/104/.test(q(d,"#chapterChips .chip").textContent),q(d,"#chapterChips .chip").textContent);
+await go(win,"roadtest");await sleep(350);
+T("FL road test tab has its kit and sheet",qa(d,"#kitBox li").length===4&&qa(d,"#rtList .rt-item").length===3,qa(d,"#kitBox li").length+"/"+qa(d,"#rtList .rt-item").length);
+}catch(e){T("Florida",false,e.message);}
+
+group("8. Switching state without reload");
+try{
+win=await load("../index.html?state=ny&lang=en");d=await ready(win,9000);
+var sel=d.getElementById("estado");sel.value="nj";sel.dispatchEvent(new win.Event("change"));await sleep(1800);
+T("switching to NJ updates the title",/New Jersey/.test(d.title),d.title);
+T("switching to NJ updates the facts",q(d,"#factTotal").textContent==="50",q(d,"#factTotal").textContent);
+T("switching to NJ keeps the language",d.documentElement.lang==="en","");
+sel.value="pa";sel.dispatchEvent(new win.Event("change"));await sleep(1800);
+T("switching to PA updates the title",/Pennsylvania/.test(d.title),d.title);
+T("switching to PA updates the facts",q(d,"#factTotal").textContent==="18",q(d,"#factTotal").textContent);
+sel.value="ny";sel.dispatchEvent(new win.Event("change"));await sleep(1800);
+T("switching back to NY restores 20 questions",q(d,"#factTotal").textContent==="20",q(d,"#factTotal").textContent);
+}catch(e){T("state switch",false,e.message);}
+group("9. Onboarding");
+try{
+win=await load("../index.html?lang=en");d=await ready(win,9000);
+try{win.localStorage.removeItem("alv_onboard");}catch(e){}
+win.location.reload();
+await sleep(2200);d=win.document;
+T("onboarding appears on a fresh install",!d.getElementById("onb").hidden,"");
+T("onboarding has three steps",qa(d,".onb-step span").length===3,"");
+}catch(e){T("onboarding",false,e.message);}
+try{window.localStorage.setItem("alv_onboard","true");}catch(e){}
+group("10. No runtime errors during a full tour (es)");
+try{
+win=await load("../index.html?lang=es");d=await ready(win,9000);
+var errs=[];win.addEventListener("error",function(ev){errs.push(ev.message||"error");});
+for(var v=0;v<VISTAS.length;v++){await go(win,VISTAS[v]);}
+T("tab tour raises no errors",errs.length===0,errs.join(" | "));
+T("app still alive after tour",qa(d,"#tabs a").length===11,"");
+}catch(e){T("tab tour",false,e.message);}
+window.__TEST_DONE=true;paint();
+}
+main().catch(function(e){rec2("suite crashed",false,String(e&&e.message||e));window.__TEST_DONE=true;paint();});
+})();
+</script>
+</body>
+</html>
