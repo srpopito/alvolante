@@ -285,7 +285,7 @@ function ir(){
   if(v==="escuelas") pintarEscuelas();
   if(v==="cdl") pintarCdl();
   var hv=$("heroVid"), calm=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if(hv){ if(v==="inicio"&&!calm){ if(!hv.dataset.armed){ hv.dataset.armed="1"; var armVid=function(){ if(!hv.getAttribute("src")) hv.setAttribute("src","clips/portada.mp4"); var p=hv.play(); if(p&&p.catch)p.catch(function(){}); window.removeEventListener("pointerdown",armVid); window.removeEventListener("keydown",armVid); }; window.addEventListener("pointerdown",armVid); window.addEventListener("keydown",armVid); window.addEventListener("scroll",armVid); } } else hv.pause(); }
+  if(hv){ if(v==="inicio"&&!calm){ if(!hv.dataset.armed){ hv.dataset.armed="1"; var armVid=function(){ if(!hv.getAttribute("src")) hv.setAttribute("src","clips/portada.mp4"); hv.hidden=false; if($("heroImg"))$("heroImg").hidden=true; var p=hv.play(); if(p&&p.catch)p.catch(function(){}); window.removeEventListener("pointerdown",armVid); window.removeEventListener("keydown",armVid); }; window.addEventListener("pointerdown",armVid); window.addEventListener("keydown",armVid); window.addEventListener("scroll",armVid); } } else hv.pause(); }
   if(TTS) TTS.cancel();
   window.scrollTo(0,0);
 }

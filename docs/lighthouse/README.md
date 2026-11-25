@@ -1,39 +1,30 @@
 # Rendimiento y accesibilidad
 
-Medición del 24 de noviembre de 2026 sobre `index.html?state=ny&lang=es` (Chrome headless, 390 × 844, sin caché).
+Medición con **Lighthouse 12** (instalado con npm desde el registro y ejecutado por API con el Node del sistema), sobre un servidor local **con compresión brotli**.
 
-## Lo medido
+| Categoría | Móvil | Escritorio | Objetivo |
+|---|---|---|---|
+| Rendimiento | **83** | **89** | ≥ 85 |
+| Accesibilidad | **100** | **100** | ≥ 95 |
+| Buenas prácticas | **100** | **100** | ≥ 95 |
+| SEO | **100** | **100** | ≥ 90 |
 
-| Métrica | Resultado | Objetivo |
-|---|---|---|
-| Peso de la carga inicial | **523 KB** | menos de 1,5 MB ✅ |
-| Errores de consola | **0** | 0 ✅ |
-| Imágenes sin `alt` | **0** | 0 ✅ |
-| Contraste del texto | **15,4:1** | AA 4,5:1 ✅ |
-| Contraste del texto atenuado | **7,25:1** | AA 4,5:1 ✅ |
-| `lang` en `<html>` | **es** (cambia con el idioma) | dinámico ✅ |
-| Un solo `h1` | **1** | 1 ✅ |
-| Nodos del DOM | **1 186** | menos de 1 500 ✅ |
-| Fuentes | **propias, 5 archivos, 109 KB** | sin terceros ✅ |
-| Vídeos | portada al primer toque; cultura al hacer clic | diferidos ✅ |
+Informes completos: `mobile.report.html`, `desktop.report.html`, con su JSON al lado.
 
-El peso bajó de **1,58 MB a 523 KB** al pasar las fuentes a locales y diferir los tres vídeos que se descargaban en la portada.
+## Lo que se corrigió para llegar aquí
 
-## Lighthouse
+- **Peso inicial 1,58 MB → 523 KB**: fuentes propias y vídeos diferidos.
+- **Accesibilidad 93 → 100**: `aria-label` en el diálogo de inicio, contraste del enlace del aviso (era 1,42:1) y altura reservada de la barra.
+- **LCP 4,0 s → 2,0 s**: la portada es una imagen con `fetchpriority=high` precargada, visible desde el HTML; el vídeo sigue cargándose al primer toque.
+- **CLS**: se reservaron las alturas de cabecera, pestañas, aviso y tarjeta del plan, y se corrigió `#onb[hidden]` (el CSS anulaba el atributo `hidden`).
 
-**No se pudo ejecutar**: este equipo no tiene `npm` ni `lighthouse` instalados. No he inventado las notas.
+## Nota sobre el CLS
 
-Comando exacto para Cristian (con Chrome ya presente):
+Lighthouse sigue anotando 0,31 de CLS en móvil, pero una medición directa con `PerformanceObserver` a 412 × 823 da **0,000**. La diferencia parece del entorno de Lighthouse (primea la página antes de aplicar el viewport). Se deja anotado para no dar por bueno un número que la propia app no reproduce.
+
+## Repetir la medición
 
 ```powershell
-npm i -g lighthouse
-lighthouse http://127.0.0.1:8765/index.html?state=ny&lang=en --only-categories=performance,accessibility,best-practices,seo --preset=desktop --output=html --output-path=docs/lighthouse/lighthouse.html --chrome-flags="--headless=new"
+node .audit/lh/run-lh.mjs http://127.0.0.1:8774/index.html docs/lighthouse/mobile mobile
+node .audit/lh/run-lh.mjs http://127.0.0.1:8774/index.html docs/lighthouse/desktop desktop
 ```
-
-Con `--preset=desktop` y, aparte, sin él para móvil. Las capturas van a `docs/lighthouse/`.
-
-## Service worker
-
-- Versión **`alv-v17`**.
-- Comprobado: sin conexión, tras recargar, la app abre y carga el kit del día (62 archivos en caché la versión anterior; con las fuentes son 67).
-- Se actualiza sola al publicar (`skipWaiting` + `clients.claim`).

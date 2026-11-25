@@ -10,11 +10,11 @@
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <style>
-@font-face{font-family:'Barlow';font-style:normal;font-weight:400;font-display:swap;src:url(fonts/Barlow-400.woff2) format('woff2')}
-@font-face{font-family:'Barlow';font-style:normal;font-weight:500;font-display:swap;src:url(fonts/Barlow-500.woff2) format('woff2')}
-@font-face{font-family:'Barlow';font-style:normal;font-weight:600;font-display:swap;src:url(fonts/Barlow-600.woff2) format('woff2')}
-@font-face{font-family:'Barlow Condensed';font-style:normal;font-weight:600;font-display:swap;src:url(fonts/BarlowCondensed-600.woff2) format('woff2')}
-@font-face{font-family:'Barlow Condensed';font-style:normal;font-weight:700;font-display:swap;src:url(fonts/BarlowCondensed-700.woff2) format('woff2')}
+@font-face{font-family:'Barlow';font-style:normal;font-weight:400;font-display:optional;src:url(fonts/Barlow-400.woff2) format('woff2')}
+@font-face{font-family:'Barlow';font-style:normal;font-weight:500;font-display:optional;src:url(fonts/Barlow-500.woff2) format('woff2')}
+@font-face{font-family:'Barlow';font-style:normal;font-weight:600;font-display:optional;src:url(fonts/Barlow-600.woff2) format('woff2')}
+@font-face{font-family:'Barlow Condensed';font-style:normal;font-weight:600;font-display:optional;src:url(fonts/BarlowCondensed-600.woff2) format('woff2')}
+@font-face{font-family:'Barlow Condensed';font-style:normal;font-weight:700;font-display:optional;src:url(fonts/BarlowCondensed-700.woff2) format('woff2')}
 
 /* Señalización vial: verde de autopista, amarillo de aviso, asfalto en oscuro. Fuente por idioma en --body. */
 :root{--fs-sm:14px;--fs-md:16px;--fs-lg:20px;--fs-xl:28px;--sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:24px;--sp-6:32px;--radius:12px;--t-fast:180ms;--shadow:0 1px 2px rgba(0,0,0,.06),0 2px 8px rgba(0,0,0,.04);--bg:#f4f6f3;--surface:#fff;--ink:#17201b;--muted:#5b6660;--line:#d9dfda;--accent:#0b6e4f;--accent-ink:#fff;--warn:#f2b705;--ok:#1d7a3a;--bad:#b3261e;
@@ -28,14 +28,14 @@ button,select{font:inherit;color:inherit}button{cursor:pointer}
 :focus-visible{outline:3px solid var(--warn);outline-offset:2px}
 img,video{max-width:100%;display:block}
 .wrap{max-width:980px;margin:0 auto;padding:0 16px}
-header.top{background:var(--accent);color:var(--accent-ink);padding-top:env(safe-area-inset-top)}
+header.top{min-height:86px;background:var(--accent);color:var(--accent-ink);padding-top:env(safe-area-inset-top)}
 header.top .wrap{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding-top:10px;padding-bottom:10px}
 .brand{display:flex;align-items:center;gap:10px}.brand h1{font-size:26px;line-height:1;font-family:var(--display)!important}
 .brand small{display:block;font-size:13px;opacity:.88}
 .controls{display:flex;gap:8px;align-items:center}
 .controls select,.controls button{border:1px solid rgba(255,255,255,.55);background:rgba(255,255,255,.12);border-radius:8px;padding:6px 10px;min-height:44px}
 .controls select option{color:#17201b}
-nav.tabs{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+nav.tabs{min-height:47px;background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
 nav.tabs .wrap{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
 nav.tabs a{padding:12px 11px;color:var(--muted);text-decoration:none;font-weight:600;white-space:nowrap;border-bottom:3px solid transparent}
 nav.tabs a[aria-current=page]{color:var(--ink);border-bottom-color:var(--warn)}
@@ -45,6 +45,7 @@ main{padding:18px 0 40px}section.view{display:none}section.view.on{display:block
 .opt.right .ico{animation:pop var(--t-fast) ease-out}
 @keyframes pop{from{transform:scale(.6);opacity:.4}to{transform:scale(1);opacity:1}}
 .grid{display:grid;gap:14px}.g2{grid-template-columns:repeat(auto-fit,minmax(270px,1fr))}
+#dailyCard{min-height:214px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:var(--sp-4);overflow:hidden;box-shadow:var(--shadow)}
 .card h2{font-size:24px;margin-bottom:6px}.card h3{font-size:20px;margin-bottom:4px}
 .muted{color:var(--muted)}.small{font-size:14px}
@@ -160,16 +161,17 @@ main{padding:18px 0 40px}section.view{display:none}section.view.on{display:block
 .chcard h3{font-size:22px}.chcard .head{display:flex;gap:12px;align-items:center;margin:-16px -16px 12px;padding:0}.chcard .head img{width:100%;aspect-ratio:21/7;object-fit:cover}
 footer{border-top:1px solid var(--line);padding:16px 0 30px;color:var(--muted);font-size:13px}footer a{color:var(--accent)}
 /* Aviso legal: visible siempre, en todos los estados e idiomas (política de Google Play). */
-.govbar{background:color-mix(in srgb,var(--warn) 16%,var(--surface));border-bottom:1px solid var(--line);font-size:12.5px;line-height:1.45;color:var(--ink)}
+.govbar{height:104px;overflow:hidden;background:color-mix(in srgb,var(--warn) 16%,var(--surface));border-bottom:1px solid var(--line);font-size:12.5px;line-height:1.45;color:var(--ink)}
 .govbar .wrap{padding:8px 16px;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline}
 .govbar span{flex:1 1 320px;min-width:200px}
-.govbar a{color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:2px}
+.govbar a{color:#f3f7ee;font-weight:600;text-decoration:underline;text-underline-offset:2px}
 .govbar b{font-weight:700}
 @media (max-width:440px){.brand small{display:none}.qtext{font-size:17px}.facts{grid-template-columns:1fr 1fr 1fr}.fact b{font-size:22px}}
 </style>
+<link rel="preload" as="image" href="img/portada.webp" fetchpriority="high">
 </head>
 <body>
-<div id="onb" role="dialog" aria-modal="true" hidden>
+<div id="onb" role="dialog" aria-modal="true" aria-label="DriveReady setup" hidden>
   <div class="onb-card"><div id="onbBody"></div></div>
 </div>
 <div id="langPick" role="dialog" aria-modal="true" aria-label="Language">
@@ -189,13 +191,13 @@ footer{border-top:1px solid var(--line);padding:16px 0 30px;color:var(--muted);f
 </div></header>
 <nav class="tabs" aria-label="Menu"><div class="wrap" id="tabs"></div></nav>
 <div class="govbar"><div class="wrap">
-  <span id="govText"></span>
-  <a id="govManual" target="_blank" rel="noopener"></a>
-  <a id="govCdl" target="_blank" rel="noopener"></a>
+  <span id="govText">Not a government app. DriveReady is independent and is not affiliated with, endorsed by or representing the DMV of any state.</span>
+  <a id="govManual" target="_blank" rel="noopener" href="https://dmv.ny.gov/driver-license/drivers-manual-practice-tests">Official driver manual ↗</a>
+  <a id="govCdl" target="_blank" rel="noopener" href="https://dmv.ny.gov/commercial-drivers">CDL manual ↗</a>
 </div></div>
 <main class="wrap">
-  <section class="view" id="inicio">
-    <div class="hero"><video id="heroVid" muted loop playsinline preload="none" poster="img/portada.webp"></video>
+  <section class="view on" id="inicio">
+    <div class="hero"><img id="heroImg" src="img/portada.webp" alt="" width="640" height="360" fetchpriority="high"><video id="heroVid" muted loop playsinline preload="none" poster="img/portada.webp" hidden></video>
       <div class="cap"><h2 data-t="homeTitle"></h2><span class="free" data-t="freeLine"></span></div></div>
     <div class="card" id="dailyCard" style="margin-bottom:14px"></div>
     <div class="grid g2">
