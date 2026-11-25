@@ -16,6 +16,12 @@ Requisitos para menores: https://www.flhsmv.gov/driver-licenses-id-cards/licensi
 | **Curso DETS/TLSAE antes del permiso** | «Proof of Driver Education Traffic Safety (DETS) course completion.» |
 | **Sin condenas por infracciones durante un año** | «NO moving violation convictions for one year from learner's license date of issuance…» |
 
+| Manual oficial (PDF) | https://www.flhsmv.gov/pdf/handbooks/englishdriverhandbook.pdf |
+| **Giro a la derecha en rojo: alto total y mirar** | handbook | «Always stop before turning right on red and look both ways for pedestrians in the crosswalk.» |
+| **Move Over ampliado** | handbook | «Expands the Move Over Law to include moving over for: A disabled motor vehicle that is stopped and displaying warning lights or hazard lights…» |
+| **Multa por no parar al autobús escolar** | handbook | «…is subject to a $100 fine.» |
+| **Distracciones al volante** | handbook | «…talking on a cell phone; watching an object, person, or event outside of the vehicle; reaching for an object; interacting with passengers; eating or drinking…» |
+
 ## Nota para la app
 
 Que el examen oficial sea **solo en inglés** refuerza el interruptor «ver en inglés»: la app puede traducir el estudio, pero el examen real se hace en inglés.
